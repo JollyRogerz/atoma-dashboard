@@ -9,16 +9,17 @@ import { toast } from "sonner";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { useEffect, useState } from "react";
 import { useCurrentAccount, useCurrentWallet } from "@mysten/dapp-kit";
-import { getUserProfile } from "@/lib/api";
+import { getUserProfile, saveUserProfile } from "@/lib/api";
 import ZkLogin from "@/lib/zklogin";
-import { disconnectWallet } from "@/lib/wallet";
 
 export default function SettingsPage() {
   const [userProfile, setUserProfile] = useState({ email: "" });
   const { settings, updateSettings, updateZkLoginSettings } = useSettings();
+  const { settings, updateSettings, updateZkLoginSettings } = useSettings();
   const [loggedIn, setLoggedIn] = useState(false);
   const [address, setAddress] = useState<string>();
   const account = useCurrentAccount();
+  const wallet = useCurrentWallet();
   const wallet = useCurrentWallet();
 
   useEffect(() => {
@@ -41,8 +42,20 @@ export default function SettingsPage() {
   }, [settings.loggedIn, account]);
 
   const handleDisconnectWallet = () => {
-    disconnectWallet(wallet, settings, updateZkLoginSettings);
+    if (wallet.disconnect) wallet.disconnect();
+    // If we're using ZkLogin, disconnect that too
+    if (settings.zkLogin.isEnabled) {
+      const zkLogin = new ZkLogin();
+      zkLogin.disconnect(updateZkLoginSettings);
+    }
     setAddress(undefined);
+    
+    // Clear wallet connection from localStorage to prevent auto-reconnect on page reload
+    localStorage.removeItem('suiWallet');
+    localStorage.removeItem('sui:preferredWallet');
+    
+    // Force reload to ensure wallet state is completely reset
+    window.location.reload();
   };
 
   return (
@@ -66,6 +79,15 @@ export default function SettingsPage() {
               <div className="space-y-2">
                 <Label htmlFor="wallet">Wallet Address</Label>
                 <Input id="wallet" value={address || ""} readOnly className="bg-muted" disabled={!loggedIn} />
+                {address && (
+                  <Button 
+                    variant="destructive" 
+                    className="mt-4"
+                    onClick={handleDisconnectWallet}
+                  >
+                    Disconnect Wallet
+                  </Button>
+                )}
                 {address && (
                   <Button 
                     variant="destructive" 

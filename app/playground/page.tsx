@@ -6,8 +6,7 @@ import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Send, Trash2, Square } from "lucide-react";
-import { BackgroundGrid } from "@/components/background-grid";
+import { Send } from "lucide-react";
 import { ApiUsageDialog } from "@/components/api-usage-dialog";
 import { ParametersSidebar } from "@/components/parameters-sidebar";
 import { Separator } from "@/components/ui/separator";
@@ -258,8 +257,8 @@ export default function PlaygroundPage() {
   };
 
   return (
-    <div className="h-screen overflow-hidden">
-      <div className="h-[calc(100vh-64px)] overflow-hidden">
+    <div className="relative min-h-screen w-full overflow-hidden">
+      <div className="relative z-10 h-[calc(100vh-6rem)] overflow-hidden">
         <div className="h-full p-4 grid grid-cols-[1fr,400px] gap-4">
           <Card className="flex flex-col overflow-hidden bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
             {/* Header Section */}
