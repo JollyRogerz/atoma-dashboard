@@ -22,7 +22,8 @@ import { ThemeToggle } from "@/components/ui/theme-toggle";
 import AuthForm from "@/components/AuthForm";
 import { getUserProfile } from "@/lib/api";
 import { useAppState } from "@/contexts/app-state";
-import { useCurrentWallet } from "@mysten/dapp-kit";
+import { useCurrentWallet, useDisconnectWallet } from "@mysten/dapp-kit";
+import { ConnectModal } from "@mysten/dapp-kit";
 import ZkLogin from "@/lib/zklogin";
 
 export function TopNav() {
@@ -33,7 +34,8 @@ export function TopNav() {
   const [showAuthForm, setShowAuthForm] = useState(false);
   const [authType, setAuthType] = useState("login");
   const [username, setUsername] = useState("user");
-  const wallet = useCurrentWallet();
+  const { connectionStatus } = useCurrentWallet();
+  const { mutate: disconnect } = useDisconnectWallet();
 
   const handleAuth = (type: string) => {
     setAuthType(type);
@@ -77,6 +79,14 @@ export function TopNav() {
   useEffect(() => {
     setShowAuthForm(state.showLogin);
   }, [state.showLogin]);
+
+  const handleDisconnect = () => {
+    disconnect();
+    if (settings.zkLogin.isEnabled) {
+      const zkLogin = new ZkLogin();
+      zkLogin.disconnect(updateZkLoginSettings);
+    }
+  };
 
   return (
     <header className="sticky top-0 z-30 border-b bg-background dark:bg-darkMode">
@@ -127,12 +137,8 @@ export function TopNav() {
                     <ThemeToggle />
                   </div>
                 </DropdownMenuItem>
-                {(wallet.connectionStatus === "connected" || settings.zkLogin.isEnabled) && (
-                  <DropdownMenuItem
-                    onClick={handleDisconnectWallet}
-                  >
-                    Disconnect Wallet
-                  </DropdownMenuItem>
+                {connectionStatus === "connected" && (
+                  <DropdownMenuItem onClick={handleDisconnect}>Disconnect Wallet</DropdownMenuItem>
                 )}
                 <DropdownMenuItem
                   onClick={() => {
