@@ -22,10 +22,8 @@ import { ThemeToggle } from "@/components/ui/theme-toggle";
 import AuthForm from "@/components/AuthForm";
 import { getUserProfile } from "@/lib/api";
 import { useAppState } from "@/contexts/app-state";
-import { useCurrentWallet, useDisconnectWallet } from "@mysten/dapp-kit";
-import { ConnectModal } from "@mysten/dapp-kit";
+import { useCurrentWallet } from "@mysten/dapp-kit";
 import ZkLogin from "@/lib/zklogin";
-import { LoginRegisterButton } from "./login-register-button";
 
 export function TopNav() {
   const pathname = usePathname();
@@ -35,8 +33,7 @@ export function TopNav() {
   const [showAuthForm, setShowAuthForm] = useState(false);
   const [authType, setAuthType] = useState("login");
   const [username, setUsername] = useState("user");
-  const { connectionStatus } = useCurrentWallet();
-  const { mutate: disconnect } = useDisconnectWallet();
+  const wallet = useCurrentWallet();
 
   const handleAuth = (type: string) => {
     setAuthType(type);
@@ -47,12 +44,20 @@ export function TopNav() {
     updateState({ showLogin: false });
   };
 
-  const handleDisconnect = () => {
-    disconnect();
+  const handleDisconnectWallet = () => {
+    if (wallet.disconnect) wallet.disconnect();
+    // If we're using ZkLogin, disconnect that too
     if (settings.zkLogin.isEnabled) {
       const zkLogin = new ZkLogin();
       zkLogin.disconnect(updateZkLoginSettings);
     }
+    
+    // Clear wallet connection from localStorage to prevent auto-reconnect on page reload
+    localStorage.removeItem('suiWallet');
+    localStorage.removeItem('sui:preferredWallet');
+    
+    // Force reload to ensure wallet state is completely reset
+    window.location.reload();
   };
 
   useEffect(() => {
@@ -74,6 +79,8 @@ export function TopNav() {
   }, [state.showLogin]);
 
   return (
+    <header className="sticky top-0 z-30 border-b bg-background dark:bg-darkMode">
+      <div className="flex h-16 items-center justify-end pl-1 pr-4 w-full">
     <header className="sticky top-0 z-30 border-b bg-background dark:bg-darkMode">
       <div className="flex h-16 items-center justify-end pl-1 pr-4 w-full">
         <div className="flex items-center gap-4">
@@ -104,7 +111,7 @@ export function TopNav() {
                   </Avatar>
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent className="w-56" align="end" forceMount>
+              <DropdownMenuContent className="w-56" align="end" sideOffset={5} alignOffset={0}>
                 <DropdownMenuLabel className="font-normal">
                   <div className="flex flex-col space-y-1">
                     <p className="text-sm font-medium leading-none">{username}</p>
@@ -120,8 +127,10 @@ export function TopNav() {
                     <ThemeToggle />
                   </div>
                 </DropdownMenuItem>
-                {(connectionStatus === "connected" || settings.zkLogin.isEnabled) && (
-                  <DropdownMenuItem onClick={handleDisconnect}>
+                {(wallet.connectionStatus === "connected" || settings.zkLogin.isEnabled) && (
+                  <DropdownMenuItem
+                    onClick={handleDisconnectWallet}
+                  >
                     Disconnect Wallet
                   </DropdownMenuItem>
                 )}

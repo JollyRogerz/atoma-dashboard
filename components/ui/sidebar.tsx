@@ -70,7 +70,6 @@ const SidebarProvider = React.forwardRef<
   // State for mobile sidebar visibility
   const [openMobile, setOpenMobile] = React.useState(false);
 
-  // Internal state for uncontrolled component
   const [_open, _setOpen] = React.useState(defaultOpen);
   // Use controlled prop if provided, otherwise use internal state
   const open = openProp ?? _open;
@@ -86,18 +85,15 @@ const SidebarProvider = React.forwardRef<
         // Update internal state if uncontrolled
         _setOpen(openState);
       }
-      // Save state to cookie for persistence across page loads
       document.cookie = `${SIDEBAR_COOKIE_NAME}=${openState}; path=/; max-age=${SIDEBAR_COOKIE_MAX_AGE}`;
     },
     [setOpenProp, open]
   );
 
-  // Toggle sidebar based on device type
   const toggleSidebar = React.useCallback(() => {
     return isMobile ? setOpenMobile(open => !open) : setOpen(open => !open);
   }, [isMobile, setOpen, setOpenMobile]);
 
-  // Add keyboard shortcut to toggle sidebar (Ctrl/Cmd + B)
   React.useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === SIDEBAR_KEYBOARD_SHORTCUT && (event.metaKey || event.ctrlKey)) {
@@ -110,7 +106,6 @@ const SidebarProvider = React.forwardRef<
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [toggleSidebar]);
 
-  // Create a data-state attribute for styling with Tailwind
   const state = open ? "expanded" : "collapsed";
 
   // Create context value with memoization for performance
@@ -140,6 +135,7 @@ const SidebarProvider = React.forwardRef<
             } as React.CSSProperties
           }
           className={cn("group/sidebar-wrapper flex h-screen w-full has-[[data-variant=inset]]:bg-sidebar", className)}
+          className={cn("group/sidebar-wrapper flex h-screen w-full has-[[data-variant=inset]]:bg-sidebar", className)}
           ref={ref}
           {...props}
         >
@@ -149,6 +145,7 @@ const SidebarProvider = React.forwardRef<
     </SidebarContext.Provider>
   );
 });
+
 
 SidebarProvider.displayName = "SidebarProvider";
 
@@ -177,6 +174,7 @@ const Sidebar = React.forwardRef<
     return (
       <div
         className={cn("flex h-screen w-[--sidebar-width] flex-col bg-sidebar text-sidebar-foreground", className)}
+        className={cn("flex h-screen w-[--sidebar-width] flex-col bg-sidebar text-sidebar-foreground", className)}
         ref={ref}
         {...props}
       >
@@ -202,6 +200,7 @@ const Sidebar = React.forwardRef<
           side={side}
         >
           <div className="flex h-screen w-full flex-col">{children}</div>
+          <div className="flex h-screen w-full flex-col">{children}</div>
         </SheetContent>
       </Sheet>
     );
@@ -221,9 +220,8 @@ const Sidebar = React.forwardRef<
       <div
         className={cn(
           "duration-200 relative h-screen w-[--sidebar-width] bg-transparent transition-[width] ease-linear",
-          "group-data-[collapsible=offcanvas]:w-0", // When offcanvas, collapse to zero width
-          "group-data-[side=right]:rotate-180", // Flip when on right side
-          // Adjust width for icon mode based on variant
+          "group-data-[collapsible=offcanvas]:w-0",
+          "group-data-[side=right]:rotate-180",
           variant === "floating" || variant === "inset"
             ? "group-data-[collapsible=icon]:w-[calc(var(--sidebar-width-icon)_+_theme(spacing.4))]"
             : "group-data-[collapsible=icon]:w-[--sidebar-width-icon]"
@@ -233,36 +231,5 @@ const Sidebar = React.forwardRef<
       <div
         className={cn(
           "duration-200 fixed inset-y-0 z-10 hidden h-screen w-[--sidebar-width] transition-[left,right,width] ease-linear md:flex",
-          // Position based on side (left/right)
           side === "left"
-            ? "left-0 group-data-[collapsible=offcanvas]:left-[calc(var(--sidebar-width)_+_theme(spacing.4))]"
-            : "right-0 group-data-[collapsible=offcanvas]:right-[calc(var(--sidebar-width)_+_theme(spacing.4))]"
-        )}
-      />
-    </div>
-  );
-});
-
-Sidebar.displayName = "Sidebar";
-
-/**
- * Note: This component previously had additional UI components that were removed:
- * - SidebarTrigger: Button to toggle sidebar visibility
- * - SidebarRail: Draggable resize handle
- * - SidebarInset: Content container that adapts to sidebar state
- * - SidebarInput: Styled input field for search
- * - SidebarHeader/Footer: Containers for top/bottom content
- * - SidebarSeparator: Visual divider
- * - SidebarContent: Main scrollable content area
- * - SidebarGroup components: For grouping related items
- * - SidebarMenu components: For navigation menus and items
- * 
- * The current implementation is simplified but fully functional for basic sidebar needs.
- * The above components can be restored if needed for more advanced UI requirements.
- */
-
-export {
-  Sidebar,
-  SidebarProvider,
-  useSidebar,
-};
+            ? "left-0 group-data-[collapsible=offcanvas]:left-[calc
