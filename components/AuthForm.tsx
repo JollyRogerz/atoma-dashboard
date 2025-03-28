@@ -76,37 +76,34 @@ const AuthForm: React.FC<AuthFormProps> = ({ type, onClose }) => {
   };
 
   return (
-    <>
-      <h2 className="text-xl font-semibold mb-6 text-center">
+    <div className="w-full mx-auto rounded-lg p-6" style={{ backgroundColor: "#000000" }}>
+      <Toast ref={toastRef} />
+
+      <h2 className="text-2xl font-bold mb-6 text-center text-white">
         {loginType === "login" ? "Enter your credentials." : "Create Account"}
       </h2>
 
-      <div className="flex flex-col space-y-4">
-        <form onSubmit={handleSubmit} className="flex flex-col space-y-4">
-          <div className="space-y-1.5">
-            <Label htmlFor="email">Email</Label>
-            {/* Use shadcn Input */}
-            <Input
-              id="email"
-              type="email"
+      <div className="flex flex-col space-y-6">
+        <form onSubmit={handleSubmit} className="flex flex-col space-y-6">
+          <div className="space-y-2">
+            <label className="text-sm font-medium text-gray-400">Email</label>
+            <InputText
               placeholder="Enter your email"
               value={email}
               onChange={e => setEmail(e.target.value)}
               required
-              className="h-10" // Adjust height as needed
+              className="p-inputtext-lg w-full border border-gray-600 p-3 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent bg-black text-white"
             />
           </div>
-          <div className="space-y-1.5">
-            <Label htmlFor="password">Password</Label>
-             {/* Use shadcn Input */}
-            <Input
-              id="password"
+          <div className="space-y-2">
+            <label className="text-sm font-medium text-gray-400">Password</label>
+            <InputText
               type="password"
               placeholder="Enter your password"
               value={password}
               onChange={e => setPassword(e.target.value)}
               required
-              className="h-10" // Adjust height as needed
+              className="p-inputtext-lg w-full border border-gray-600 p-3 rounded-md focus:ring-2 focus:ring-primary focus:border-transparent bg-black text-white"
             />
           </div>
 
@@ -127,8 +124,7 @@ const AuthForm: React.FC<AuthFormProps> = ({ type, onClose }) => {
 
         {process.env.NEXT_PUBLIC_ENABLE_ZK_LOGIN_GOOGLE === "true" && (
           <Button
-            variant="outline"
-            className="w-full h-10 flex items-center justify-center gap-2 border-border hover:bg-accent"
+            className="justify-center p-button p-4 font-medium rounded-md transition-colors duration-200 bg-white hover:bg-gray-200 text-black border border-gray-400"
             onClick={handleGoogleOauth}
             disabled={isLoading}
           >
@@ -145,7 +141,7 @@ const AuthForm: React.FC<AuthFormProps> = ({ type, onClose }) => {
         )}
       </div>
 
-      <div className="text-center text-sm text-muted-foreground mt-6">
+      <div className="text-center text-sm text-gray-400 mt-4">
         {loginType === "login" ? (
           <>
             Don't have an account?{" "}

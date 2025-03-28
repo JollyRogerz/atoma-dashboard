@@ -13,6 +13,7 @@ import {
   Cell,
 } from "recharts";
 import { MetricsCards } from "@/components/analytics/metrics-cards";
+import { NetworkCharts } from "@/components/network/network-charts";
 import { useEffect, useState } from "react";
 import { getGraphData, getGraphs, getSubscriptions, getTasks } from "@/lib/api";
 import LoadingCircle from "@/components/LoadingCircle";
@@ -92,6 +93,9 @@ function AreaPanel({
           horizontal={true}
           vertical={false}
           stroke="hsl(var(--border))"
+          strokeDasharray="2 2"
+          strokeWidth={0.5}
+          opacity={0.2}
           strokeDasharray="2 2"
           strokeWidth={0.5}
           opacity={0.2}
