@@ -72,7 +72,7 @@ export function MetricsCards() {
         const averageLatency = latency?.totalLatency / latency?.totalRequests;
 
         // Throughput
-        const averageThroughPut = totalComputeUnits?.totalRequests * (60 / totalComputeUnits?.totalTime);
+        const averageThroughPut = totalComputeUnits?.totalRequests / (totalComputeUnits?.totalTime / 3600); // The totalTime is in seconds
 
         setMetricsData(prevData => ({
           totalNodes: formatNumber(totalNodes),
