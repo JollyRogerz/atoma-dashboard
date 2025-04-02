@@ -27,7 +27,7 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
   const updateState = (newSettings: Partial<AppState>) => {
     setState(prev => {
       const updatedSettings = { ...prev, ...newSettings };
-      localStorage.setItem("appState", JSON.stringify(updatedSettings)); // update here, to take effect immediately
+      sessionStorage.setItem("appState", JSON.stringify(updatedSettings)); // update here, to take effect immediately
       return updatedSettings;
     });
   };

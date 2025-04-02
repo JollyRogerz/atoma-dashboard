@@ -54,9 +54,9 @@ const SettingsContext = createContext<SettingsContextType | undefined>(undefined
 
 export function SettingsProvider({ children }: { children: React.ReactNode }) {
   const [settings, setSettings] = useState<UserSettings>(() => {
-    // Try to load settings from localStorage during initialization
+    // Try to load settings from sessionStorage during initialization
     if (typeof window !== "undefined") {
-      const savedSettings = localStorage.getItem("userSettings");
+      const savedSettings = sessionStorage.getItem("userSettings");
       if (savedSettings) {
         return { ...defaultSettings, ...JSON.parse(savedSettings) };
       }
@@ -67,7 +67,7 @@ export function SettingsProvider({ children }: { children: React.ReactNode }) {
   const updateSettings = (newSettings: Partial<UserSettings>) => {
     setSettings(prev => {
       const updatedSettings = { ...prev, ...newSettings };
-      localStorage.setItem("userSettings", JSON.stringify(updatedSettings)); // update here, to take effect immediately
+      sessionStorage.setItem("userSettings", JSON.stringify(updatedSettings)); // update here, to take effect immediately
       return updatedSettings;
     });
   };
@@ -78,7 +78,7 @@ export function SettingsProvider({ children }: { children: React.ReactNode }) {
         ...prev,
         zkLogin: { ...prev.zkLogin, ...zkLoginSettings },
       };
-      localStorage.setItem("userSettings", JSON.stringify(updatedSettings)); // update here, to take effect immediately
+      sessionStorage.setItem("userSettings", JSON.stringify(updatedSettings)); // update here, to take effect immediately
       return updatedSettings;
     });
   };
@@ -89,7 +89,7 @@ export function SettingsProvider({ children }: { children: React.ReactNode }) {
         ...prev,
         playground: { ...prev.playground, ...playgroundSettings },
       };
-      localStorage.setItem("userSettings", JSON.stringify(updatedSettings));
+      sessionStorage.setItem("userSettings", JSON.stringify(updatedSettings));
       return updatedSettings;
     });
   };
