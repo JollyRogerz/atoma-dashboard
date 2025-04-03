@@ -25,7 +25,9 @@ export function CreditBalanceCard({ handleAddFunds }: { handleAddFunds: () => vo
       const [balanceRes, allStacksRes] = await Promise.all([balancePromise, allStacksPromise]);
       let partialBalance = allStacksRes?.data.reduce(
         (acc: number, [stack]: any) =>
-          acc + (stack.already_computed_units / stack.num_compute_units) * stack.price_per_one_million_compute_units,
+          acc +
+          ((stack.num_compute_units - stack.already_computed_units) / 1000000) *
+            stack.price_per_one_million_compute_units,
         0
       );
       let balance = (balanceRes?.data + partialBalance) / 1000000;
