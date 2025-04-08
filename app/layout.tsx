@@ -30,7 +30,10 @@ export const metadata = {
     "Distributed AI inference of the largest open-source AI models for text, voice, and image generation.",
   generator: "v0.dev",
   icons: {
-    icon: "/favicon.ico",
+    icon: [
+      { url: "/favicon.svg", type: "image/svg+xml" },
+      { url: "/favicon.ico" }
+    ],
   },
 };
 
@@ -43,6 +46,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <SettingsProvider>
           <AppStateProvider>
             <SuiWrap>
+              <ThemeProvider attribute="class" defaultTheme="dark" enableSystem suppressHydrationWarning>
               <ThemeProvider attribute="class" defaultTheme="dark" enableSystem suppressHydrationWarning>
                 <TooltipProvider delayDuration={0}>
                   <ClientWrapper>

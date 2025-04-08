@@ -1,6 +1,4 @@
-// @mysten/dapp-kit no longer exports WalletContextState; use type inference or any.
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-type WalletContextState = any;
+import { WalletContextState } from "@mysten/dapp-kit";
 import { UserSettings } from "@/contexts/settings-context";
 import ZkLogin from "./zklogin";
 

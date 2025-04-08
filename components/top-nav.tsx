@@ -25,6 +25,7 @@ import { useAppState } from "@/contexts/app-state";
 import { useCurrentWallet, useDisconnectWallet } from "@mysten/dapp-kit";
 import { ConnectModal } from "@mysten/dapp-kit";
 import ZkLogin from "@/lib/zklogin";
+import { LoginRegisterButton } from "./login-register-button";
 
 export function TopNav() {
   const pathname = usePathname();
@@ -46,20 +47,12 @@ export function TopNav() {
     updateState({ showLogin: false });
   };
 
-  const handleDisconnectWallet = () => {
-    if (wallet.disconnect) wallet.disconnect();
-    // If we're using ZkLogin, disconnect that too
+  const handleDisconnect = () => {
+    disconnect();
     if (settings.zkLogin.isEnabled) {
       const zkLogin = new ZkLogin();
       zkLogin.disconnect(updateZkLoginSettings);
     }
-    
-    // Clear wallet connection from localStorage to prevent auto-reconnect on page reload
-    localStorage.removeItem('suiWallet');
-    localStorage.removeItem('sui:preferredWallet');
-    
-    // Force reload to ensure wallet state is completely reset
-    window.location.reload();
   };
 
   useEffect(() => {
@@ -79,14 +72,6 @@ export function TopNav() {
   useEffect(() => {
     setShowAuthForm(state.showLogin);
   }, [state.showLogin]);
-
-  const handleDisconnect = () => {
-    disconnect();
-    if (settings.zkLogin.isEnabled) {
-      const zkLogin = new ZkLogin();
-      zkLogin.disconnect(updateZkLoginSettings);
-    }
-  };
 
   return (
     <header className="sticky top-0 z-30 border-b bg-background dark:bg-darkMode">
@@ -137,8 +122,10 @@ export function TopNav() {
                     <ThemeToggle />
                   </div>
                 </DropdownMenuItem>
-                {connectionStatus === "connected" && (
-                  <DropdownMenuItem onClick={handleDisconnect}>Disconnect Wallet</DropdownMenuItem>
+                {(connectionStatus === "connected" || settings.zkLogin.isEnabled) && (
+                  <DropdownMenuItem onClick={handleDisconnect}>
+                    Disconnect Wallet
+                  </DropdownMenuItem>
                 )}
                 <DropdownMenuItem
                   onClick={() => {

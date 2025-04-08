@@ -18,8 +18,6 @@ export function LoginRegisterButton() {
       <LoginRegisterModal
         isOpen={isLoginModalOpen}
         onClose={() => setIsLoginModalOpen(false)}
-        error={null}
-        onSubmit={() => {}}
       />
     </>
   )
