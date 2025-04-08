@@ -179,7 +179,7 @@ export default function ModelsPage() {
   ];
 
   return (
-    <div className="relative min-h-screen w-full">
+    <div className="relative min-h-full w-full">
       {/* Content */}
       <div className="relative z-10">
         <div className="container mx-auto px-4 py-8 space-y-8">
