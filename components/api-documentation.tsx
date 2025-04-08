@@ -5,21 +5,25 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useState } from "react";
 import { ApiUsageDialog } from "@/components/api-usage-dialog";
+import { ModelModality } from "@/lib/atoma";
 
 const endpoints = [
   {
     name: "Chat Completions",
     endpoint: "/v1/chat/completions",
+    modality: ModelModality.ChatCompletions,
     method: "POST",
   },
   {
     name: "Images Generations",
     endpoint: "/v1/images/generations",
+    modality: ModelModality.ImagesGenerations,
     method: "POST",
   },
   {
     name: "Embeddings",
     endpoint: "/v1/embeddings",
+    modality: ModelModality.Embeddings,
     method: "POST",
   },
 ];
@@ -125,7 +129,10 @@ export function ApiDocumentation() {
       <ApiUsageDialog
         isOpen={isApiDialogOpen}
         onClose={() => setIsApiDialogOpen(false)}
-        modelName={selectedEndpoint || ""}
+        modelName={"MODEL_NAME"}
+        modality={
+          endpoints.find(endpoint => endpoint.name === selectedEndpoint)?.modality || ModelModality.ChatCompletions
+        }
       />
     </Card>
   );

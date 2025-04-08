@@ -13,6 +13,7 @@ import { ModelModality, NodeSubscription, Task } from "@/lib/atoma";
 interface ModelSection {
   type: ModelModality;
   title: string;
+  modality: ModelModality;
   models: {
     name: string;
     price: string;
@@ -26,7 +27,17 @@ const ModalityToCategory = {
   [ModelModality.Embeddings]: "embedding",
 };
 
-function ModelCard({ name, price, modalities }: { name: string; price: string; modalities: ModelModality[] }) {
+function ModelCard({
+  name,
+  price,
+  modalities,
+  modality,
+}: {
+  name: string;
+  price: string;
+  modalities: ModelModality[];
+  modality: ModelModality;
+}) {
   const [showApiDialog, setShowApiDialog] = useState(false);
 
   return (
@@ -59,7 +70,12 @@ function ModelCard({ name, price, modalities }: { name: string; price: string; m
           </div>
         </CardContent>
       </Card>
-      <ApiUsageDialog isOpen={showApiDialog} onClose={() => setShowApiDialog(false)} modelName={name} />
+      <ApiUsageDialog
+        isOpen={showApiDialog}
+        onClose={() => setShowApiDialog(false)}
+        modelName={name}
+        modality={modality}
+      />
     </>
   );
 }
@@ -137,16 +153,19 @@ export default function ModelsPage() {
     {
       type: ModelModality.ChatCompletions,
       title: modalityToFeatureName(ModelModality.ChatCompletions),
+      modality: ModelModality.ChatCompletions,
       models: modelsData[ModelModality.ChatCompletions],
     },
     {
       type: ModelModality.ImagesGenerations,
       title: modalityToFeatureName(ModelModality.ImagesGenerations),
+      modality: ModelModality.ImagesGenerations,
       models: modelsData[ModelModality.ImagesGenerations],
     },
     {
       type: ModelModality.Embeddings,
       title: modalityToFeatureName(ModelModality.Embeddings),
+      modality: ModelModality.Embeddings,
       models: modelsData[ModelModality.Embeddings],
     },
   ];
@@ -175,13 +194,13 @@ export default function ModelsPage() {
                 <SelectValue placeholder="Select completion type" />
               </SelectTrigger>
               <SelectContent>
-                {Object.values(ModelModality).map(modality => (
+                {Object.values(ModelModality).map(modality =>
                   modelsData[modality].length > 0 ? (
                     <SelectItem key={modality} value={modality}>
                       {modalityToFeatureName(modality)}
                     </SelectItem>
                   ) : null
-                ))}
+                )}
               </SelectContent>
             </Select>
           </div>
@@ -189,15 +208,21 @@ export default function ModelsPage() {
           {orderedSections
             .filter(section => section.models.length > 0)
             .map(section => (
-            <div key={section.type} className="space-y-6">
-              <h2 className="text-lg font-medium text-primary">{section.title}</h2>
-              <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-                {section.models.map(model => (
-                  <ModelCard key={model.name} name={model.name} price={model.price} modalities={model.modalities} />
-                ))}
+              <div key={section.type} className="space-y-6">
+                <h2 className="text-lg font-medium text-primary">{section.title}</h2>
+                <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                  {section.models.map(model => (
+                    <ModelCard
+                      key={model.name}
+                      name={model.name}
+                      price={model.price}
+                      modalities={model.modalities}
+                      modality={section.modality}
+                    />
+                  ))}
+                </div>
               </div>
-            </div>
-          ))}
+            ))}
         </div>
       </div>
     </div>

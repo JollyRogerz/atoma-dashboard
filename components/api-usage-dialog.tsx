@@ -5,34 +5,151 @@ import { Button } from "@/components/ui/button";
 import { Copy, Check } from "lucide-react";
 import { useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { ModelModality } from "@/lib/atoma";
 
 interface ApiUsageDialogProps {
   isOpen: boolean;
   onClose: () => void;
   modelName: string;
+  modality: ModelModality;
 }
 
-export function ApiUsageDialog({ isOpen, onClose, modelName }: ApiUsageDialogProps) {
+function getPythonCode(modelName: string, modality: ModelModality) {
+  switch (modality) {
+    case ModelModality.ChatCompletions:
+      return `from atoma_sdk import AtomaSDK
+import os
+
+with AtomaSDK(
+    bearer_auth=os.getenv("ATOMASDK_BEARER_AUTH", ""),
+) as atoma_sdk:
+
+    completion = atoma_sdk.chat.create(
+      model="${modelName}",
+      messages=[
+        {"role": "developer", "content": "You are a helpful assistant."},
+        {"role": "user", "content": "Hello!"}
+      ]
+    )
+
+    print(completion.choices[0].message)`;
+    case ModelModality.ImagesGenerations:
+      return `from atoma_sdk import AtomaSDK
+import os
+
+with AtomaSDK(
+    bearer_auth=os.getenv("ATOMASDK_BEARER_AUTH", ""),
+) as atoma_sdk:
+
+    res = atoma_sdk.confidential_images.generate(
+      model="${modelName}",
+      prompt="A cute baby sea otter floating on its back",
+      n=1,
+      quality="hd",
+      response_format="url",
+      size="1024x1024"
+    )
+
+    print(res)`;
+    case ModelModality.Embeddings:
+      return `from atoma_sdk import AtomaSDK
+import os
+
+with AtomaSDK(
+    bearer_auth=os.getenv("ATOMASDK_BEARER_AUTH", ""),
+) as atoma_sdk:
+
+    res = atoma_sdk.embeddings.create(
+      input_="The quick brown fox jumped over the lazy dog",
+      model="${modelName}",
+      encoding_format="float"
+    )
+
+    print(res)`;
+  }
+}
+
+function getTypescriptCode(modelName: string, modality: ModelModality) {
+  switch (modality) {
+    case ModelModality.ChatCompletions:
+      return `import { AtomaSDK } from "atoma-sdk";
+
+const atomaSDK = new AtomaSDK({
+  bearerAuth: process.env["ATOMASDK_BEARER_AUTH"] ?? "",
+});
+
+async function run() {
+  const completion = await atomaSDK.chat.create({
+    messages: [
+      {"role": "developer", "content": "You are a helpful assistant."},
+      {"role": "user", "content": "Hello!"}
+    ],
+    model: "${modelName}"
+  });
+
+  console.log(completion.choices[0]);
+}
+
+run();`;
+    case ModelModality.ImagesGenerations:
+      return `import { AtomaSDK } from "atoma-sdk";
+
+const atomaSDK = new AtomaSDK({
+  bearerAuth: process.env["ATOMASDK_BEARER_AUTH"] ?? "",
+});
+
+async function run() {
+  const result = await atomaSDK.images.generate({
+    model: "${modelName}",
+    prompt: "A cute baby sea otter",
+    n: 1,
+    size: "1024x1024"
+  });
+
+  // Handle the result
+  console.log(result);
+}
+
+run();`;
+    case ModelModality.Embeddings:
+      return `import { AtomaSDK } from "atoma-sdk";
+
+const atomaSDK = new AtomaSDK({
+  bearerAuth: process.env["ATOMASDK_BEARER_AUTH"] ?? "",
+});
+
+async function run() {
+  const result = await atomaSDK.embeddings.create({
+    model: "${modelName}",
+    input: "The quick brown fox jumped over the lazy dog",
+    encoding_format: "float",
+  });
+
+  // Handle the result
+  console.log(result);
+}
+
+run();`;
+  }
+}
+export function ApiUsageDialog({ isOpen, onClose, modelName, modality }: ApiUsageDialogProps) {
   const [copied, setCopied] = useState(false);
   const [activeTab, setActiveTab] = useState<string>("curl");
 
   // Determine the endpoint based on the model name
   const getEndpoint = () => {
-    if (modelName.includes("meta-llama") || modelName.includes("deepseek-ai")) {
+    if (modality === ModelModality.ChatCompletions) {
       return "/v1/chat/completions";
-    } else if (modelName.includes("black-forest-labs/FLUX")) {
+    } else if (modality === ModelModality.ImagesGenerations) {
       return "/v1/images/generations";
-    } else if (modelName.includes("intfloat/multilingual")) {
+    } else if (modality === ModelModality.Embeddings) {
       return "/v1/embeddings";
-    } else {
-      // Default to chat completions
-      return "/v1/chat/completions";
     }
   };
 
   // Generate the appropriate request body based on the model
   const getRequestBody = () => {
-    if (getEndpoint() === "/v1/chat/completions") {
+    if (modality === ModelModality.ChatCompletions) {
       return `{
   "model": "${modelName}",
   "messages": [
@@ -51,7 +168,7 @@ export function ApiUsageDialog({ isOpen, onClose, modelName }: ApiUsageDialogPro
   "top_k": 50,
   "repetition_penalty": 1.0
 }`;
-    } else if (getEndpoint() === "/v1/images/generations") {
+    } else if (modality === ModelModality.ImagesGenerations) {
       return `{
   "model": "${modelName}",
   "prompt": "A serene landscape with mountains",
@@ -73,42 +190,16 @@ export function ApiUsageDialog({ isOpen, onClose, modelName }: ApiUsageDialogPro
 -d '${getRequestBody()}'`;
 
   // Generate Python code
-  const pythonCode = `import requests
+  const pythonCode = getPythonCode(modelName, modality);
 
-url = "https://api.atoma.network${getEndpoint()}"
-headers = {
-    "Content-Type": "application/json",
-    "Authorization": "Bearer YOUR_API_KEY"
-}
-
-payload = ${getRequestBody()}
-
-response = requests.post(url, headers=headers, json=payload)
-print(response.json())`;
-
-  // Generate JavaScript code
-  const javascriptCode = `const fetch = require('node-fetch');
-
-const url = 'https://api.atoma.network${getEndpoint()}';
-const options = {
-  method: 'POST',
-  headers: {
-    'Content-Type': 'application/json',
-    'Authorization': 'Bearer YOUR_API_KEY'
-  },
-  body: JSON.stringify(${getRequestBody()})
-};
-
-fetch(url, options)
-  .then(response => response.json())
-  .then(data => console.log(data))
-  .catch(error => console.error('Error:', error));`;
+  // Generate TypeScript code
+  const typescriptCode = getTypescriptCode(modelName, modality);
 
   const copyToClipboard = () => {
     const codeMap = {
       curl: curlCode,
       python: pythonCode,
-      javascript: javascriptCode,
+      typescript: typescriptCode,
     };
 
     navigator.clipboard.writeText(codeMap[activeTab as keyof typeof codeMap]);
@@ -127,7 +218,7 @@ fetch(url, options)
           <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="curl">cURL</TabsTrigger>
             <TabsTrigger value="python">Python</TabsTrigger>
-            <TabsTrigger value="javascript">JavaScript</TabsTrigger>
+            <TabsTrigger value="typescript">TypeScript</TabsTrigger>
           </TabsList>
 
           <TabsContent value="curl" className="relative">
@@ -142,9 +233,9 @@ fetch(url, options)
             </pre>
           </TabsContent>
 
-          <TabsContent value="javascript" className="relative">
+          <TabsContent value="typescript" className="relative">
             <pre className="relative rounded-lg bg-muted p-4 overflow-x-auto font-mono text-sm h-[60vh] overflow-scroll">
-              {javascriptCode}
+              {typescriptCode}
             </pre>
           </TabsContent>
         </Tabs>
