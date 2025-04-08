@@ -72,6 +72,7 @@ export function ApiKeyCard() {
 
   useEffect(() => {
     setLoggedIn(settings.loggedIn);
+    updateApiTokens();
   }, [settings.loggedIn]);
 
   useEffect(() => {
