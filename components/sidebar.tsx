@@ -20,6 +20,7 @@ import Image from "next/image";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import * as TooltipPrimitive from "@radix-ui/react-tooltip";
+import * as TooltipPrimitive from "@radix-ui/react-tooltip";
 import { useSettings } from "@/contexts/settings-context";
 
 const navigation = [
@@ -53,6 +54,18 @@ interface NavItemProps {
 }
 
 const NavItem = ({ item, isBottom = false, isCollapsed, mounted }: NavItemProps) => {
+interface NavItemProps {
+  item: {
+    name: string;
+    href: string;
+    icon: React.ComponentType<{ className?: string }>;
+  };
+  isBottom?: boolean;
+  isCollapsed: boolean;
+  mounted: boolean;
+}
+
+const NavItem = ({ item, isBottom = false, isCollapsed, mounted }: NavItemProps) => {
   const pathname = usePathname();
   
   const content = (
@@ -61,49 +74,79 @@ const NavItem = ({ item, isBottom = false, isCollapsed, mounted }: NavItemProps)
       {!isCollapsed && <span>{item.name}</span>}
     </>
   );
-
-  const NavItem: React.FC<{ item: any; isBottom?: boolean }> = ({ item, isBottom = false }) => (
-    <Tooltip delayDuration={0}>
-      <TooltipTrigger asChild>
-        {item.href.startsWith("http") ? (
-          <a
-            href={item.href}
-            target="_blank"
-            rel="noopener noreferrer"
-            className={cn(
-              "flex items-center rounded-md px-4 py-3 text-base font-medium transition-colors",
-              pathname === item.href
-                ? "bg-secondary dark:bg-[#27272a] text-secondary-foreground"
-                : "text-muted-foreground hover:bg-secondary hover:dark:bg-[#27272a] hover:text-secondary-foreground",
-              isCollapsed && "justify-center px-3"
-            )}
-          >
-            <item.icon className={cn("h-5 w-5", !isCollapsed && "mr-3")} />
-            {!isCollapsed && <span>{item.name}</span>}
-          </a>
-        ) : (
-          <Link
-            href={item.href}
-            className={cn(
-              "flex items-center rounded-md px-4 py-3 text-base font-medium transition-colors",
-              pathname === item.href
-                ? "bg-secondary dark:bg-[#27272a] text-secondary-foreground"
-                : "text-muted-foreground hover:bg-secondary hover:dark:bg-[#27272a] hover:text-secondary-foreground",
-              isCollapsed && "justify-center px-3"
-            )}
-          >
-            <item.icon className={cn("h-5 w-5", !isCollapsed && "mr-3")} />
-            {!isCollapsed && <span>{item.name}</span>}
-          </Link>
-        )}
-      </TooltipTrigger>
-      {isCollapsed && mounted && (
-        <TooltipContent side="right" className="flex items-center gap-4 !z-[200]">
-          {item.name}
-        </TooltipContent>
-      )}
-    </Tooltip>
+  
+  const content = (
+    <>
+      <item.icon className={cn("h-5 w-5", !isCollapsed && "mr-3")} />
+      {!isCollapsed && <span>{item.name}</span>}
+    </>
   );
+
+  const linkContent = item.href.startsWith("http") ? (
+    <a
+      href={item.href}
+      target="_blank"
+      rel="noopener noreferrer"
+      className={cn(
+        "flex items-center rounded-md px-[34px] py-3 text-base font-medium sidebar-item",
+        pathname === item.href
+          ? "bg-secondary dark:bg-[#27272a] text-secondary-foreground"
+          : "text-muted-foreground hover:bg-secondary/80 hover:dark:bg-[#27272a] hover:text-secondary-foreground",
+        isCollapsed && "justify-center px-3"
+      )}
+    >
+      {content}
+    </a>
+  ) : (
+    <Link
+      href={item.href}
+      className={cn(
+        "flex items-center rounded-md px-[34px] py-3 text-base font-medium sidebar-item",
+        pathname === item.href
+          ? "bg-secondary dark:bg-[#27272a] text-secondary-foreground"
+          : "text-muted-foreground hover:bg-secondary/80 hover:dark:bg-[#27272a] hover:text-secondary-foreground",
+        isCollapsed && "justify-center px-3"
+      )}
+    >
+      {content}
+    </Link>
+  );
+  
+  if (!isCollapsed) {
+    return linkContent;
+  }
+
+  return (
+    <TooltipPrimitive.Provider delayDuration={0}>
+      <TooltipPrimitive.Root>
+        <TooltipPrimitive.Trigger asChild>
+          {linkContent}
+        </TooltipPrimitive.Trigger>
+        <TooltipPrimitive.Portal>
+          <TooltipPrimitive.Content
+            side="right"
+            sideOffset={10}
+            className="z-[99999] rounded-md bg-popover px-3 py-1.5 text-sm text-popover-foreground animate-in fade-in-0 zoom-in-95 shadow-md"
+          >
+            {item.name}
+            <TooltipPrimitive.Arrow className="fill-popover" />
+          </TooltipPrimitive.Content>
+        </TooltipPrimitive.Portal>
+      </TooltipPrimitive.Root>
+    </TooltipPrimitive.Provider>
+  );
+};
+
+export function Sidebar() {
+  const pathname = usePathname();
+  const [isCollapsed, setIsCollapsed] = useState(false);
+  const [isMobileOpen, setIsMobileOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
+  const { settings } = useSettings();
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 };
 
 export function Sidebar() {
@@ -126,6 +169,8 @@ export function Sidebar() {
           "-left-full lg:left-0"
           "fixed inset-y-0 z-20 flex flex-col bg-background dark:bg-darkMode border-r border-border transition-all duration-300 ease-in-out lg:static",
           "-left-full lg:left-0"
+          "fixed inset-y-0 z-20 flex flex-col bg-background dark:bg-darkMode border-r border-border transition-all duration-300 ease-in-out lg:static",
+          "-left-full lg:left-0"
         )}
       >
         {/* Minimal content for server rendering */}
@@ -140,14 +185,18 @@ export function Sidebar() {
         <div className="p-2 dark:bg-darkMode"></div>
         <div className="flex-1 overflow-auto dark:bg-darkMode"></div>
         <div className="p-2 dark:bg-darkMode"></div>
+        <div className="flex-1 overflow-auto dark:bg-darkMode"></div>
+        <div className="p-2 dark:bg-darkMode"></div>
       </div>
     );
   }
 
   return (
     <TooltipPrimitive.Provider delayDuration={0} skipDelayDuration={0}>
+    <TooltipPrimitive.Provider delayDuration={0} skipDelayDuration={0}>
       <>
         <button
+          className="lg:hidden fixed top-4 left-4 z-50 p-2 bg-background dark:bg-darkMode rounded-md"
           className="lg:hidden fixed top-4 left-4 z-50 p-2 bg-background dark:bg-darkMode rounded-md"
           className="lg:hidden fixed top-4 left-4 z-50 p-2 bg-background dark:bg-darkMode rounded-md"
           onClick={() => setIsMobileOpen(!isMobileOpen)}
@@ -157,17 +206,21 @@ export function Sidebar() {
         </button>
         <div
           className={cn(
-            "fixed inset-y-0 z-10 flex flex-col bg-background dark:bg-darkMode border-r border-border transition-all duration-300 ease-in-out lg:relative",
+            "fixed inset-y-0 z-10 flex flex-col bg-background dark:bg-darkMode border-r border-border transition-[width] duration-300 ease-in-out lg:relative",
             isCollapsed ? "w-[56px]" : "w-60",
             isMobileOpen ? "left-0" : "-left-full lg:left-0"
             isMobileOpen ? "left-0" : "-left-full lg:left-0"
+            isMobileOpen ? "left-0" : "-left-full lg:left-0"
           )}
+          style={{ height: '100vh', minHeight: '100vh' }}
           style={{ height: '100vh', minHeight: '100vh' }}
           style={{ height: '100vh', minHeight: '100vh' }}
         >
           <div className="border-b border-border dark:bg-darkMode">
             <div
               className={cn(
+                "flex h-16 items-center justify-between dark:bg-darkMode",
+                isCollapsed && "justify-center"
                 "flex h-16 items-center justify-between dark:bg-darkMode",
                 isCollapsed && "justify-center"
               )}
@@ -207,42 +260,79 @@ export function Sidebar() {
                     <span className="sr-only">{isCollapsed ? "Expand" : "Collapse"} Sidebar</span>
                   </Button>
                 </div>
+                <div className="flex items-center w-full">
+                  <div className="sidebar-logo-container pl-[34px] flex items-center justify-between">
+                    <Image
+                      alt="atoma logo"
+                      src="/logos/alpha_logo_atoma_light.svg"
+                      height={180}
+                      width={180}
+                      className="block dark:hidden"
+                      priority
+                    />
+                    <Image
+                      alt="atoma logo"
+                      src="/logos/alpha_logo_atoma_dark.svg"
+                      height={180}
+                      width={180}
+                      className="hidden dark:block"
+                      priority
+                    />
+                  </div>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="px-0 h-8 w-8 -ml-4"
+                    onClick={() => setIsCollapsed(!isCollapsed)}
+                  >
+                    <ChevronLeft
+                      className={cn(
+                        "h-6 w-6 transition-transform duration-200 ease-out text-[#635c70] dark:text-[#8f8f98] hover:text-secondary-foreground dark:hover:text-secondary-foreground",
+                        isCollapsed && "rotate-180"
+                      )}
+                    />
+                    <span className="sr-only">{isCollapsed ? "Expand" : "Collapse"} Sidebar</span>
+                  </Button>
+                </div>
               )}
-              <Button
-                variant="ghost"
-                size="sm"
-                className={cn("ml-auto px-0 h-8 w-8", isCollapsed && "ml-0")}
-                onClick={() => setIsCollapsed(!isCollapsed)}
-              >
-                <ChevronLeft
-                  className={cn(
-                    "h-10 w-10 transition-transform rounded-md dark:bg-darkMode text-[#635c70] dark:text-[#8f8f98] hover:text-secondary-foreground dark:hover:text-secondary-foreground dark:hover:bg-[#27272a]",
-                    isCollapsed && "rotate-180"
-                  )}
-                />
-                <span className="sr-only">{isCollapsed ? "Expand" : "Collapse"} Sidebar</span>
-              </Button>
+              {isCollapsed && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="px-0 h-8 w-8"
+                  onClick={() => setIsCollapsed(!isCollapsed)}
+                >
+                  <ChevronLeft
+                    className={cn(
+                      "h-6 w-6 transition-transform duration-200 ease-out text-[#635c70] dark:text-[#8f8f98] hover:text-secondary-foreground dark:hover:text-secondary-foreground",
+                      isCollapsed && "rotate-180"
+                    )}
+                  />
+                  <span className="sr-only">{isCollapsed ? "Expand" : "Collapse"} Sidebar</span>
+                </Button>
+              )}
             </div>
           </div>
           <div className="flex-1 overflow-auto dark:bg-darkMode">
             <nav className="flex-1 space-y-2 px-2 py-4 dark:text-[#8f8f98]">
               {navigation.map(item => (
-                (item.name !== "Settings" || settings.loggedIn) && (
-                  <NavItem key={item.name} item={item} isCollapsed={isCollapsed} mounted={mounted} />
-                )
+                <NavItem key={item.name} item={item} isCollapsed={isCollapsed} mounted={mounted} />
               ))}
             </nav>
           </div>
           <div className="p-2 dark:bg-darkMode">
           <div className="p-2 dark:bg-darkMode">
+          <div className="p-2 dark:bg-darkMode">
             <nav className="space-y-1">
               {bottomNavigation.map((item: any) => (
+                <NavItem key={item.name} item={item} isBottom isCollapsed={isCollapsed} mounted={mounted} />
                 <NavItem key={item.name} item={item} isBottom isCollapsed={isCollapsed} mounted={mounted} />
               ))}
             </nav>
           </div>
         </div>
       </>
+    </TooltipPrimitive.Provider>
     </TooltipPrimitive.Provider>
   );
 }

@@ -21,13 +21,6 @@ export const colors = {
     red: "#7f1d1d",
     purple: "#581c87", // Reverted back to dark purple
   },
-  darkText: {
-    blue: "#1e3a8a",
-    green: "#064e3b",
-    yellow: "#713f12",
-    red: "#7f1d1d",
-    purple: "#581c87",
-  },
 } as const;
 
 export const chartDefaults = {

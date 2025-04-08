@@ -51,7 +51,7 @@
     --input: 215 28% 17%;
     --ring: 263 85% 65%;
     --grid-color: rgba(180, 180, 180, 0.15);
-    --bg-overlay: rgba(0, 0, 0, 0.95); /* Darker overlay in dark mode (increased from 0.75 to 0.95) */
+    --bg-overlay: rgba(0, 0, 0, 0.95); /* Darker overlay in dark mode */
   }
 }
 
@@ -61,23 +61,22 @@
   }
   
   body {
-    @apply text-foreground transition-colors duration-300;
-    font-feature-settings:
-      "rlig" 1,
-      "calt" 1;
+    @apply text-foreground;
+    font-feature-settings: "rlig" 1, "calt" 1;
     min-height: 100vh;
     overflow-x: hidden;
     margin: 0;
     padding: 0;
-    background-color: white !important; /* White background in light mode */
+    background-color: white !important;
     position: relative;
   }
+  
   html {
     min-height: 100%;
     overflow-x: hidden;
     margin: 0;
     padding: 0;
-    background-color: white !important; /* White background in light mode */
+    background-color: white !important;
   }
   
   /* Only apply dark overlay in dark mode */
@@ -99,7 +98,8 @@
   }
   
   .dark body, .dark html {
-    background-color: #121212 !important; /* Dark background in dark mode */
+    background-color: #09090b !important;
+    color: #e5e7eb !important;
   }
   
   #__next, main {
@@ -107,919 +107,1057 @@
     background-color: transparent !important;
   }
 
-  /* Card styling for light mode */
-  .card, 
-  [class*="card"],
-  [role="region"],
-  div[style*="border-radius"],
-  div[style*="background-color"] {
-    background-color: white !important;
-    backdrop-filter: blur(4px);
-    position: relative;
-    z-index: 5;
-    box-shadow: none !important;
-    -webkit-box-shadow: none !important;
-    filter: drop-shadow(0 0 0 transparent) !important;
+  /* Remove the bottom fade gradient completely */
+  html::after, body::after {
+    display: none;
   }
-  
-  /* Dark mode card styling */
-  .dark .card, 
+
+  /* Optimize transitions for dark mode elements */
+  .dark [class*="fixed inset-y-0 z-20 flex flex-col"],
+  .dark [role="dialog"],
   .dark [class*="card"],
-  .dark [role="region"],
-  .dark div[style*="border-radius"],
-  .dark div[style*="background-color"] {
-    background-color: rgba(31, 41, 55, 0.9) !important;
-  }
-  
-  /* Fix for dark mode bottom border */
-  .dark body::after {
-    display: none !important;
-  }
-  
-  /* Fix for light mode bottom border */
-  body::after {
-    display: none !important;
+  .dark [role="region"] {
+    transition-duration: 75ms !important;
   }
 
-  /* Target chart border elements directly and remove them */
-  .recharts-wrapper,
-  .recharts-surface,
-  .recharts-legend-wrapper,
-  .recharts-tooltip-wrapper,
-  .recharts-default-tooltip {
-    border: none !important;
-    box-shadow: none !important;
-    filter: none !important;
-  }
-  
-  /* Apply custom transparent border to replace chart borders */
-  [class*="requests"], 
-  [class*="tokens"], 
-  [class*="processed"],
-  [class*="latency"],
-  div[style*="border-radius"] {
-    border: 1px solid rgba(39, 39, 42, 0.2) !important;
-    background-color: rgba(31, 41, 55, 0.9) !important;
-    box-shadow: none !important;
-    position: relative;
-    z-index: 1;
-  }
-  
-  /* Fix border for dark mode charts */
-  .dark [role="region"],
-  .dark div[style*="border-radius"] {
-    border: 1px solid rgba(39, 39, 42, 0.2) !important;
-    background-color: rgba(31, 41, 55, 0.9) !important;
-  }
-  
-  /* Ensure chart containers have clean backgrounds */
-  div[style*="border-radius"],
-  [role="region"] {
-    overflow: hidden !important;
-  }
-  
-  /* Remove any lingering shadows from SVG elements */
-  svg * {
-    fill-opacity: 1 !important;
-    stroke-opacity: 1 !important;
-    filter: none !important;
-    box-shadow: none !important;
-  }
-  
-  /* Remove any borders from elements with common recharts classes */
-  .recharts-cartesian-grid-horizontal line,
-  .recharts-cartesian-grid-vertical line,
-  .recharts-reference-line line {
-    stroke: rgba(255, 255, 255, 0.1) !important;
-    stroke-dasharray: none !important;
-  }
-}
-
-/* Remove the bottom fade gradient completely */
-html::after,
-body::after {
-  display: none;
-}
-
-@layer utilities {
-  /* Fix grid styling for both light and dark modes */
-  .bg-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, 50px);
-    grid-template-rows: repeat(auto-fill, 50px);
-    transform: translate(-1px, -1px);
-    min-height: 1000vh;
-    position: relative;
-    overflow: visible !important;
-    z-index: 1 !important;
-    pointer-events: none;
-    background-color: transparent !important;
-  }
-  
-  /* Light mode grid lines */
-  .grid-item {
-    width: 51px;
-    height: 51px;
-    margin: -1px -1px 0 0;
-    border-right: 1px solid rgba(180, 180, 180, 0.3) !important;
-    border-bottom: 1px solid rgba(180, 180, 180, 0.3) !important;
-    transition: background-color 0.3s ease-in-out;
-    opacity: 1 !important;
-    box-shadow: none !important;
-    position: relative;
-    z-index: 1;
-    pointer-events: none;
-  }
-  
-  /* Dark mode grid lines */
-  .dark .grid-item {
-    border-right: 1px solid rgba(40, 42, 54, 0.7) !important;
-    border-bottom: 1px solid rgba(40, 42, 54, 0.7) !important;
-  }
-  
-  /* Ensure light mode has transparent background */
-  body:not(.dark), html:not(.dark) {
-    background-color: transparent !important;
-  }
-  
-  /* Make cards semi-transparent in light mode */
-  .card, 
-  [class*="card"],
-  [role="region"],
-  div[style*="border-radius"],
-  div[style*="background-color"] {
-    background-color: rgba(255, 255, 255, 0.85) !important;
-    backdrop-filter: blur(2px);
-    border: 1px solid rgba(200, 200, 200, 0.3) !important;
-  }
-  
-  /* Dark mode cards */
-  .dark .card, 
-  .dark [class*="card"],
-  .dark [role="region"],
-  .dark div[style*="border-radius"],
-  .dark div[style*="background-color"] {
-    background-color: rgba(31, 41, 55, 0.9) !important;
-    backdrop-filter: blur(2px);
-    border: 1px solid rgba(64, 67, 83, 0.6) !important;
-  }
-  
-  /* Ensure grid container is properly positioned */
-  .grid-container {
-    position: fixed;
-    inset: 0;
-    z-index: 0;
-  }
-  
-  /* Remove any white background elements */
-  main, body, html, #__next, [class*="container"] {
-    background-color: transparent !important;
-  }
-  
-  /* Dark mode grid only */
-  .dark .bg-grid {
-    background-color: #050505 !important; /* Even darker grid background in dark mode */
+  /* Remove transitions for theme switching */
+  *, *::before, *::after {
+    transition: none !important;
   }
 
-  /* Ensure light mode body/html are always white */
-  html:not(.dark), 
-  body:not(.dark) {
-    background-color: transparent !important;
-  }
-  
-  /* Override transparent background styles with more specific selectors */
-  body:not(.dark),
-  html:not(.dark),
-  body:not(.dark) div.min-h-screen,
-  html:not(.dark) div.min-h-screen {
-    background-color: transparent !important;
+  /* Only keep transitions for interactive elements */
+  button:not([data-theme-toggle]), 
+  a:hover,
+  .hover-transition {
+    transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out !important;
   }
 
-  .grid-item[data-active="true"],
-  .grid-item.active {
-    margin: -1px -1px 0 0;
-    background-color: rgba(192, 86, 59, 0.4) !important;
-    opacity: 0.9 !important;
-    transition: all 0.2s ease-in-out;
-    transform: scale(1.05);
-    z-index: 2;
-    box-shadow: none !important;
+  /* Sidebar specific transitions */
+  [class*="fixed inset-y-0 z-20 flex flex-col"],
+  [class*="fixed inset-y-0 z-10 flex flex-col"],
+  .sidebar-item,
+  nav a,
+  nav div {
+    transition: width 0.2s cubic-bezier(0.4, 0, 0.2, 1), transform 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    will-change: width, transform;
   }
 
-  .grid-item:not([data-active="true"]) {
-    transition: all 0.5s ease-in-out;
+  /* Keep sidebar collapse transition */
+  .sidebar-transition {
+    transition: width 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    will-change: width;
   }
 
-  .dark .grid-item[data-active="true"],
-  .dark .grid-item.active {
-    background-color: rgba(180, 66, 46, 0.35) !important;
-    transition: all 0.2s ease-in-out;
-    box-shadow: none !important;
-  }
-  
-  /* Ensure dark background extends to page bottom even when scrolling */
-  .dark .min-h-screen {
-    background-color: transparent !important;
-  }
-  
-  .dark #root, 
-  .dark [data-rk],
-  .dark [data-overlay-container] {
-    background-color: transparent !important;
-  }
-  
-  /* Fix for sidebar in dark mode */
-  .dark [class*="fixed inset-y-0 z-20 flex flex-col"] {
-    background-color: #09090b !important;
-    border-right-color: #27272a !important;
-    min-height: 100vh !important;
-    height: 100% !important;
-    padding-bottom: 0 !important;
-    bottom: 0 !important;
-  }
-  
-  /* Fix for sidebar in light mode */
+  /* Smooth transition for sidebar content */
   [class*="fixed inset-y-0 z-20 flex flex-col"] {
-    background-color: white !important;
-    border-right-color: #e5e7eb !important;
-    min-height: 100vh !important;
-    height: 100% !important;
-    padding-bottom: 0 !important;
-    bottom: 0 !important;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    will-change: transform, width;
   }
-  
-  /* Remove any border from sidebar bottom */
-  .dark [class*="fixed inset-y-0"] div[class*="border-t"],
-  [class*="fixed inset-y-0"] div[class*="border-t"] {
-    border-top: none !important;
+
+  /* Smooth transition for sidebar items */
+  .sidebar-item {
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    will-change: transform, opacity;
   }
-  
-  /* Additional styling to remove shadows from all chart components */
-  [class*="recharts"],
-  svg,
-  g,
-  rect,
-  path,
-  line,
-  circle,
-  foreignObject,
-  [data-testid*="recharts"],
-  [class*="area"],
-  [class*="graph"],
-  [class*="chart"] {
-    filter: drop-shadow(0 0 0 transparent) !important;
-    box-shadow: none !important;
-    -webkit-box-shadow: none !important;
-    border-shadow: none !important;
-    text-shadow: none !important;
+
+  /* Add transition for sidebar nav elements */
+  nav a, nav div {
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    will-change: transform, opacity;
   }
-  
-  /* Specifically target any potential borders in charts */
-  [role="region"],
-  [role="region"] > *,
-  [role="region"] > * > *,
-  [role="grid"],
-  [class*="recharts"] * {
-    border: none !important;
-    outline: none !important;
-    stroke-opacity: 1 !important;
-    filter: drop-shadow(0 0 0 transparent) !important;
+
+  /* Logo container styling */
+  .sidebar-logo-container {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    width: auto;
+    height: 64px;
+    padding: 0;
+    margin: 0;
   }
-  
-  /* Target chart containers */
-  div[style*="border-radius"] {
-    border: none !important;
-    box-shadow: none !important;
-    -webkit-box-shadow: none !important;
-    filter: none !important;
+
+  .sidebar-logo-container img {
+    max-width: 180px;
+    height: auto;
+    object-fit: contain;
+    margin-left: -20px; /* Adjust logo position to align with icons */
   }
-  
-  /* Apply !important to background colors for charts */
-  [class*="recharts"],
-  [role="region"],
-  div[style*="border-radius"],
-  div[style*="background-color"] {
-    background-color: hsl(var(--card)/90%) !important;
+
+  /* Ensure consistent logo positioning in both modes */
+  .dark .sidebar-logo-container img,
+  .sidebar-logo-container img {
+    position: relative;
+    left: 0;
   }
-  
-  /* Target all section containers */
-  section,
-  article,
-  div[class*="card"],
-  div[class*="panel"],
-  div[class*="container"],
-  div[class*="wrapper"] {
-    box-shadow: none !important;
-    border: none !important;
-    filter: none !important;
-  }
-  
-  /* Force all chart components to have same background */
-  [role="region"] {
-    background-color: hsl(var(--card)/90%) !important;
-    backdrop-filter: blur(4px);
+
+  /* Dark mode logo specific positioning */
+  .dark .sidebar-logo-container img {
+    margin-top: 8px;
   }
 }
 
-/* Add very specific styling for Recharts components */
-.recharts-wrapper .recharts-surface {
-  filter: none !important;
-}
-
-.recharts-tooltip-wrapper {
-  filter: none !important;
-  box-shadow: none !important;
-}
-
-/* Fix for chart container display */
-.recharts-responsive-container {
-  filter: none !important;
-}
-
-/* Fix for AreaChart */
-.recharts-area {
-  filter: none !important;
-}
-
-/* Fix for specific card elements with shadow issues */
-[class*="card"] {
-  border: 1px solid rgba(39, 39, 42, 0.2) !important;
-  filter: none !important;
-  box-shadow: none !important;
-}
-
-/* Fix for the chart borders */
-.recharts-cartesian-grid {
-  filter: none !important;
-}
-
-.recharts-cartesian-grid-horizontal line,
-.recharts-cartesian-grid-vertical line {
-  filter: none !important;
-  box-shadow: none !important;
-}
-
-/* Fix for the tooltips */
-.recharts-tooltip-cursor {
-  fill: rgba(21, 27, 84, 0.4) !important;
-  stroke: rgba(21, 27, 84, 0.6) !important;
-}
-
-.recharts-tooltip-wrapper,
-.recharts-default-tooltip {
-  background-color: rgba(50, 50, 60, 0.85) !important;
-  border-color: rgba(80, 80, 90, 0.3) !important;
-  color: rgba(200, 200, 210, 0.9) !important;
-}
-
-.recharts-tooltip-item {
-  color: rgba(200, 200, 210, 0.9) !important;
-}
-
-/* Fix for the legend */
-.recharts-legend-wrapper {
-  filter: none !important;
-}
-
-/* Card content override */
-.dark .card-content {
-  background-color: rgba(31, 41, 55, 0.9) !important;
-}
-
-/* Force clean rendering for all SVG elements */
-svg {
-  filter: none !important;
-  isolation: isolate !important;
-}
-
-/* Fix for specific chart data shadows */
-.recharts-area-area,
-.recharts-area-curve,
-.recharts-area-dot {
-  filter: none !important;
-  fill: #1a237e !important; /* Solid navy blue with no transparency */
-  fill-opacity: 1 !important; /* Full opacity for solid color */
-  stroke-opacity: 1 !important;
-}
-
-/* Force colors without gradients */
-.recharts-area path,
-.recharts-area polygon {
-  fill: #1a237e !important; /* Solid navy blue with no transparency */
-  fill-opacity: 1 !important; /* Full opacity for solid color */
-  stroke-opacity: 0 !important; /* No stroke */
-}
-
-/* Additional styles to ensure consistent navy blue for all chart components */
-.recharts-layer,
-.recharts-curve,
-.recharts-area-chart,
-.recharts-filled[class*="area"],
-.recharts-area-filled,
-.recharts-line-curve,
-.recharts-line-chart,
-.recharts-active-dot,
-.recharts-default-dot {
-  fill: #1a237e !important; /* Solid navy blue with no transparency */
-  color: #1a237e !important;
-  filter: none !important;
-}
-
-/* Ensure any gradient or transparent components use the same color */
-.recharts-gradient-light,
-.recharts-gradient-dark,
-.recharts-area-gradient {
-  stop-color: #1a237e !important;
-}
-
-/* Make grid lines visible but subtle - consistent in both modes */
-.recharts-cartesian-grid-horizontal line,
-.recharts-cartesian-grid-vertical line,
-.recharts-reference-line line {
-  stroke-dasharray: 2 !important;
-  stroke-width: 0.5 !important;
-}
-
-/* Dark mode grid lines */
-.dark .recharts-cartesian-grid-horizontal line,
-.dark .recharts-cartesian-grid-vertical line,
-.dark .recharts-reference-line line {
-  stroke: rgba(255, 255, 255, 0.05) !important;
-}
-
-/* Light mode grid lines */
-.recharts-cartesian-grid-horizontal line,
-.recharts-cartesian-grid-vertical line,
-.recharts-reference-line line {
-  stroke: rgba(0, 0, 0, 0.05) !important;
-}
-
-/* Fix chart backgrounds */
-.dark div[style*="border-radius"],
-.dark [role="region"] {
-  background-color: #0a0a0f !important; /* Very dark background for the card */
-  border: 1px solid rgba(40, 42, 54, 0.7) !important;
-}
-
-/* Override any transition effects that might cause shadows */
-* {
-  transition-property: background-color, border-color, color, fill, stroke, opacity, box-shadow, transform, filter, backdrop-filter !important;
-  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1) !important;
-  transition-duration: 150ms !important;
-}
-
-/* Remove any text shadows */
-text {
-  text-shadow: none !important;
-}
-
-/* Ensure chart region doesn't have shadows */
-[role="region"] > * {
-  filter: none !important;
-  box-shadow: none !important;
-}
-
-/* Change specific chart appearance */
-.card {
-  border: 1px solid rgba(39, 39, 42, 0.2) !important;
-  background-color: rgba(31, 41, 55, 0.9) !important;
-}
-
-/* Target the area chart specifically to prevent shadow effects */
-.recharts-area-area,
-.recharts-area path {
-  filter: none !important;
-  box-shadow: none !important;
-  -webkit-box-shadow: none !important;
-  stroke-width: 0 !important; /* Remove stroke that might cause shadow effect */
-}
-
-/* Remove any blur effects */
-.recharts-area,
-.recharts-area-curve,
-.recharts-curve,
-.recharts-area-chart {
-  filter: none !important;
-  box-shadow: none !important;
-  -webkit-box-shadow: none !important;
-}
-
-/* Remove borders between charts */
-.card + .card {
-  margin-top: 1rem;
-  border: 1px solid rgba(39, 39, 42, 0.2) !important;
-  box-shadow: none !important;
-}
-
-/* Ensure clean borders between cards */
-.col-span-2 {
-  border: 1px solid rgba(39, 39, 42, 0.2) !important;
-  margin: 0.5rem 0;
-  box-shadow: none !important;
-}
-
-/* Remove default styling from grid lines */
-.recharts-cartesian-grid-horizontal line,
-.recharts-cartesian-grid-vertical line,
-.recharts-reference-line line {
-  stroke: rgba(75, 85, 99, 0.2) !important;
-  stroke-dasharray: none !important;
-}
-
-/* Force consistent card backgrounds */
+/* Base card styling */
 .card, 
-.col-span-2 {
-  background-color: white !important; /* White in light mode */
-}
-
-/* Remove shadows from all chart components */
-.recharts-wrapper,
-.recharts-surface,
-.recharts-layer,
-.recharts-tooltip-wrapper,
-.recharts-default-tooltip {
+[class*="card"],
+[role="region"],
+div[style*="border-radius"],
+div[style*="background-color"] {
+  background-color: white !important;
+  backdrop-filter: blur(4px);
+  position: relative;
+  z-index: 5;
   box-shadow: none !important;
   -webkit-box-shadow: none !important;
   filter: none !important;
+  border: 1px solid rgba(200, 200, 200, 0.3) !important;
+  transition: all 0.2s ease-in-out !important;
+  will-change: border-color, box-shadow;
 }
 
-/* Remove shadows from cards */
-.card,
-.card-header,
-.card-content {
+/* Force hover styles for light mode */
+body:not(.dark) .card:hover, 
+body:not(.dark) [class*="card"]:hover,
+body:not(.dark) [role="region"]:hover,
+body:not(.dark) div[style*="border-radius"]:hover,
+body:not(.dark) div[style*="background-color"]:hover {
+  border: 1px solid #dc6d4b !important;
+  box-shadow: 0 0 0 1px #dc6d4b !important;
+  outline: none !important;
+  z-index: 10 !important;
+}
+
+/* Add hover effect for light mode */
+.card:hover, 
+[class*="card"]:hover,
+[role="region"]:hover,
+div[style*="border-radius"]:hover,
+div[style*="background-color"]:hover,
+.card:focus-within, 
+[class*="card"]:focus-within,
+[role="region"]:focus-within,
+div[style*="border-radius"]:focus-within,
+div[style*="background-color"]:focus-within {
+  border: 1px solid #dc6d4b !important;
+  box-shadow: 0 0 0 1px #dc6d4b !important;
+  outline: none !important;
+  z-index: 10 !important;
+}
+
+/* Dark mode card styling */
+.dark .card, 
+.dark [class*="card"],
+.dark [role="region"],
+.dark div[style*="border-radius"],
+.dark div[style*="background-color"] {
+  background-color: rgba(31, 41, 55, 0.9) !important;
+  border: 1px solid rgba(64, 67, 83, 0.6) !important;
+  transition: all 0.2s ease-in-out !important;
+  will-change: border-color, box-shadow;
+}
+
+/* Dark mode hover effect */
+.dark .card:hover, 
+.dark [class*="card"]:hover,
+.dark [role="region"]:hover,
+.dark div[style*="border-radius"]:hover,
+.dark div[style*="background-color"]:hover,
+.dark .card:focus-within, 
+.dark [class*="card"]:focus-within,
+.dark [role="region"]:focus-within,
+.dark div[style*="border-radius"]:focus-within,
+.dark div[style*="background-color"]:focus-within {
+  border: 1px solid #dc6d4b !important;
+  box-shadow: 0 0 0 1px #dc6d4b !important;
+  outline: none !important;
+}
+
+/* Add focus styles to match hover */
+.card:focus, 
+[class*="card"]:focus,
+[role="region"]:focus,
+div[style*="border-radius"]:focus,
+div[style*="background-color"]:focus,
+.dark .card:focus, 
+.dark [class*="card"]:focus,
+.dark [role="region"]:focus,
+.dark div[style*="border-radius"]:focus,
+.dark div[style*="background-color"]:focus {
+  border: 1px solid #dc6d4b !important;
+  box-shadow: 0 0 0 1px #dc6d4b !important;
+  outline: none !important;
+}
+
+/* Ensure hover effects are not overridden */
+*:hover > .card,
+*:hover > [class*="card"],
+*:hover > [role="region"],
+*:hover > div[style*="border-radius"],
+*:hover > div[style*="background-color"] {
+  border: 1px solid #dc6d4b !important;
+  box-shadow: 0 0 0 1px #dc6d4b !important;
+  outline: none !important;
+}
+
+/* Light mode grid lines - slightly more visible */
+.grid-item {
+  border-right: 1px solid rgba(180, 180, 180, 0.141) !important;
+  border-bottom: 1px solid rgba(180, 180, 180, 0.141) !important;
+  transition: background-color 0.3s ease-in-out;
+  opacity: 1 !important;
   box-shadow: none !important;
-  -webkit-box-shadow: none !important;
+  z-index: 1;
+  pointer-events: none;
+  box-sizing: border-box;
 }
 
-/* Remove tooltip shadows */
-[role="tooltip"],
-.tooltip-content {
-  box-shadow: none !important;
-  -webkit-box-shadow: none !important;
+/* Create inner element for lit squares without affecting borders */
+.grid-item::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  transition: all 0.3s ease-in-out;
+  background-color: transparent;
+  opacity: 0;
+  box-sizing: border-box;
 }
 
-/* Ensure dropdowns and other UI elements stay on top */
+/* Dark mode grid lines - slightly more visible */
+.dark .grid-item {
+  border-right: 1px solid rgba(41, 41, 42, 0.304) !important;
+  border-bottom: 1px solid rgba(41, 41, 42, 0.304) !important;
+}
+
+/* Active grid items - using ::after to light up only the interior */
+.grid-item[data-active="true"]::after,
+.grid-item.active::after {
+  background-color: rgba(178, 63, 34, 0.277) !important;
+  opacity: calc(var(--intensity, 1) * 0.9) !important;
+  transition: all 0.2s ease-in-out;
+  z-index: 2;
+}
+
+/* Active grid item styling - the item itself doesn't change, only its ::after */
+.grid-item[data-active="true"],
+.grid-item.active {
+  transition: all 0.2s ease-in-out;
+}
+
+.grid-item:not([data-active="true"]) {
+  transition: all 0.5s ease-in-out;
+}
+
+.grid-item:not([data-active="true"])::after {
+  opacity: 0;
+  transition: all 0.5s ease-in-out;
+}
+
+/* Dark mode active squares */
+.dark .grid-item[data-active="true"]::after,
+.dark .grid-item.active::after {
+  background-color: rgba(180, 66, 46, 0.35) !important;
+  opacity: calc(var(--intensity, 1) * 0.9) !important;
+  transition: all 0.2s ease-in-out;
+}
+
+/* Layout and positioning */
+main, body, html, #__next, [class*="container"] {
+  background-color: transparent !important;
+}
+
+/* Sidebar styling */
+[class*="fixed inset-y-0 z-20 flex flex-col"] {
+  background-color: white !important;
+  border-right-color: #e5e7eb !important;
+  min-height: 100vh !important;
+  height: 100% !important;
+  padding-bottom: 0 !important;
+  bottom: 0 !important;
+}
+
+.dark [class*="fixed inset-y-0 z-20 flex flex-col"] {
+  background-color: #09090b !important;
+  border-right-color: #09090b !important;
+}
+
+/* Remove any borders from sidebar bottom */
+[class*="fixed inset-y-0"] div[class*="border-t"] {
+  border-top: none !important;
+}
+
+/* Z-index management */
 [role="menu"],
 [role="dialog"],
 [role="tooltip"] {
   z-index: 50 !important;
 }
 
-/* Keep the background grid properly layered */
-.bg-grid {
-  isolation: isolate;
-  z-index: 1 !important;
-}
-
-/* Ensure content stays above grid but below dropdowns */
 .content-layer {
   position: relative;
   z-index: 10;
 }
 
-/* Dropdown menu specific z-index */
-[data-state="open"][role="menu"] {
-  z-index: 100 !important;
-}
-
-[data-state="closed"][role="menu"] {
-  z-index: -1 !important;
-  pointer-events: none !important;
-}
-
-/* Other UI elements */
-[role="dialog"],
-[role="tooltip"] {
-  z-index: 50 !important;
-}
-
-/* Content layer */
-.content-layer {
-  position: relative;
-  z-index: 10;
-}
-
-/* Ensure the grid container is properly positioned */
-.grid-container {
-  position: fixed;
-  inset: 0;
-  z-index: 1;
-}
-
-/* Base layer for main content */
-.card, 
-[class*="card"],
-[role="region"],
-div[style*="border-radius"],
-div[style*="background-color"] {
-  position: relative;
-  z-index: 10 !important;
-}
-
-/* Navigation and main content */
-nav,
-main,
-header,
-.content-wrapper {
-  position: relative;
-  z-index: 10 !important;
-}
-
-/* Ensure content stays above grid and overlay but below dropdowns */
 main, header, footer, nav, aside, section, article, .main-content, [class*="content"] {
   position: relative;
   z-index: 5 !important;
 }
 
-/* Chart active/highlight elements */
-.recharts-active-dot,
-.recharts-dot.active,
-.recharts-area-dot.active,
-.recharts-rectangle.active,
-.recharts-active-fill,
-[class*="active"],
-[class*="highlight"],
-.recharts-tooltip-cursor {
-  fill: rgba(21, 27, 84, 0.7) !important;
-  stroke: rgba(21, 27, 84, 0.8) !important;
-}
-
-/* Soften chart highlight colors */
-.recharts-tooltip-cursor,
-.recharts-reference-line line,
-.recharts-reference-line rect {
-  stroke: rgba(170, 170, 180, 0.4) !important;
-  fill: rgba(170, 170, 180, 0.15) !important;
-}
-
-/* Remove any blur effects */
-.recharts-area,
-.recharts-area-curve,
-.recharts-curve,
-.recharts-area-chart {
-  filter: none !important;
-  box-shadow: none !important;
-  -webkit-box-shadow: none !important;
-}
-
-/* Ensure modals are always on top of everything */
 .fixed.inset-0.flex.items-center.justify-center[class*="z-"] {
-  z-index: 9999 !important; /* Extremely high z-index to ensure it's on top */
+  z-index: 9999 !important;
 }
 
-/* Ensure modal backdrops are visible */
 .fixed.inset-0.bg-black.bg-opacity-60 {
   z-index: 9998 !important;
 }
 
-/* Force dashboard cards to stay below modals */
-.card, 
-[class*="card"],
-[role="region"],
-div[style*="border-radius"],
-div[style*="background-color"] {
-  z-index: 5 !important;
+/* Modal and overlay positioning - REMOVE */
+/* [role="dialog"] { ... } */
+/* [role="dialog"] + div { ... } */
+
+/* Re-introduce standard shadcn dialog overlay styles if needed */
+@layer base {
+  /* Faster Overlay Animation */
+  [data-state=open] ~ [data-radix-portal] [data-radix-dialog-overlay],
+  [data-state=open] ~ [data-radix-dialog-overlay] {
+    @apply fixed inset-0 z-50 bg-black/50 backdrop-blur-sm data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 duration-75;
+  }
+
+  /* Faster Content Animation */
+  [data-state=open] ~ [data-radix-portal] [data-radix-dialog-content],
+  [data-state=open] ~ [data-radix-dialog-content] {
+     @apply fixed left-[50%] top-[50%] z-50 grid w-full max-w-lg translate-x-[-50%] translate-y-[-50%] gap-4 duration-75 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[state=closed]:slide-out-to-left-1/2 data-[state=closed]:slide-out-to-top-[48%] data-[state=open]:slide-in-from-left-1/2 data-[state=open]:slide-in-from-top-[48%];
+     /* Reset base visual styles that might interfere */
+     /* background: transparent !important; */
+     /* padding: 0 !important; */
+     /* box-shadow: none !important; */
+     /* border-radius: 0 !important; */
+  }
+
+  /* Style the default Close button */
+  [data-radix-dialog-content] > button[aria-label='Close'] {
+    @apply absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-accent data-[state=open]:text-muted-foreground;
+    color: #6b7280 !important;
+  }
+   .dark [data-radix-dialog-content] > button[aria-label='Close'] {
+      color: #9ca3af !important;
+   }
 }
 
-/* Ensure auth modals are always visible on top */
-[role="dialog"], 
-.fixed.inset-0.flex.items-center.justify-center {
-  z-index: 100000 !important;
-  position: fixed !important;
-}
-
-/* Super-specific auth modal styles to guarantee they appear on top */
-.auth-modal-overlay {
-  position: fixed !important;
-  top: 0 !important;
-  left: 0 !important;
-  right: 0 !important;
-  bottom: 0 !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  background-color: rgba(0, 0, 0, 0.7) !important;
-  z-index: 999999 !important;
-  isolation: isolate !important;
-}
-
-.auth-modal-content {
-  position: relative !important;
-  z-index: 1000000 !important;
-  isolation: isolate !important;
-  max-width: 28rem !important;
+/* Apply EXACT TARGET styles DIRECTLY to DialogContent */
+[data-radix-dialog-content][aria-describedby][aria-labelledby] {
+  background-color: white !important;
+  border-radius: 1rem !important;
+  border: 1px solid #e5e7eb !important;
+  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1) !important;
+  padding: 2rem !important;
   width: 100% !important;
-  margin: 0 auto !important;
-  border-radius: 0.5rem !important;
+  max-width: 500px !important;
+  margin: 1rem !important;
+  gap: 0 !important;
 }
 
-/* Fix stacking contexts that might be interfering */
-body, html, #__next, main, div, section, header, nav {
-  isolation: auto !important;
+.dark [data-radix-dialog-content][aria-describedby][aria-labelledby] {
+  background-color: #1f2937 !important; 
+  border-color: #374151 !important; 
+  color: #f9fafb !important;
 }
 
-/* Aggressively reset stacking context for the entire page when a modal is open */
-body:has(.auth-modal-overlay),
-html:has(.auth-modal-overlay) {
+/* --- Style elements INSIDE the dialog (TARGET IMAGE) --- */
+
+/* Header */
+[data-radix-dialog-content] h2 { /* DialogTitle */
+  font-size: 1.25rem !important; /* 20px */
+  line-height: 1.75rem !important; 
+  font-weight: 600 !important;
+  color: #111827 !important;
+  margin-bottom: 0.5rem !important; 
+}
+.dark [data-radix-dialog-content] h2 {
+  color: #f9fafb !important;
+}
+
+/* Description */
+[data-radix-dialog-content] p { /* DialogDescription */
+  font-size: 0.875rem !important;
+  line-height: 1.25rem !important;
+  color: #6b7280 !important;
+  margin-bottom: 1rem !important; /* Reduced from 1.5rem */
+}
+.dark [data-radix-dialog-content] p {
+  color: #9ca3af !important;
+}
+
+/* Label */
+[data-radix-dialog-content] label {
+  display: block !important;
+  font-size: 0.875rem !important;
+  font-weight: 500 !important;
+  color: #111827 !important;
+  margin-bottom: 0.5rem !important; /* Adjusted from 0.25rem */
+  padding-top: 0.5rem !important; /* Added padding-top */
+}
+.dark [data-radix-dialog-content] label {
+  color: #f9fafb !important;
+}
+
+/* Input (TARGET IMAGE style) */
+[data-radix-dialog-content] input {
+  display: block !important;
+  width: 100% !important;
+  border: 1px solid #dc6d4b !important; /* TARGET: Coral border */
+  border-radius: 0.5rem !important; /* TARGET: 8px */
+  padding: 0.625rem 0.75rem !important; /* TARGET: 10px 12px */
+  font-size: 0.875rem !important; 
+  background-color: white !important;
+  color: #111827 !important;
+  margin-top: 0 !important;
+}
+.dark [data-radix-dialog-content] input {
+  background-color: #374151 !important;
+  border-color: #dc6d4b !important;
+  color: #f9fafb !important;
+}
+[data-radix-dialog-content] input::placeholder {
+  color: #9ca3af !important;
+}
+[data-radix-dialog-content] input:focus {
+   outline: none !important;
+   box-shadow: none !important; /* Remove focus ring */
+}
+
+/* Footer (Button container) - Align Right */
+[data-radix-dialog-content] footer {
+  display: flex !important;
+  justify-content: flex-end !important; /* Align buttons right */
+  gap: 0.75rem !important; /* 12px */
+  margin-top: 1.5rem !important; /* Adjusted from 2rem */
+  padding-top: 0.5rem !important; /* Added padding-top */
+}
+
+/* Cancel button (TARGET IMAGE style) */
+[data-radix-dialog-content] button[variant="outline"] {
+  background-color: white !important;
+  color: #111827 !important;
+  border: 1px solid #d1d5db !important; /* Gray border */
+  padding: 0.5rem 1rem !important; 
+  border-radius: 0.375rem !important; /* 6px */
+  font-size: 0.875rem !important; 
+  font-weight: 500 !important;
+  transition: background-color 0.2s !important;
+}
+[data-radix-dialog-content] button[variant="outline"]:hover {
+   background-color: #f9fafb !important; 
+   opacity: 1 !important; 
+}
+.dark [data-radix-dialog-content] button[variant="outline"] {
+  background-color: #374151 !important;
+  border-color: #4b5563 !important;
+  color: #f9fafb !important;
+}
+.dark [data-radix-dialog-content] button[variant="outline"]:hover {
+   background-color: #4b5563 !important;
+}
+
+/* Create button (TARGET IMAGE style) */
+[data-radix-dialog-content] button:not([variant="outline"]) { /* Primary button */
+  background-color: #edb5a7 !important; /* TARGET: Light Coral background */
+  color: white !important; /* TARGET: White text */
+  border: none !important;
+  padding: 0.5rem 1rem !important; 
+  border-radius: 0.375rem !important; /* 6px */
+  font-size: 0.875rem !important; 
+  font-weight: 500 !important;
+  transition: background-color 0.2s !important;
+}
+[data-radix-dialog-content] button:not([variant="outline"]):hover {
+   background-color: #dc6d4b !important; /* Darker coral on hover */
+   opacity: 1 !important; 
+}
+
+/* Prevent scrolling when modal is open */
+body:has([data-state=open] ~ [data-radix-portal]),
+html:has([data-state=open] ~ [data-radix-portal]) {
   overflow: hidden !important;
 }
 
-/* Override the rule that's making all cards dark regardless of theme */
-.card, 
-.col-span-2 {
-  background-color: white !important; /* White in light mode */
+/* Fix text input contrast in modals for both light and dark modes */
+input[type="email"],
+input[type="password"],
+input[type="text"] {
+  color: #1f2937 !important;
+  background-color: #f9fafb !important;
+  border: 1px solid rgba(180, 180, 180, 0.3) !important;
 }
 
-/* Only make cards dark in dark mode */
-.dark .card, 
-.dark .col-span-2 {
-  background-color: rgba(31, 41, 55, 0.95) !important; /* Darker in dark mode (increased from 0.9 to 0.95) */
+.dark input[type="email"],
+.dark input[type="password"],
+.dark input[type="text"] {
+  color: #f9fafb !important;
+  background-color: #374151 !important;
+  border: 1px solid rgba(64, 67, 83, 0.6) !important;
 }
 
-/* Fix chart containers for light mode */
-div[style*="border-radius"],
-[role="region"] {
-  background-color: white !important; /* White in light mode */
-  border: 1px solid rgba(200, 200, 200, 0.3) !important; /* Light border in light mode */
+/* Fix header text in modals */
+h1, h2, h3, h4, h5, h6,
+[role="dialog"] h1,
+[role="dialog"] h2, 
+[role="dialog"] h3,
+[role="dialog"] h4,
+[role="dialog"] p,
+div[role="dialog"] h1,
+div[role="dialog"] h2,
+div[role="dialog"] h3,
+div[role="dialog"] h4,
+div[role="dialog"] p,
+.auth-modal-content h1,
+.auth-modal-content h2,
+.auth-modal-content h3,
+.auth-modal-content h4,
+.auth-modal-content p {
+  color: #1f2937 !important;
 }
 
-/* Dark mode specific chart styling */
-.dark div[style*="border-radius"],
-.dark [role="region"] {
-  background-color: rgba(31, 41, 55, 0.95) !important; /* Darker in dark mode (increased from 0.9 to 0.95) */
-  border: 1px solid rgba(64, 67, 83, 0.6) !important; /* More visible border */
+.dark h1, .dark h2, .dark h3, .dark h4, .dark h5, .dark h6,
+.dark [role="dialog"] h1,
+.dark [role="dialog"] h2,
+.dark [role="dialog"] h3,
+.dark [role="dialog"] h4,
+.dark [role="dialog"] p,
+.dark div[role="dialog"] h1,
+.dark div[role="dialog"] h2,
+.dark div[role="dialog"] h3,
+.dark div[role="dialog"] h4,
+.dark div[role="dialog"] p,
+.dark .auth-modal-content h1,
+.dark .auth-modal-content h2,
+.dark .auth-modal-content h3,
+.dark .auth-modal-content h4,
+.dark .auth-modal-content p {
+  color: #f9fafb !important;
 }
 
-/* Additional styles to ensure consistent navy blue for all chart components */
+/* Fix all labels and form text */
+label,
+.form-label,
+[role="dialog"] label,
+div[role="dialog"] label,
+.auth-modal-content label,
+form label,
+.form-text,
+.input-label,
+[role="dialog"] .form-text,
+div[role="dialog"] .form-text,
+.auth-modal-content .form-text {
+  color: #1f2937 !important;
+  font-weight: 500 !important;
+}
+
+.dark label,
+.dark .form-label,
+.dark [role="dialog"] label,
+.dark div[role="dialog"] label,
+.dark .auth-modal-content label,
+.dark form label,
+.dark .form-text,
+.dark .input-label,
+.dark [role="dialog"] .form-text,
+.dark div[role="dialog"] .form-text,
+.dark .auth-modal-content .form-text {
+  color: #f9fafb !important;
+}
+
+/* Ensure all field types have proper styling */
+input,
+textarea,
+select,
+[type="email"],
+[type="password"],
+[type="text"],
+[type="tel"],
+[type="number"],
+[type="search"],
+[role="textbox"] {
+  color: #1f2937 !important;
+  background-color: #f9fafb !important; 
+  border: 1px solid rgba(180, 180, 180, 0.3) !important;
+}
+
+.dark input,
+.dark textarea,
+.dark select,
+.dark [type="email"],
+.dark [type="password"],
+.dark [type="text"],
+.dark [type="tel"],
+.dark [type="number"],
+.dark [type="search"],
+.dark [role="textbox"] {
+  color: #f9fafb !important;
+  background-color: #374151 !important;
+  border: 1px solid rgba(64, 67, 83, 0.6) !important;
+}
+
+/* Fix links in modal/login forms */
+[role="dialog"] a,
+div[role="dialog"] a,
+.auth-modal-content a,
+[role="dialog"] button[type="button"]:not([class*="primary"]),
+div[role="dialog"] button[type="button"]:not([class*="primary"]),
+.auth-modal-content button[type="button"]:not([class*="primary"]) {
+  color: #dc6d4b !important; /* Use your brand color for links */
+}
+
+/* Ensure button text is visible */
+button[type="submit"],
+button[class*="primary"] {
+  color: white !important;
+}
+
+/* Additional fix for any blue text that might be present */
+[style*="color:"] {
+  color: inherit !important;
+}
+
+[style*="background-color:cornflowerblue"],
+[style*="background:cornflowerblue"],
+[style*="background-color: cornflowerblue"],
+[style*="background: cornflowerblue"],
+[style*="background-color: rgb(100, 149, 237)"],
+[style*="background: rgb(100, 149, 237)"] {
+  background-color: #1f2937 !important;
+  color: white !important;
+}
+
+/* Recharts specific styles */
+.recharts-wrapper,
+.recharts-surface,
 .recharts-layer,
-.recharts-curve,
-.recharts-area-chart,
-.recharts-filled[class*="area"],
-.recharts-area-filled,
-.recharts-line-curve,
-.recharts-line-chart,
-.recharts-active-dot,
-.recharts-default-dot {
-  fill: rgba(21, 27, 84, 0.9) !important; /* Darker navy blue fill */
-  color: rgba(21, 27, 84, 0.9) !important;
-  filter: none !important;
+.recharts-tooltip-wrapper,
+.recharts-default-tooltip {
+  outline: none !important;
 }
 
-/* Ensure any gradient or transparent components use the same color */
-.recharts-gradient-light,
-.recharts-gradient-dark,
-.recharts-area-gradient {
-  stop-color: rgba(21, 27, 84, 0.9) !important;
+/* Text styles */
+.recharts-text,
+.recharts-cartesian-axis-tick-value,
+.recharts-label,
+.recharts-text-label,
+.recharts-cartesian-axis-tick text {
+  fill: #888888 !important;
+  font-size: 12px !important;
 }
 
-/* Chart styling: Two color approach - background and graph */
-/* Dark mode: Navy blue graph on dark background */
-.dark .recharts-area-area,
-.dark .recharts-area-curve,
-.dark .recharts-area-dot,
-.dark .recharts-area path,
-.dark .recharts-area polygon,
-.dark .recharts-layer,
-.dark .recharts-curve,
-.dark .recharts-area-chart,
-.dark .recharts-filled[class*="area"],
-.dark .recharts-area-filled,
-.dark .recharts-line-curve,
-.dark .recharts-line-chart,
-.dark .recharts-active-dot,
-.dark .recharts-default-dot {
-  fill: #1a237e !important; /* Solid navy blue */
-  color: #1a237e !important;
-  fill-opacity: 1 !important;
-  stroke-opacity: 0 !important;
-  filter: none !important;
+/* Area and path styles - For stacked charts */
+[data-chart-type="stacked"] .recharts-area,
+[data-chart-type="stacked"] .recharts-area-area,
+[data-chart-type="stacked"] .recharts-area path,
+[data-chart-type="stacked"] .recharts-area polygon {
+  fill-opacity: 0.6 !important;
 }
 
-/* Light mode: Brighter blue graph on white background */
-.recharts-area-area,
-.recharts-area-curve,
-.recharts-area-dot,
-.recharts-area path,
-.recharts-area polygon,
-.recharts-layer,
-.recharts-curve,
-.recharts-area-chart,
-.recharts-filled[class*="area"],
-.recharts-area-filled,
-.recharts-line-curve,
-.recharts-line-chart,
-.recharts-active-dot,
-.recharts-default-dot {
-  fill: #4d80e4 !important; /* Brighter soft blue */
-  color: #4d80e4 !important;
-  fill-opacity: 1 !important;
-  stroke-opacity: 0 !important;
-  filter: none !important;
+/* Area and path styles - Only for TTFT and ITL charts */
+[data-chart-type="latency"] .recharts-area,
+[data-chart-type="latency"] .recharts-area-area,
+[data-chart-type="latency"] .recharts-area path,
+[data-chart-type="latency"] .recharts-area polygon,
+[data-chart-type="latency"] path[class*="recharts-curve"],
+[data-chart-type="latency"] path[class*="recharts-area"],
+[data-chart-type="latency"] .recharts-line path {
+  fill: none !important;
+  fill-opacity: 0 !important;
 }
 
-/* Chart backgrounds - just two colors */
-/* Dark mode: Very dark background */
-.dark div[style*="border-radius"],
-.dark [role="region"] {
-  background-color: #0a0a0f !important; /* Very dark background for dark mode */
-  border: 1px solid rgba(40, 42, 54, 0.7) !important;
+[data-chart-type="latency"] .recharts-line,
+[data-chart-type="latency"] .recharts-line-curve {
+  fill: none !important;
+  stroke-width: 2 !important;
 }
 
-/* Light mode: Clean white background */
-div[style*="border-radius"],
-[role="region"] {
-  background-color: #ffffff !important; /* Pure white background for light mode */
-  border: 1px solid rgba(200, 200, 200, 0.3) !important;
+/* Line chart specific styles */
+.recharts-line-curve {
+  fill: none !important;
+  stroke-width: 2 !important;
 }
 
-/* Remove all previous chart styling */
-/* ====== SIMPLIFIED CHART STYLING WITH ONLY TWO COLORS ====== */
-
-/* Reset all chart elements to remove any styling */
-.recharts-wrapper *,
-.recharts-surface *,
-[class*="recharts-"] {
-  filter: none !important;
-  box-shadow: none !important;
-  -webkit-box-shadow: none !important;
-  stroke-width: inherit !important;
-}
-
-/* STEP 1: DARK MODE - Two colors only */
-/* Dark mode card backgrounds - very dark, almost black */
-.dark [role="region"],
-.dark div[style*="border-radius"] {
-  background-color: #0a0a0f !important; /* Very dark background */
-  border: 1px solid rgba(40, 42, 54, 0.7) !important;
-}
-
-/* Dark mode graph areas - solid navy blue */
-.dark .recharts-area-area,
-.dark .recharts-area path,
-.dark .recharts-area polygon,
-.dark .recharts-layer path,
-.dark .recharts-surface path:not(.recharts-curve),
-.dark .recharts-area-chart path {
-  fill: #1a237e !important; /* Single solid navy blue */
-  fill-opacity: 1 !important;
-  stroke: none !important;
-  stroke-opacity: 0 !important;
-}
-
-/* STEP 2: LIGHT MODE - Two colors only */
-/* Light mode card backgrounds - pure white */
-[role="region"],
-div[style*="border-radius"] {
-  background-color: #ffffff !important; /* Pure white background */
-  border: 1px solid rgba(200, 200, 200, 0.3) !important;
-}
-
-/* Light mode graph areas - bright blue */
-.recharts-area-area,
-.recharts-area path,
-.recharts-area polygon,
-.recharts-layer path,
-.recharts-surface path:not(.recharts-curve),
-.recharts-area-chart path {
-  fill: #4d80e4 !important; /* Bright blue */
-  fill-opacity: 1 !important;
-  stroke: none !important;
-  stroke-opacity: 0 !important;
-}
-
-/* STEP 3: GRID LINES - keep dotted lines in both modes */
-/* Base grid line styling */
+/* Grid lines */
 .recharts-cartesian-grid-horizontal line,
-.recharts-cartesian-grid-vertical line {
-  stroke-dasharray: 3 !important;
+.recharts-cartesian-grid-vertical line,
+.recharts-reference-line line,
+.recharts-cartesian-axis line,
+.recharts-xAxis line,
+.recharts-yAxis line {
+  stroke: hsl(var(--border)) !important;
+  stroke-width: 0.5 !important;
+  stroke-opacity: 0.2 !important;
+  stroke-dasharray: 4 4 !important;
+}
+
+/* Tooltip styles */
+.recharts-tooltip-wrapper {
+  outline: none !important;
+}
+
+.recharts-default-tooltip {
+  background-color: hsl(var(--card)) !important;
+  border: 1px solid var(--border) !important;
+  border-radius: 6px !important;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1) !important;
+}
+
+.recharts-tooltip-cursor {
+  stroke: #d97706 !important;
   stroke-width: 1 !important;
 }
 
-/* Dark mode grid lines */
-.dark .recharts-cartesian-grid-horizontal line,
-.dark .recharts-cartesian-grid-vertical line {
-  stroke: rgba(255, 255, 255, 0.1) !important;
+/* Dropdown menu positioning and animation - FIXED VERSION */
+[data-radix-popper-content-wrapper] {
+  position: absolute !important;
 }
 
-/* Light mode grid lines */
-.recharts-cartesian-grid-horizontal line,
-.recharts-cartesian-grid-vertical line {
-  stroke: rgba(0, 0, 0, 0.1) !important;
+/* Keep only animation styles for the menus */
+[data-state="open"][role="menu"] {
+  animation: dropdownIn 0.1s ease-out !important;
 }
 
-/* Ensure tooltips and highlights don't add extra colors */
-.recharts-tooltip-cursor,
-.recharts-active-dot,
-.recharts-dot.active {
-  opacity: 0.3 !important;
+[data-state="closed"][role="menu"] {
+  animation: dropdownOut 0.1s ease-out !important;
 }
 
-/* Hide any other potential color elements */
-.recharts-reference-area,
-.recharts-gradient-light,
-.recharts-gradient-dark,
-.recharts-area-gradient {
-  display: none !important;
+/* Navigation buttons styling - matching the design in the image */
+/* Register button - orange background with white text */
+header a[href*="register"],
+nav a[href*="register"],
+[class*="navbar"] a[href*="register"],
+[class*="header"] a[href*="register"],
+[class*="topbar"] a[href*="register"],
+header button:has(span:contains("Register")),
+nav button:has(span:contains("Register")),
+[class*="navbar"] button:has(span:contains("Register")),
+[class*="header"] button:has(span:contains("Register")),
+[class*="topbar"] button:has(span:contains("Register")),
+div[class*="flex"] > a[href*="register"],
+div[class*="flex"] > button:has(span:contains("Register")) {
+  background-color: #dc6d4b !important;
+  border-color: #dc6d4b !important;
+  color: white !important;
+  border-radius: 0.375rem !important;
+  font-weight: 500 !important;
 }
+
+/* Sign in button - light background with dark text */
+header a[href*="sign-in"],
+header a[href*="login"],
+nav a[href*="sign-in"],
+nav a[href*="login"],
+[class*="navbar"] a[href*="sign-in"],
+[class*="navbar"] a[href*="login"],
+[class*="header"] a[href*="sign-in"],
+[class*="header"] a[href*="login"],
+[class*="topbar"] a[href*="sign-in"],
+[class*="topbar"] a[href*="login"],
+header button:has(span:contains("Sign in")),
+nav button:has(span:contains("Sign in")),
+[class*="navbar"] button:has(span:contains("Sign in")),
+[class*="header"] button:has(span:contains("Sign in")),
+[class*="topbar"] button:has(span:contains("Sign in")),
+div[class*="flex"] > a[href*="sign-in"],
+div[class*="flex"] > a[href*="login"],
+div[class*="flex"] > button:has(span:contains("Sign in")) {
+  background-color: #f3f4f6 !important;
+  border-color: #f3f4f6 !important;
+  color: #1f2937 !important;
+  border-radius: 0.375rem !important;
+  font-weight: 500 !important;
+}
+
+/* Dark mode should preserve the same styling to match design */
+.dark header a[href*="register"],
+.dark nav a[href*="register"],
+.dark [class*="navbar"] a[href*="register"],
+.dark [class*="header"] a[href*="register"],
+.dark [class*="topbar"] a[href*="register"],
+.dark header button:has(span:contains("Register")),
+.dark nav button:has(span:contains("Register")),
+.dark [class*="navbar"] button:has(span:contains("Register")),
+.dark [class*="header"] button:has(span:contains("Register")),
+.dark [class*="topbar"] button:has(span:contains("Register")),
+.dark div[class*="flex"] > a[href*="register"],
+.dark div[class*="flex"] > button:has(span:contains("Register")) {
+  background-color: #dc6d4b !important;
+  border-color: #dc6d4b !important;
+  color: #1f2937 !important; /* Change to dark text */
+  font-weight: 500 !important;
+}
+
+.dark header a[href*="sign-in"],
+.dark header a[href*="login"],
+.dark nav a[href*="sign-in"],
+.dark nav a[href*="login"],
+.dark [class*="navbar"] a[href*="sign-in"],
+.dark [class*="navbar"] a[href*="login"],
+.dark [class*="header"] a[href*="sign-in"],
+.dark [class*="header"] a[href*="login"],
+.dark [class*="topbar"] a[href*="sign-in"],
+.dark [class*="topbar"] a[href*="login"],
+.dark header button:has(span:contains("Sign in")),
+.dark nav button:has(span:contains("Sign in")),
+.dark [class*="navbar"] button:has(span:contains("Sign in")),
+.dark [class*="header"] button:has(span:contains("Sign in")),
+.dark [class*="topbar"] button:has(span:contains("Sign in")),
+.dark div[class*="flex"] > a[href*="sign-in"],
+.dark div[class*="flex"] > a[href*="login"],
+.dark div[class*="flex"] > button:has(span:contains("Sign in")) {
+  background-color: white !important;
+  border-color: white !important;
+  color: #1f2937 !important;
+}
+
+/* Hover states */
+header a[href*="register"]:hover,
+nav a[href*="register"]:hover,
+[class*="navbar"] a[href*="register"]:hover,
+[class*="header"] a[href*="register"]:hover,
+[class*="topbar"] a[href*="register"]:hover,
+header button:has(span:contains("Register")):hover,
+nav button:has(span:contains("Register")):hover,
+[class*="navbar"] button:has(span:contains("Register")):hover,
+[class*="header"] button:has(span:contains("Register")):hover,
+[class*="topbar"] button:has(span:contains("Register")):hover,
+div[class*="flex"] > a[href*="register"]:hover,
+div[class*="flex"] > button:has(span:contains("Register")):hover {
+  background-color: #e07f5f !important;
+  border-color: #e07f5f !important;
+}
+
+header a[href*="sign-in"]:hover,
+header a[href*="login"]:hover,
+nav a[href*="sign-in"]:hover,
+nav a[href*="login"]:hover,
+[class*="navbar"] a[href*="sign-in"]:hover,
+[class*="navbar"] a[href*="login"]:hover,
+[class*="header"] a[href*="sign-in"]:hover,
+[class*="header"] a[href*="login"]:hover,
+[class*="topbar"] a[href*="sign-in"]:hover,
+[class*="topbar"] a[href*="login"]:hover,
+header button:has(span:contains("Sign in")):hover,
+nav button:has(span:contains("Sign in")):hover,
+[class*="navbar"] button:has(span:contains("Sign in")):hover,
+[class*="header"] button:has(span:contains("Sign in")):hover,
+[class*="topbar"] button:has(span:contains("Sign in")):hover,
+div[class*="flex"] > a[href*="sign-in"]:hover,
+div[class*="flex"] > a[href*="login"]:hover,
+div[class*="flex"] > button:has(span:contains("Sign in")):hover {
+  background-color: #e5e7eb !important;
+  border-color: #e5e7eb !important;
+}
+
+@keyframes dropdownIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes dropdownOut {
+  from {
+    opacity: 1;
+    transform: scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+}
+
+/* Tooltip and Combobox specific fixes */
+[role="tooltip"],
+[role="combobox"] {
+  z-index: 500 !important;
+}
+
+/* Direct targeting for the Atoma dashboard header Register button - should override all other styles */
+header .dark\:bg-white.dark\:text-darkMode,
+nav .dark\:bg-white.dark\:text-darkMode,
+[class*="navbar"] .dark\:bg-white.dark\:text-darkMode,
+[class*="header"] .dark\:bg-white.dark\:text-darkMode,
+[class*="topbar"] .dark\:bg-white.dark\:text-darkMode {
+  background-color: #dc6d4b !important;
+  border-color: #dc6d4b !important;
+  color: #1f2937 !important;
+  border-radius: 0.375rem !important;
+  font-weight: 500 !important;
+}
+
+/* Additional direct targeting by position in navigation */
+body.dark nav > div:last-child > a:last-child,
+body.dark header > div:last-child > a:last-child,
+.dark [role="navigation"] > div:last-child > a:last-child,
+.dark [role="banner"] > div:last-child > a:last-child {
+  background-color: #dc6d4b !important;
+  border-color: #dc6d4b !important;
+  color: #1f2937 !important;
+  border-radius: 0.375rem !important;
+  font-weight: 500 !important;
+}
+
+/* Target the specific Register button in the navigation by position */
+.dark header button.inline-flex.items-center.justify-center.rounded-md.text-sm.font-medium:last-child,
+.dark nav button.inline-flex.items-center.justify-center.rounded-md.text-sm.font-medium:last-child,
+.dark [class*="navbar"] button.inline-flex.items-center.justify-center.rounded-md.text-sm.font-medium:last-child,
+.dark [class*="header"] button.inline-flex.items-center.justify-center.rounded-md.text-sm.font-medium:last-child,
+.dark [class*="topbar"] button.inline-flex.items-center.justify-center.rounded-md.text-sm.font-medium:last-child {
+  background-color: #dc6d4b !important;
+  color: #1f2937 !important;
+  border-color: #dc6d4b !important;
+}
+
+/* Highest specificity override for the register button */
+body.dark header button[class*="rounded-md"][class*="text-sm"]:last-child,
+body.dark nav button[class*="rounded-md"][class*="text-sm"]:last-child,
+body.dark [class*="navbar"] button[class*="rounded-md"][class*="text-sm"]:last-child,
+body.dark [class*="header"] button[class*="rounded-md"][class*="text-sm"]:last-child,
+body.dark [class*="topbar"] button[class*="rounded-md"][class*="text-sm"]:last-child {
+  background-color: #dc6d4b !important;
+  color: #1f2937 !important;
+}
+
+/* Highest specificity selectors for the Sign In button */
+.dark header button.inline-flex.items-center.justify-center.rounded-md.text-sm.font-medium:not(:last-child),
+.dark nav button.inline-flex.items-center.justify-center.rounded-md.text-sm.font-medium:not(:last-child),
+.dark [class*="navbar"] button.inline-flex.items-center.justify-center.rounded-md.text-sm.font-medium:not(:last-child),
+.dark [class*="header"] button.inline-flex.items-center.justify-center.rounded-md.text-sm.font-medium:not(:last-child),
+.dark [class*="topbar"] button.inline-flex.items-center.justify-center.rounded-md.text-sm.font-medium:not(:last-child),
+.dark header a.inline-flex.items-center.justify-center.rounded-md.text-sm.font-medium:not(:last-child),
+.dark nav a.inline-flex.items-center.justify-center.rounded-md.text-sm.font-medium:not(:last-child),
+.dark [class*="navbar"] a.inline-flex.items-center.justify-center.rounded-md.text-sm.font-medium:not(:last-child),
+.dark [class*="header"] a.inline-flex.items-center.justify-center.rounded-md.text-sm.font-medium:not(:last-child),
+.dark [class*="topbar"] a.inline-flex.items-center.justify-center.rounded-md.text-sm.font-medium:not(:last-child) {
+  background-color: white !important;
+  border-color: white !important;
+  color: #1f2937 !important;
+}
+
+/* Dark mode background grid overlay */
+.dark .backdrop-blur-sm {
+  backdrop-filter: blur(4px);
+  background-color: rgba(0, 0, 0, 0.7) !important;
+}
+
+@layer components {
+  /* Apply OUR custom styles directly to the Dialog Content */
+  .custom-dialog-content {
+    @apply bg-white rounded-3xl border-none p-8 shadow-[0_8px_30px_rgba(0,0,0,0.12)] w-full max-w-[500px] m-4;
+    /* Use apply for Tailwind, add !important for overrides if needed */
+    background-color: white !important;
+    border-radius: 1.5rem !important;
+    border: none !important;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12) !important;
+    padding: 2rem !important;
+    width: 100% !important;
+    max-width: 500px !important;
+    margin: 1rem !important;
+  }
+
+  .dark .custom-dialog-content {
+    @apply bg-gray-800 text-gray-50;
+    background-color: #1f2937 !important;
+    color: #f9fafb !important;
+  }
+
+  /* Hide the default close button */
+  .custom-dialog-content > button[aria-label='Close'] {
+    display: none !important;
+  }
+
+  /* Style elements INSIDE our custom dialog */
+  .custom-dialog-content h2 {
+    @apply text-3xl font-semibold text-gray-900 mb-3;
+    color: #111827 !important;
+    margin-bottom: 0.75rem !important;
+  }
+  .dark .custom-dialog-content h2 {
+    @apply text-gray-50;
+    color: #f9fafb !important;
+  }
+
+  .custom-dialog-content p {
+    @apply text-base text-gray-500 mb-8;
+    color: #6b7280 !important;
+    margin-bottom: 2rem !important;
+  }
+  .dark .custom-dialog-content p {
+    @apply text-gray-400;
+    color: #9ca3af !important;
+  }
+
+  .custom-dialog-content label {
+    @apply block text-base font-medium text-gray-900 mb-2;
+    color: #111827 !important;
+    margin-bottom: 0.5rem !important;
+  }
+   .dark .custom-dialog-content label {
+    @apply text-gray-50;
+    color: #f9fafb !important;
+  }
+
+  .custom-dialog-content input {
+    @apply w-full p-3 text-base border-2 border-[#dc6d4b] rounded-xl bg-white text-gray-900 mt-2;
+    border: 2px solid #dc6d4b !important;
+    border-radius: 0.75rem !important;
+    background-color: white !important;
+    color: #111827 !important;
+  }
+   .dark .custom-dialog-content input {
+    @apply bg-gray-700 border-[#dc6d4b] text-gray-50;
+    background-color: #374151 !important;
+    border-color: #dc6d4b !important;
+    color: #f9fafb !important;
+  }
+
+  .custom-dialog-content footer {
+    @apply flex justify-end gap-3 mt-8;
+    margin-top: 2rem !important;
+    gap: 0.75rem !important;
+  }
+
+  /* Cancel button */
+  .custom-dialog-content footer button[variant="outline"] {
+    @apply bg-gray-600 text-white border-none px-5 py-2.5 rounded-lg text-base font-medium;
+    background-color: #4b5563 !important;
+    color: white !important;
+    padding: 0.625rem 1.25rem !important;
+    border-radius: 0.5rem !important;
+  }
+
+  /* Create button */
+  .custom-dialog-content footer button:not([variant="outline"]) {
+    @apply bg-[#edb5a7] text-gray-900 border-none px-5 py-2.5 rounded-lg text-base font-medium;
+    background-color: #edb5a7 !important;
+    color: #111827 !important;
+    padding: 0.625rem 1.25rem !important;
+    border-radius: 0.5rem !important;
+  }
+  
+  .custom-dialog-content footer button:hover {
+    opacity: 0.9 !important;
+  }
+}
+
+[data-radix-dialog-content] h2:first-child + p + div label {
+  display: block !important;
+  margin-bottom: 0.75rem !important;
+}
+
+[data-radix-dialog-content] h2:first-child + p + div input {
+  margin-top: 0 !important;
+}
+
 
 
