@@ -74,7 +74,7 @@ const SidebarProvider = React.forwardRef<
   const [_open, _setOpen] = React.useState(defaultOpen);
   // Use controlled prop if provided, otherwise use internal state
   const open = openProp ?? _open;
-  
+
   // Function to update sidebar open state and persist to cookie
   const setOpen = React.useCallback(
     (value: boolean | ((value: boolean) => boolean)) => {
@@ -139,8 +139,7 @@ const SidebarProvider = React.forwardRef<
               ...style,
             } as React.CSSProperties
           }
-          className={cn("group/sidebar-wrapper flex h-screen w-full has-[[data-variant=inset]]:bg-sidebar", className)}
-          className={cn("group/sidebar-wrapper flex h-screen w-full has-[[data-variant=inset]]:bg-sidebar", className)}
+          className={cn("group/sidebar-wrapper flex h-full w-full has-[[data-variant=inset]]:bg-sidebar", className)}
           ref={ref}
           {...props}
         >
@@ -156,7 +155,7 @@ SidebarProvider.displayName = "SidebarProvider";
 
 /**
  * Sidebar - Main sidebar component that adapts to device and configuration
- * 
+ *
  * Props:
  * - side: Which side of the screen to display on
  * - variant: Visual style variant
@@ -178,8 +177,7 @@ const Sidebar = React.forwardRef<
   if (collapsible === "none") {
     return (
       <div
-        className={cn("flex h-screen w-[--sidebar-width] flex-col bg-sidebar text-sidebar-foreground", className)}
-        className={cn("flex h-screen w-[--sidebar-width] flex-col bg-sidebar text-sidebar-foreground", className)}
+        className={cn("flex h-full w-[--sidebar-width] flex-col bg-sidebar text-sidebar-foreground", className)}
         ref={ref}
         {...props}
       >
@@ -204,8 +202,7 @@ const Sidebar = React.forwardRef<
           }
           side={side}
         >
-          <div className="flex h-screen w-full flex-col">{children}</div>
-          <div className="flex h-screen w-full flex-col">{children}</div>
+          <div className="flex h-full w-full flex-col">{children}</div>
         </SheetContent>
       </Sheet>
     );
@@ -224,7 +221,7 @@ const Sidebar = React.forwardRef<
       {/* This div handles the sidebar gap/spacing on desktop */}
       <div
         className={cn(
-          "duration-200 relative h-screen w-[--sidebar-width] bg-transparent transition-[width] ease-linear",
+          "duration-200 relative h-full w-[--sidebar-width] bg-transparent transition-[width] ease-linear",
           "group-data-[collapsible=offcanvas]:w-0", // When offcanvas, collapse to zero width
           "group-data-[side=right]:rotate-180", // Flip when on right side
           // Adjust width for icon mode based on variant
@@ -236,7 +233,7 @@ const Sidebar = React.forwardRef<
       {/* This div is the actual sidebar container */}
       <div
         className={cn(
-          "duration-200 fixed inset-y-0 z-10 hidden h-screen w-[--sidebar-width] transition-[left,right,width] ease-linear md:flex",
+          "duration-200 fixed inset-y-0 z-10 hidden h-full w-[--sidebar-width] transition-[left,right,width] ease-linear md:flex",
           // Position based on side (left/right)
           side === "left"
             ? "left-0 group-data-[collapsible=offcanvas]:left-[calc(var(--sidebar-width)_+_theme(spacing.4))]"
