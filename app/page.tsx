@@ -574,7 +574,7 @@ export default function NetworkStatusPage() {
   }, []);
 
   return (
-    <div className="relative min-h-screen w-full">
+    <div className="relative min-h-full w-full">
       {/* Content */}
       <div className="relative z-10">
         <div className="space-y-4 p-6">
