@@ -1,10 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { AreaCharts } from "@/components/analytics/area-charts";
-import { ModelCharts } from "@/components/analytics/model-charts";
 import { UsageHistory } from "@/components/analytics/usage-history";
-import { BackgroundGrid } from "@/components/background-grid";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { listApiKeys } from "@/lib/api";
@@ -45,7 +42,6 @@ export default function AnalyticsPage() {
 
   return (
     <div className="relative min-h-screen w-full">
-      <BackgroundGrid />
       {/* Content */}
       <div className="relative z-10">
         <div className="space-y-6 p-6">

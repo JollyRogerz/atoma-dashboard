@@ -90,5 +90,28 @@ body {
   }
   body {
     @apply bg-background text-foreground;
+    min-height: 100vh;
+    overflow-x: hidden;
   }
+  html {
+    @apply bg-background dark:bg-darkMode;
+    height: 100%;
+    overflow-x: hidden;
+  }
+  #__next, main {
+    @apply bg-background dark:bg-darkMode;
+    min-height: 100vh;
+  }
+}
+
+/* Recharts overrides */
+/* Area charts (except TTFT and ITL) */
+[data-chart-type="stacked"] .recharts-area {
+  fill-opacity: 0.6;
+}
+
+/* Line chart specific styles */
+[data-chart-type="latency"] .recharts-line {
+  fill: none !important;
+  stroke-width: 2;
 }

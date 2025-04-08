@@ -6,18 +6,20 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
-import { BackgroundGrid } from "@/components/background-grid";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { useEffect, useState } from "react";
-import { useCurrentAccount } from "@mysten/dapp-kit";
+import { useCurrentAccount, useCurrentWallet } from "@mysten/dapp-kit";
 import { getUserProfile, saveUserProfile } from "@/lib/api";
+import ZkLogin from "@/lib/zklogin";
+import { disconnectWallet } from "@/lib/wallet";
 
 export default function SettingsPage() {
   const [userProfile, setUserProfile] = useState({ email: "" });
-  const { settings } = useSettings();
+  const { settings, updateSettings, updateZkLoginSettings } = useSettings();
   const [loggedIn, setLoggedIn] = useState(false);
   const [address, setAddress] = useState<string>();
   const account = useCurrentAccount();
+  const wallet = useCurrentWallet();
 
   useEffect(() => {
     (async () => {
@@ -38,9 +40,13 @@ export default function SettingsPage() {
     })();
   }, [settings.loggedIn, account]);
 
+  const handleDisconnectWallet = () => {
+    disconnectWallet(wallet, settings, updateZkLoginSettings);
+    setAddress(undefined);
+  };
+
   return (
     <div className="relative min-h-screen w-full">
-      <BackgroundGrid />
       {/* Content */}
       <div className="relative z-10">
         <div className="container mx-auto py-10">
@@ -60,6 +66,15 @@ export default function SettingsPage() {
               <div className="space-y-2">
                 <Label htmlFor="wallet">Wallet Address</Label>
                 <Input id="wallet" value={address || ""} readOnly className="bg-muted" disabled={!loggedIn} />
+                {address && (
+                  <Button 
+                    variant="destructive" 
+                    className="mt-4"
+                    onClick={handleDisconnectWallet}
+                  >
+                    Disconnect Wallet
+                  </Button>
+                )}
               </div>
               <div className="space-y-2 pt-4 border-t">
                 <Label>Interface Preferences</Label>

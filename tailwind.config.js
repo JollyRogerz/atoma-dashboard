@@ -33,7 +33,7 @@ module.exports = {
         },
         darkMode: {
           DEFAULT: "#09090b",
-          foreground: "#020713",
+          foreground: "#09090b",
         },
         destructive: {
           DEFAULT: "hsl(var(--destructive))",

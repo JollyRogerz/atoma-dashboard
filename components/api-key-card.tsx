@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import {
   Dialog,
+  DialogClose,
   DialogContent,
   DialogDescription,
   DialogFooter,
@@ -14,7 +15,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
-import { Copy, Pencil, Plus, Trash2 } from "lucide-react";
+import { Copy, Pencil, Plus, Trash2, X } from "lucide-react";
 import Link from "next/link";
 import { useSettings } from "@/contexts/settings-context";
 import { generateApiKey, getUserProfile, listApiKeys, revokeApiToken } from "@/lib/api";
@@ -178,22 +179,28 @@ export function ApiKeyCard() {
               Give your key a name to remember it by. This is only for your reference—it won't affect how the key works.
             </DialogDescription>
           </DialogHeader>
-          <div className="grid gap-4 py-4">
-            <div className="space-y-2">
-              <Label htmlFor="name">Name</Label>
-              <Input
-                id="name"
-                placeholder="My API key"
-                value={newKeyName}
-                onChange={e => setNewKeyName(e.target.value)}
-              />
-            </div>
+          
+          <div className="pt-4">
+            <Label htmlFor="name">Name</Label>
+            <Input
+              id="name"
+              placeholder="My API key"
+              value={newKeyName}
+              onChange={e => setNewKeyName(e.target.value)}
+            />
           </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setIsCreateDialogOpen(false)}>
+
+          <DialogFooter className="pt-6">
+            <Button 
+              variant="outline" 
+              onClick={() => setIsCreateDialogOpen(false)}
+            >
               Cancel
             </Button>
-            <Button onClick={handleCreateKey} disabled={!newKeyName}>
+            <Button 
+              onClick={handleCreateKey} 
+              disabled={!newKeyName}
+            >
               Create secret key
             </Button>
           </DialogFooter>
@@ -205,18 +212,20 @@ export function ApiKeyCard() {
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Save your key</DialogTitle>
-            <DialogDescription className="space-y-4">
-              <span>
-                Please save your secret key in a safe place since{" "}
-                <span className="font-semibold">you won't be able to view it again</span>. Keep it secure, as anyone
-                with your API key can make requests on your behalf. If you do lose it, you'll need to generate a new
-                one.
-              </span>
+            <DialogDescription>
+              Please save your secret key in a safe place since{" "}
+              <span className="font-semibold">you won't be able to view it again</span>. Keep it secure, as anyone
+              with your API key can make requests on your behalf. If you do lose it, you'll need to generate a new
+              one.
             </DialogDescription>
           </DialogHeader>
-          <div className="relative">
-            <div className="rounded-md border bg-muted p-3 font-mono text-sm">{newGeneratedKey}</div>
-            <Button size="sm" onClick={copyToClipboard} className="absolute right-2 top-1/2 -translate-y-1/2">
+          <div className="relative pt-4">
+            <div className="rounded-md border bg-muted p-4 font-mono text-sm">{newGeneratedKey}</div>
+            <Button 
+              size="sm" 
+              onClick={copyToClipboard} 
+              className="absolute right-2 top-1/2 -translate-y-1/2"
+            >
               {copied ? (
                 "Copied"
               ) : (
@@ -227,6 +236,9 @@ export function ApiKeyCard() {
               )}
             </Button>
           </div>
+           <DialogFooter className="pt-6">
+              <Button onClick={() => setIsSaveKeyDialogOpen(false)}>Done</Button> 
+           </DialogFooter>
         </DialogContent>
       </Dialog>
       <Modal isOpen={!!selectedToRevokeToken} onClose={() => setSelectedToRevokeToken(null)}>

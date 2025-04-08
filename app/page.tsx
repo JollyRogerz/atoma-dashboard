@@ -13,8 +13,6 @@ import {
   Cell,
 } from "recharts";
 import { MetricsCards } from "@/components/analytics/metrics-cards";
-import { NetworkCharts } from "@/components/network/network-charts";
-import { BackgroundGrid } from "@/components/background-grid";
 import { useEffect, useState } from "react";
 import { getGraphData, getGraphs } from "@/lib/api";
 import LoadingCircle from "@/components/LoadingCircle";
@@ -101,9 +99,9 @@ function AreaPanel({
           horizontal={true}
           vertical={false}
           stroke="hsl(var(--border))"
-          strokeDasharray="4 4"
-          strokeWidth={1}
-          opacity={0.6}
+          strokeDasharray="2 2"
+          strokeWidth={0.5}
+          opacity={0.2}
         />
         <XAxis
           dataKey="time"
@@ -524,7 +522,6 @@ export default function NetworkStatusPage() {
   }, []);
   return (
     <div className="relative min-h-screen w-full">
-      <BackgroundGrid />
       {/* Content */}
       <div className="relative z-10">
         <div className="space-y-4 p-6">

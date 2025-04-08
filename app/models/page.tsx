@@ -4,7 +4,6 @@ import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { BackgroundGrid } from "@/components/background-grid";
 import { ApiUsageDialog } from "@/components/api-usage-dialog";
 import Link from "next/link";
 import { getSubscriptions, getTasks } from "@/lib/api";
@@ -162,7 +161,6 @@ export default function ModelsPage() {
 
   return (
     <div className="relative min-h-screen w-full">
-      <BackgroundGrid />
       {/* Content */}
       <div className="relative z-10">
         <div className="container mx-auto px-4 py-8 space-y-8">
@@ -177,20 +175,20 @@ export default function ModelsPage() {
                 <SelectValue placeholder="Select completion type" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value={ModelModality.ChatCompletions}>
-                  {modalityToFeatureName(ModelModality.ChatCompletions)}
-                </SelectItem>
-                <SelectItem value={ModelModality.ImagesGenerations}>
-                  {modalityToFeatureName(ModelModality.ImagesGenerations)}
-                </SelectItem>
-                <SelectItem value={ModelModality.Embeddings}>
-                  {modalityToFeatureName(ModelModality.Embeddings)}
-                </SelectItem>
+                {Object.values(ModelModality).map(modality => (
+                  modelsData[modality].length > 0 ? (
+                    <SelectItem key={modality} value={modality}>
+                      {modalityToFeatureName(modality)}
+                    </SelectItem>
+                  ) : null
+                ))}
               </SelectContent>
             </Select>
           </div>
 
-          {orderedSections.map(section => (
+          {orderedSections
+            .filter(section => section.models.length > 0)
+            .map(section => (
             <div key={section.type} className="space-y-6">
               <h2 className="text-lg font-medium text-primary">{section.title}</h2>
               <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">

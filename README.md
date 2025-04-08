@@ -20,6 +20,33 @@ You can start editing the page by modifying `app/page.tsx`. The page auto-update
 
 This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 
+## Deployment Configuration
+
+The application can be deployed using Docker Compose with configurable settings for different environments.
+
+### Environment Variables
+
+Copy `.env.example` to `.env` and configure the following variables:
+
+- `DASHBOARD_REPLICAS`: Number of service replicas to run
+  - Set to `1` for development/testing environments (default)
+  - Set to `3` or more for production environments requiring high availability
+  - Example: `DASHBOARD_REPLICAS=3`
+
+- `ACME_EMAIL`: Email address for Let's Encrypt SSL certificates
+  - Required for SSL certificate generation
+  - Example: `ACME_EMAIL=your-email@example.com`
+
+### Docker Deployment
+
+```bash
+# Development deployment (1 replica)
+docker-compose up -d
+
+# Production deployment (3 replicas)
+DASHBOARD_REPLICAS=3 docker-compose up -d
+```
+
 ## Learn More
 
 To learn more about Next.js, take a look at the following resources:

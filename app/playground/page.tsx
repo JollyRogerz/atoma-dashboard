@@ -252,7 +252,6 @@ export default function PlaygroundPage() {
 
   return (
     <div className="relative min-h-screen w-full overflow-hidden">
-      <BackgroundGrid />
       <div className="relative z-10 h-[calc(100vh-6rem)] overflow-hidden">
         <div className="h-full p-4 grid grid-cols-[1fr,400px] gap-4">
           <Card className="flex flex-col overflow-hidden bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">

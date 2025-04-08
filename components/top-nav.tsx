@@ -12,16 +12,20 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+  Dialog,
+  DialogContent,
+} from "@/components/ui/dialog";
 import { Avatar } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 import AuthForm from "@/components/AuthForm";
-import Modal from "@/components/Modal";
 import { getUserProfile } from "@/lib/api";
 import { useAppState } from "@/contexts/app-state";
 import { useCurrentWallet, useDisconnectWallet } from "@mysten/dapp-kit";
 import { ConnectModal } from "@mysten/dapp-kit";
 import ZkLogin from "@/lib/zklogin";
+import { LoginRegisterButton } from "./login-register-button";
 
 export function TopNav() {
   const pathname = usePathname();
@@ -43,6 +47,14 @@ export function TopNav() {
     updateState({ showLogin: false });
   };
 
+  const handleDisconnect = () => {
+    disconnect();
+    if (settings.zkLogin.isEnabled) {
+      const zkLogin = new ZkLogin();
+      zkLogin.disconnect(updateZkLoginSettings);
+    }
+  };
+
   useEffect(() => {
     setLoggedIn(settings.loggedIn);
     if (settings.loggedIn) {
@@ -61,28 +73,23 @@ export function TopNav() {
     setShowAuthForm(state.showLogin);
   }, [state.showLogin]);
 
-  const handleDisconnect = () => {
-    disconnect();
-    if (settings.zkLogin.isEnabled) {
-      const zkLogin = new ZkLogin();
-      zkLogin.disconnect(updateZkLoginSettings);
-    }
-  };
-
   return (
-    <header className="sticky top-0 z-40 border-b bg-background dark:bg-darkMode">
-      <div className="container flex h-16 items-center justify-end pl-1 pr-4">
+    <header className="sticky top-0 z-30 border-b bg-background dark:bg-darkMode">
+      <div className="flex h-16 items-center justify-end pl-1 pr-4 w-full">
         <div className="flex items-center gap-4">
           {!loggedIn ? (
             <div className="flex items-center gap-2">
               <Button
                 variant="outline"
                 onClick={() => handleAuth("login")}
-                className="w-24 dark:bg-darkMode dark:border-gray-300"
+                className="w-24 rounded-lg border border-[#1C1C1C] dark:border-white bg-transparent hover:bg-[#E97451] hover:text-white hover:border-[#E97451] dark:hover:border-[#E97451] transition-all duration-200"
               >
                 Sign in
               </Button>
-              <Button onClick={() => handleAuth("register")} className="w-24 dark:text-darkMode dark:bg-white">
+              <Button 
+                onClick={() => handleAuth("register")} 
+                className="w-24 rounded-lg bg-[#1C1C1C] hover:bg-[#E97451] text-white dark:bg-white dark:text-[#1C1C1C] dark:hover:bg-[#E97451] dark:hover:text-white transition-all duration-200"
+              >
                 Register
               </Button>
             </div>
@@ -113,8 +120,10 @@ export function TopNav() {
                     <ThemeToggle />
                   </div>
                 </DropdownMenuItem>
-                {connectionStatus === "connected" && (
-                  <DropdownMenuItem onClick={handleDisconnect}>Disconnect Wallet</DropdownMenuItem>
+                {(connectionStatus === "connected" || settings.zkLogin.isEnabled) && (
+                  <DropdownMenuItem onClick={handleDisconnect}>
+                    Disconnect Wallet
+                  </DropdownMenuItem>
                 )}
                 <DropdownMenuItem
                   onClick={() => {
@@ -136,9 +145,11 @@ export function TopNav() {
           )}
         </div>
       </div>
-      <Modal isOpen={showAuthForm} onClose={closeAuthForm}>
-        <AuthForm type={authType as "login" | "register"} onClose={closeAuthForm} />
-      </Modal>
+      <Dialog open={showAuthForm} onOpenChange={(open) => !open && closeAuthForm()}>
+        <DialogContent className="sm:max-w-[450px]">
+          <AuthForm type={authType as "login" | "register"} onClose={closeAuthForm} />
+        </DialogContent>
+      </Dialog>
     </header>
   );
 }
