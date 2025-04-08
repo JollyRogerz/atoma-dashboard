@@ -5,13 +5,10 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter }
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import { toast } from "sonner";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { useEffect, useState } from "react";
 import { useCurrentAccount, useCurrentWallet } from "@mysten/dapp-kit";
-import { useCurrentAccount, useCurrentWallet } from "@mysten/dapp-kit";
-import { getUserProfile, saveUserProfile } from "@/lib/api";
-import ZkLogin from "@/lib/zklogin";
+import { getUserProfile } from "@/lib/api";
 import { disconnectWallet } from "@/lib/wallet";
 
 export default function SettingsPage() {
@@ -49,7 +46,7 @@ export default function SettingsPage() {
   };
 
   return (
-    <div className="relative min-h-screen w-full">
+    <div className="relative min-h-full w-full">
       {/* Content */}
       <div className="relative z-10">
         <div className="container mx-auto py-10">
@@ -70,20 +67,12 @@ export default function SettingsPage() {
                 <Label htmlFor="wallet">Wallet Address</Label>
                 <Input id="wallet" value={address || ""} readOnly className="bg-muted" disabled={!loggedIn} />
                 {address && (
-                  <Button 
-                    variant="destructive" 
-                    className="mt-4"
-                    onClick={handleDisconnectWallet}
-                  >
+                  <Button variant="destructive" className="mt-4" onClick={handleDisconnectWallet}>
                     Disconnect Wallet
                   </Button>
                 )}
                 {address && (
-                  <Button 
-                    variant="destructive" 
-                    className="mt-4"
-                    onClick={handleDisconnectWallet}
-                  >
+                  <Button variant="destructive" className="mt-4" onClick={handleDisconnectWallet}>
                     Disconnect Wallet
                   </Button>
                 )}
