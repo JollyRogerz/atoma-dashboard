@@ -38,7 +38,7 @@ services:
       - "com.centurylinklabs.watchtower.enable=true"
     deploy:
       mode: replicated
-      replicas: ${DASHBOARD_REPLICAS:-1}
+      replicas: ${DASHBOARD_REPLICAS:-3}
     restart: always
 
 volumes:
