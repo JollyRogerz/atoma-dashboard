@@ -27,6 +27,8 @@ export function readableModelName(modelName: string) {
       return "Llama3.1 8B";
     case "Infermatic/Llama-3.3-70B-Instruct-FP8-Dynamic":
       return "Llama3.3 70B";
+    case "mistralai/Mistral-Nemo-Instruct-2407":
+      return "Mistral Nemo";
     default:
       const match = modelName?.match(/\/([^\/]*\d+B)/);
       if (match) {
