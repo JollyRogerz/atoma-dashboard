@@ -4,7 +4,7 @@ import { TopNav } from "./top-nav";
 
 export default function Layout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="flex h-full bg-background">
+    <div className="flex h-screen bg-background">
       <Sidebar />
       <div className="flex-1 flex flex-col overflow-hidden">
         <TopNav />
@@ -20,7 +20,7 @@ import { TopNav } from "./top-nav";
 
 export default function Layout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="flex h-full bg-background relative">
+    <div className="flex h-screen bg-background relative">
       <Sidebar />
       <div className="flex-1 flex flex-col overflow-hidden lg:ml-60">
         <TopNav />

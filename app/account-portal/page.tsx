@@ -44,7 +44,7 @@ const { networkConfig } = createNetworkConfig({
   mainnet: { url: getFullnodeUrl("mainnet") },
 });
 
-type FundsStep = "choose" | "amount" | "wallet" | "sending" | "result" | "error";
+type FundsStep = "choose" | "amount" | "wallet" | "sending" | "result";
 
 export default function DashboardPage() {
   const [showAddFunds, setShowAddFunds] = useState(false);
@@ -53,11 +53,11 @@ export default function DashboardPage() {
   const [walletConfirmed, setWalletConfirmed] = useState<boolean>(false);
   const { connectionStatus } = useCurrentWallet();
   const account = useCurrentAccount();
+  const [handlingPayment, setHandlingPayment] = useState<boolean>(false);
   const suiClient = useSuiClient();
   const { mutateAsync: signAndExecuteTransaction } = useSignAndExecuteTransaction();
   const { mutateAsync: signPersonalMessage } = useSignPersonalMessage();
   const { settings, updateSettings, updateZkLoginSettings } = useSettings();
-  const [error, setError] = useState<string | null>(null);
   const { updateState } = useAppState();
 
   useEffect(() => {
@@ -82,12 +82,11 @@ export default function DashboardPage() {
         return "Choose USDC amount.";
       case "wallet":
         return "Connect your wallet to add funds to your account.";
-      case "error":
-        return "An error occurred while processing your payment.";
     }
   };
 
   const handleUSDCPayment = async (amount: number) => {
+    setHandlingPayment(true);
     if (settings.zkLogin.isEnabled) {
       setFundsStep("sending");
       const zkLogin = new ZkLogin();
@@ -105,21 +104,21 @@ export default function DashboardPage() {
                   setFundsStep("result");
                 })
                 .catch((error: Response) => {
-                  setError(`${error.status} : ${error.statusText}`);
-                  setFundsStep("error");
+                  // setError(`${error.status} : ${error.statusText}`);
                   console.error(error);
                 });
             }, 1000);
           });
         })
         .catch(error => {
-          setError(`${error}`);
-          setFundsStep("error");
           console.error(error);
+          // setError(`${error}`);
         });
+      setHandlingPayment(false);
       return;
     }
     if (account == null) {
+      setHandlingPayment(false);
       return;
     }
 
@@ -137,9 +136,10 @@ export default function DashboardPage() {
       updateState({ refreshBalance: true });
       setFundsStep("result");
     } catch (error) {
-      setError(`${error}`);
-      setFundsStep("error");
       console.error(error);
+      // handleConfirmWallet();
+    } finally {
+      setHandlingPayment(false);
     }
   };
 
@@ -176,8 +176,6 @@ export default function DashboardPage() {
           setWalletConfirmed(true);
         })
         .catch((error: Response) => {
-          setError(`${error.status} : ${error.statusText}`);
-          setFundsStep("error");
           console.error(error);
         });
     });
@@ -262,19 +260,11 @@ export default function DashboardPage() {
             </div>
           </div>
         );
-      case "error":
-        return (
-          <div className="space-y-4">
-            <div className="flex items-center justify-center">
-              <Label>{error}</Label>
-            </div>
-          </div>
-        );
     }
   };
 
   return (
-    <div className="relative min-h-full w-full">
+    <div className="relative min-h-screen w-full">
       {/* Content */}
       <div className="relative z-10">
         <div className="container mx-auto p-6 space-y-8">

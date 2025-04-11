@@ -113,7 +113,7 @@ const AuthForm: React.FC<AuthFormProps> = ({ type, onClose }) => {
           {loginType === "login" && (
             <div className="flex justify-end">
               {/* Style link with text-primary */}
-              <Button variant="link" className="text-sm h-auto p-0 text-[#dc6d4b] hover:text-[#dc6d4b]/90">
+              <Button variant="link" className="text-sm h-auto p-0 text-primary hover:text-primary/90">
                  Forgot password?
               </Button>
             </div>
@@ -149,14 +149,14 @@ const AuthForm: React.FC<AuthFormProps> = ({ type, onClose }) => {
         {loginType === "login" ? (
           <>
             Don't have an account?{" "}
-            <Button variant="link" className="p-0 h-auto text-[#dc6d4b] hover:text-[#dc6d4b]/90" onClick={() => setLoginType("register")}>
+            <Button variant="link" className="p-0 h-auto text-primary hover:text-primary/90" onClick={() => setLoginType("register")}>
               Sign up
             </Button>
           </>
         ) : (
           <>
             Already have an account?{" "}
-            <Button variant="link" className="p-0 h-auto text-[#dc6d4b] hover:text-[#dc6d4b]/90" onClick={() => setLoginType("login")}>
+            <Button variant="link" className="p-0 h-auto text-primary hover:text-primary/90" onClick={() => setLoginType("login")}>
               Sign in
             </Button>
           </>

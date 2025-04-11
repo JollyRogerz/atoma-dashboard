@@ -19,7 +19,6 @@ import { Copy, Pencil, Plus, Trash2, X } from "lucide-react";
 import Link from "next/link";
 import { useSettings } from "@/contexts/settings-context";
 import { generateApiKey, getUserProfile, listApiKeys, revokeApiToken } from "@/lib/api";
-import Modal from "./Modal";
 import LoadingCircle from "./LoadingCircle";
 
 interface ApiKey {
@@ -72,7 +71,6 @@ export function ApiKeyCard() {
 
   useEffect(() => {
     setLoggedIn(settings.loggedIn);
-    updateApiTokens();
   }, [settings.loggedIn]);
 
   useEffect(() => {
@@ -221,47 +219,57 @@ export function ApiKeyCard() {
             </DialogDescription>
           </DialogHeader>
           <div className="relative pt-4">
-            <div className="rounded-md border bg-muted p-4 font-mono text-sm">{newGeneratedKey}</div>
-            <Button 
-              size="sm" 
-              onClick={copyToClipboard} 
-              className="absolute right-2 top-1/2 -translate-y-1/2"
-            >
-              {copied ? (
-                "Copied"
-              ) : (
-                <>
-                  <Copy className="mr-2 h-4 w-4" />
-                  Copy
-                </>
-              )}
-            </Button>
+            <div className="rounded-md border bg-muted p-4 font-mono text-sm flex items-center justify-between">
+              <span>{newGeneratedKey}</span>
+              <Button 
+                size="sm" 
+                onClick={copyToClipboard} 
+                className="ml-2"
+              >
+                {copied ? (
+                  "Copied"
+                ) : (
+                  <>
+                    <Copy className="mr-2 h-4 w-4" />
+                    Copy
+                  </>
+                )}
+              </Button>
+            </div>
           </div>
            <DialogFooter className="pt-6">
               <Button onClick={() => setIsSaveKeyDialogOpen(false)}>Done</Button> 
            </DialogFooter>
         </DialogContent>
       </Dialog>
-      <Modal isOpen={!!selectedToRevokeToken} onClose={() => setSelectedToRevokeToken(null)}>
-        <h2 className="text-lg font-semibold text-primary">Revoke API Key json</h2>
-        <p className="text-sm text-gray-500">
-          Are you sure you want to revoke this <b>{selectedToRevokeToken?.name}</b> API key?
-        </p>
-        <div className="flex justify-end mt-4">
-          <Button variant="outline" onClick={() => setSelectedToRevokeToken(null)}>
-            Cancel
-          </Button>
-          <Button
-            onClick={() => {
-              handleRevokeKey(selectedToRevokeToken!.id);
-              setSelectedToRevokeToken(null);
-            }}
-            className="ml-2"
-          >
-            Revoke
-          </Button>
-        </div>
-      </Modal>
+      <Dialog open={!!selectedToRevokeToken} onOpenChange={isOpen => {
+        if (!isOpen) setSelectedToRevokeToken(null);
+      }}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Revoke API Key</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to revoke this <span className="font-semibold">{selectedToRevokeToken?.name}</span> API key?
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="pt-6">
+            <Button 
+              variant="outline" 
+              onClick={() => setSelectedToRevokeToken(null)}
+            >
+              Cancel
+            </Button>
+            <Button 
+              onClick={() => {
+                handleRevokeKey(selectedToRevokeToken!.id);
+                setSelectedToRevokeToken(null);
+              }}
+            >
+              Revoke
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </>
   );
 }
