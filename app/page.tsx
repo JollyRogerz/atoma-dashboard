@@ -14,13 +14,14 @@ import {
 } from "recharts";
 import { MetricsCards } from "@/components/analytics/metrics-cards";
 import { useEffect, useState } from "react";
-import { getGraphData, getGraphs } from "@/lib/api";
+import { getGraphData, getGraphs, getSubscriptions, getTasks } from "@/lib/api";
 import LoadingCircle from "@/components/LoadingCircle";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { TooltipProvider, TooltipTrigger, TooltipContent, Tooltip as ShadTooltip } from "@/components/ui/tooltip";
 import { Info } from "lucide-react";
 import { formatNumber } from "@/lib/utils";
 import { useTheme } from "next-themes";
+import type { NodeSubscription } from "@/lib/atoma";
 
 // Colors for different chart types
 const colors = {
@@ -97,11 +98,11 @@ function AreaPanel({
   const wholeHourTicks = series.map(({ time }) => time).filter(timeStr => timeFilter(new Date(timeStr)));
   const { theme } = useTheme();
   const [currentTheme, setCurrentTheme] = useState(theme);
-  
+
   useEffect(() => {
     setCurrentTheme(theme);
   }, [theme]);
-  
+
   const percentToHex = (percent: number): string => {
     const clampedPercent = Math.max(0, Math.min(100, percent));
     const decimalValue = Math.round((clampedPercent / 100) * 255);
@@ -141,12 +142,10 @@ function AreaPanel({
               const colorKey = getColorKeyForModel(modelName, index);
               return {
                 ...entry,
-                color: currentTheme === "dark" 
-                  ? colors.darkText[colorKey] 
-                  : colors.lightText[colorKey],
+                color: currentTheme === "dark" ? colors.darkText[colorKey] : colors.lightText[colorKey],
               };
             });
-            
+
             // Helper function to get consistent color mapping
             function getColorKeyForModel(modelName: string, fallbackIndex: number): keyof typeof colors.lightText {
               if (modelName.includes("Qwen2")) return "blue";
@@ -154,20 +153,20 @@ function AreaPanel({
               if (modelName.includes("QWQ")) return "yellow";
               if (modelName.includes("Llama")) return "purple";
               if (modelName.includes("Claude")) return "red";
-              
+
               // Fallback to index-based
               const colorKeys: (keyof typeof colors.lightText)[] = ["blue", "green", "yellow", "red", "purple"];
               return colorKeys[fallbackIndex % colorKeys.length];
             }
-            
+
             // Debug colors in tooltip
-            console.log('AreaPanel tooltip colors:', {
+            console.log("AreaPanel tooltip colors:", {
               isDark: currentTheme === "dark",
               darkTextColors: colors.darkText,
               lightTextColors: colors.lightText,
-              usedColors: combinedPayload?.map(entry => entry.color)
+              usedColors: combinedPayload?.map(entry => entry.color),
             });
-            
+
             if (stackingGroup) {
               combinedPayload?.reverse();
             } else {
@@ -192,14 +191,14 @@ function AreaPanel({
                   return (
                     <div key={index}>
                       <span
-                        style={{ 
-                          color: entry.color, 
-                          fontWeight: 'bold',
-                          display: 'inline-block',
-                          padding: '2px 0'
+                        style={{
+                          color: entry.color,
+                          fontWeight: "bold",
+                          display: "inline-block",
+                          padding: "2px 0",
                         }}
                         dangerouslySetInnerHTML={{
-                          __html: `<span style="color:${entry.color} !important;">${readableModelName(entry.name!.toString())}: ${valueFormatter(Number(entry.value))}</span>`
+                          __html: `<span style="color:${entry.color} !important;">${readableModelName(entry.name!.toString())}: ${valueFormatter(Number(entry.value))}</span>`,
                         }}
                       />
                     </div>
@@ -210,9 +209,8 @@ function AreaPanel({
           }}
         />
         {labelsArray.map((label, index) => {
-          const color = currentTheme === "dark"
-            ? Object.values(colors.dark)[index]
-            : Object.values(colors.light)[index];
+          const color =
+            currentTheme === "dark" ? Object.values(colors.dark)[index] : Object.values(colors.light)[index];
           return (
             <Area
               key={index}
@@ -256,14 +254,14 @@ function BarGaugePanel({
     name: label,
     Tokens: Number(series[series.length - 1].data[label] || 0),
   }));
-  
+
   const { theme } = useTheme();
   const [currentTheme, setCurrentTheme] = useState(theme);
-  
+
   useEffect(() => {
     setCurrentTheme(theme);
   }, [theme]);
-  
+
   return (
     <ResponsiveContainer width="100%" height={250}>
       <BarChart data={barData} layout="vertical" margin={{ top: 0, right: 0, left: 20, bottom: 0 }}>
@@ -293,14 +291,12 @@ function BarGaugePanel({
         <Tooltip
           content={props => {
             const { payload, label } = props;
-            
+
             // Get color based on model name
             const modelName = label || "";
             const colorKey = getColorKeyForModel(modelName, labelsArray.indexOf(label));
-            const textColor = currentTheme === "dark"
-              ? colors.darkText[colorKey]
-              : colors.lightText[colorKey];
-            
+            const textColor = currentTheme === "dark" ? colors.darkText[colorKey] : colors.lightText[colorKey];
+
             // Helper function to get consistent color mapping
             function getColorKeyForModel(modelName: string, fallbackIndex: number): keyof typeof colors.lightText {
               if (modelName.includes("Qwen2")) return "blue";
@@ -308,20 +304,20 @@ function BarGaugePanel({
               if (modelName.includes("QWQ")) return "yellow";
               if (modelName.includes("Llama")) return "purple";
               if (modelName.includes("Claude")) return "red";
-              
+
               // Fallback to index-based
               const colorKeys: (keyof typeof colors.lightText)[] = ["blue", "green", "yellow", "red", "purple"];
               return colorKeys[fallbackIndex % colorKeys.length];
             }
-            
+
             // Debug colors in bar tooltip
-            console.log('BarChart tooltip colors:', {
+            console.log("BarChart tooltip colors:", {
               isDark: currentTheme === "dark",
               labelIndex: labelsArray.indexOf(label),
               darkTextColor: Object.values(colors.darkText)[labelsArray.indexOf(label)],
-              lightTextColor: Object.values(colors.lightText)[labelsArray.indexOf(label)]
+              lightTextColor: Object.values(colors.lightText)[labelsArray.indexOf(label)],
             });
-            
+
             return (
               <div
                 style={{
@@ -339,24 +335,22 @@ function BarGaugePanel({
                   key={`${payload?.[0]?.name}-value`}
                   style={{
                     color: textColor,
-                    fontWeight: 'bold',
-                    display: 'block',
-                    padding: '2px 0'
+                    fontWeight: "bold",
+                    display: "block",
+                    padding: "2px 0",
                   }}
                   dangerouslySetInnerHTML={{
-                    __html: `<span style="color:${textColor} !important;">${payload?.[0]?.name}: ${valueFormatter(Number(payload?.[0]?.value))}</span>`
+                    __html: `<span style="color:${textColor} !important;">${payload?.[0]?.name}: ${valueFormatter(Number(payload?.[0]?.value))}</span>`,
                   }}
-                >
-                </div>
+                ></div>
               </div>
             );
           }}
         />
         <Bar dataKey="Tokens" radius={[0, 4, 4, 0]} barSize={20}>
           {labelsArray.map((entry, index) => {
-            const barColor = currentTheme === "dark"
-              ? Object.values(colors.dark)[index]
-              : Object.values(colors.light)[index];
+            const barColor =
+              currentTheme === "dark" ? Object.values(colors.dark)[index] : Object.values(colors.light)[index];
             return <Cell key={`cell-${index}`} fill={barColor} fillOpacity={0.6} />;
           })}
         </Bar>
@@ -371,12 +365,14 @@ function PanelData({
   timeFilter,
   tickFormatter,
   type,
+  activeModels,
 }: {
   data: any;
   fieldConfig: any;
   timeFilter: (date: Date) => boolean;
   tickFormatter: (value: string) => string;
   type: string;
+  activeModels: string[];
 }) {
   const unit = fieldConfig?.defaults?.unit;
   const valueFormatter = (value: number) => `${formatNumber(value)}${unit ? ` ${unit}` : ""}`;
@@ -393,20 +389,26 @@ function PanelData({
           ? "time"
           : field?.config?.displayNameFromDS || Object.values(field?.labels)?.[0] || field.name;
       });
-      labels = new Set([...labels, ...schema.filter((_: any, index: number) => index !== timeId)]);
-      if (frame.data.values.length === 0) {
-        return;
-      }
-      for (let i = 0; i < frame.data.values[0].length; i++) {
-        const time = new Date(frame.data.values[timeId][i]).getTime();
-        if (!(time in graphData)) {
-          graphData[time] = {};
+      // We check if this frame has model and if so, is it active?
+      const use = frame.schema.fields.every((field: any) =>
+        field?.labels?.model ? activeModels.includes(field?.labels?.model) : true
+      );
+      if (use) {
+        labels = new Set([...labels, ...schema.filter((_: any, index: number) => index !== timeId)]);
+        if (frame.data.values.length === 0) {
+          return;
         }
-        for (let j = 0; j < frame.data.values.length; ++j) {
-          if (j == timeId) {
-            continue;
+        for (let i = 0; i < frame.data.values[0].length; i++) {
+          const time = new Date(frame.data.values[timeId][i]).getTime();
+          if (!(time in graphData)) {
+            graphData[time] = {};
           }
-          graphData[time][schema[j]] = frame.data.values[j][i];
+          for (let j = 0; j < frame.data.values.length; ++j) {
+            if (j == timeId) {
+              continue;
+            }
+            graphData[time][schema[j]] = frame.data.values[j][i];
+          }
         }
       }
     });
@@ -462,6 +464,7 @@ function Panel({
   data,
   timeFilter,
   tickFormatter,
+  activeModels,
 }: {
   title: string;
   description?: string;
@@ -470,6 +473,7 @@ function Panel({
   data: any;
   timeFilter: (date: Date) => boolean;
   tickFormatter: (value: string) => string;
+  activeModels: string[];
 }) {
   return (
     <Card className="col-span-1">
@@ -499,6 +503,7 @@ function Panel({
             fieldConfig={fieldConfig}
             timeFilter={timeFilter}
             tickFormatter={tickFormatter}
+            activeModels={activeModels}
           />
         ) : (
           <div className="flex justify-center items-center">
@@ -513,9 +518,11 @@ function Panel({
 function Dashboard({
   title,
   panels,
+  activeModels,
 }: {
   title: string;
   panels: { title: string; description?: string; fieldConfig: any; data: any; type: string; query: { from: string } }[];
+  activeModels: string[];
 }) {
   return (
     <>
@@ -559,6 +566,7 @@ function Dashboard({
             type={type}
             timeFilter={timeFilter}
             tickFormatter={tickFormatter}
+            activeModels={activeModels}
           />
         );
       })}
@@ -574,10 +582,30 @@ export default function NetworkStatusPage() {
       }[]
     | null
   >(null);
+  const [models, setModels] = useState<string[]>([]);
   const { theme } = useTheme();
 
   useEffect(() => {
     (async () => {
+      const tasksPromise = getTasks();
+      const subscriptionsPromise = getSubscriptions();
+
+      const [tasksRes, subscriptionsRes] = await Promise.all([tasksPromise, subscriptionsPromise]);
+      const tasks = tasksRes?.data.map(([task, modality]) => ({
+        task: task,
+        modality: modality,
+      }));
+
+      for (const { task, modality } of tasks) {
+        const subs_for_this_task = subscriptionsRes?.data.filter(
+          (subscription: NodeSubscription) => subscription.task_small_id === task.task_small_id && subscription.valid
+        );
+        if (subs_for_this_task.length === 0) {
+          // No valid subscriptions for this task
+          continue;
+        }
+        setModels(models => [...models, task.model_name!]);
+      }
       let graphs = await getGraphs();
       setGraphs(
         graphs.data.map(({ title, panels }) => ({
@@ -617,7 +645,7 @@ export default function NetworkStatusPage() {
           {graphs && graphs.every(graph => graph.panels.every(panel => panel.data)) ? (
             <div className="grid md:grid-cols-2 gap-6">
               {graphs.map(({ title, panels }) => (
-                <Dashboard key={title} title={title} panels={panels} />
+                <Dashboard key={title} title={title} panels={panels} activeModels={models} />
               ))}
             </div>
           ) : (
