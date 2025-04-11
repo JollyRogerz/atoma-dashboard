@@ -246,21 +246,23 @@ export function ApiKeyCard() {
             </DialogDescription>
           </DialogHeader>
           <div className="relative pt-4">
-            <div className="rounded-md border bg-muted p-4 font-mono text-sm">{newGeneratedKey}</div>
-            <Button 
-              size="sm" 
-              onClick={copyToClipboard} 
-              className="absolute right-2 top-1/2 -translate-y-1/2"
-            >
-              {copied ? (
-                "Copied"
-              ) : (
-                <>
-                  <Copy className="mr-2 h-4 w-4" />
-                  Copy
-                </>
-              )}
-            </Button>
+            <div className="rounded-md border bg-muted p-4 font-mono text-sm flex items-center justify-between">
+              <span>{newGeneratedKey}</span>
+              <Button 
+                size="sm" 
+                onClick={copyToClipboard} 
+                className="ml-2"
+              >
+                {copied ? (
+                  "Copied"
+                ) : (
+                  <>
+                    <Copy className="mr-2 h-4 w-4" />
+                    Copy
+                  </>
+                )}
+              </Button>
+            </div>
           </div>
            <DialogFooter className="pt-6">
               <Button onClick={() => setIsSaveKeyDialogOpen(false)}>Done</Button> 

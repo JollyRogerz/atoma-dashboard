@@ -33,7 +33,7 @@ const ModalityToCategory = {
   [ModelModality.Embeddings]: "embedding",
 };
 
-function ModelCard({ name, price, modalities, isConfidential }: { name: string; price: string; modalities: ModelModality[]; isConfidential: boolean }) {
+function ModelCard({ name, price, modalities }: { name: string; price: string; modalities: ModelModality[] }) {
   const [showApiDialog, setShowApiDialog] = useState(false);
 
   return (
@@ -74,13 +74,7 @@ function ModelCard({ name, price, modalities, isConfidential }: { name: string; 
           </div>
         </CardContent>
       </Card>
-      <ApiUsageDialog 
-        isOpen={showApiDialog} 
-        onClose={() => setShowApiDialog(false)} 
-        modelName={name} 
-        modality={modalities[0]}
-        isConfidential={isConfidential}
-      />
+      <ApiUsageDialog isOpen={showApiDialog} onClose={() => setShowApiDialog(false)} modelName={name} />
     </>
   );
 }
@@ -182,7 +176,7 @@ export default function ModelsPage() {
   ];
 
   return (
-    <div className="relative min-h-full w-full">
+    <div className="relative min-h-screen w-full">
       {/* Content */}
       <div className="relative z-10">
         <div className="container mx-auto px-4 py-8 space-y-8">
@@ -219,11 +213,13 @@ export default function ModelsPage() {
               </SelectTrigger>
               <SelectContent>
                 {Object.values(ModelModality).map(modality => (
+                {Object.values(ModelModality).map(modality => (
                   modelsData[modality].length > 0 ? (
                     <SelectItem key={modality} value={modality}>
                       {modalityToFeatureName(modality)}
                     </SelectItem>
                   ) : null
+                ))}
                 ))}
               </SelectContent>
             </Select>
@@ -236,13 +232,7 @@ export default function ModelsPage() {
               <h2 className="text-lg font-medium text-primary">{section.title}</h2>
               <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
                 {section.models.map(model => (
-                  <ModelCard 
-                    key={model.name} 
-                    name={model.name} 
-                    price={model.price} 
-                    modalities={model.modalities} 
-                    isConfidential={isConfidentialMode}
-                  />
+                  <ModelCard key={model.name} name={model.name} price={model.price} modalities={model.modalities} />
                 ))}
               </div>
             </div>
