@@ -22,6 +22,7 @@ import { Info } from "lucide-react";
 import { formatNumber } from "@/lib/utils";
 import { useTheme } from "next-themes";
 import type { NodeSubscription } from "@/lib/atoma";
+import { readableModelName } from "@/utils/utils";
 
 // Colors for different chart types
 const colors = {
@@ -54,25 +55,6 @@ const colors = {
     red: "#7f1d1d",
     purple: "#581c87",
   },
-};
-
-const readableModelName = (modelName: string) => {
-  switch (modelName) {
-    case "Qwen/QwQ-32B":
-      return "QWQ 32B";
-    case "neuralmagic/DeepSeek-R1-Distill-Llama-70B-FP8-dynamic":
-      return "DeepSeek: R1 Distill Llama 70B";
-    case "neuralmagic/Qwen2-72B-Instruct-FP8":
-      return "Qwen2 72B";
-    case "meta-llama/Llama-3.1-8B-Instruct":
-      return "Llama 3.1 8B";
-    default:
-      const match = modelName?.match(/\/([^\/]*\d+B)/);
-      if (match) {
-        return match[1].replace(/-/g, " ");
-      }
-      return modelName;
-  }
 };
 
 function AreaPanel({
