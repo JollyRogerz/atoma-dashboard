@@ -238,7 +238,7 @@ export default function PlaygroundPage() {
   };
 
   return (
-    <div className="relative min-h-full w-full overflow-hidden">
+    <div className="relative min-h-screen w-full overflow-hidden">
       <div className="relative z-10 h-[calc(100vh-6rem)] overflow-hidden">
         <div className="h-full p-4 grid grid-cols-[1fr,400px] gap-4">
           <Card className="flex flex-col overflow-hidden bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -278,7 +278,7 @@ export default function PlaygroundPage() {
 
             {/* Chat Section */}
             <div className="flex-1 flex flex-col overflow-hidden">
-              <div className="flex-1 overflow-y-auto p-4 gap-y-4">
+              <div className="flex-1 overflow-y-auto p-4 space-y-4">
                 {messages.length === 0 && !isLoading && (
                   <div className="h-full flex items-center justify-center text-muted-foreground">
                     <p>Start a conversation by sending a message</p>
@@ -414,12 +414,7 @@ export default function PlaygroundPage() {
           </Card>
         </div>
       </div>
-      <ApiUsageDialog
-        isOpen={isApiDialogOpen}
-        onClose={() => setIsApiDialogOpen(false)}
-        modelName={selectedModel}
-        modality={ModelModality.ChatCompletions}
-      />
+      <ApiUsageDialog isOpen={isApiDialogOpen} onClose={() => setIsApiDialogOpen(false)} modelName={selectedModel} />
     </div>
   );
 }

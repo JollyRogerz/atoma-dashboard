@@ -13,9 +13,11 @@ export default function ClientWrapper({ children }: { children: React.ReactNode 
 
   return (
     <ToastProvider>
-      <div className="relative w-full min-h-full">
+      <div className="relative w-full min-h-screen">
         {mounted && <BackgroundGrid />}
-        <div className="relative z-[1]">{children}</div>
+        <div className="relative z-[1]">
+          {children}
+        </div>
       </div>
     </ToastProvider>
   );
