@@ -21,8 +21,6 @@ import { TooltipProvider, TooltipTrigger, TooltipContent, Tooltip as ShadTooltip
 import { Info } from "lucide-react";
 import { formatNumber } from "@/lib/utils";
 import { useTheme } from "next-themes";
-import type { NodeSubscription } from "@/lib/atoma";
-import { readableModelName } from "@/utils/utils";
 
 // Colors for different chart types
 const colors = {
@@ -40,6 +38,13 @@ const colors = {
     yellow: "#b45309",
     red: "#dc2626",
     purple: "#7c3aed",
+  },
+  darkText: {
+    blue: "#1e3a8a",
+    green: "#064e3b",
+    yellow: "#713f12",
+    red: "#7f1d1d",
+    purple: "#581c87",
   },
   darkText: {
     blue: "#1e3a8a",
@@ -80,11 +85,16 @@ function AreaPanel({
   const wholeHourTicks = series.map(({ time }) => time).filter(timeStr => timeFilter(new Date(timeStr)));
   const { theme } = useTheme();
   const [currentTheme, setCurrentTheme] = useState(theme);
-
+  
   useEffect(() => {
     setCurrentTheme(theme);
   }, [theme]);
-
+  
+  const percentToHex = (percent: number): string => {
+    const clampedPercent = Math.max(0, Math.min(100, percent));
+    const decimalValue = Math.round((clampedPercent / 100) * 255);
+    return decimalValue.toString(16).padStart(2, "0").toUpperCase();
+  };
   return (
     <ResponsiveContainer width="100%" height={250}>
       <AreaChart data={series} margin={{ top: 0, right: 0, bottom: 0 }}>
@@ -122,10 +132,33 @@ function AreaPanel({
               const colorKey = getColorKeyForModel(modelName, index);
               return {
                 ...entry,
-                color: currentTheme === "dark" ? colors.darkText[colorKey] : colors.lightText[colorKey],
+                color: currentTheme === "dark" 
+                  ? colors.darkText[colorKey] 
+                  : colors.lightText[colorKey],
               };
             });
-
+            
+            // Helper function to get consistent color mapping
+            function getColorKeyForModel(modelName: string, fallbackIndex: number): keyof typeof colors.lightText {
+              if (modelName.includes("Qwen2")) return "blue";
+              if (modelName.includes("DeepSeek")) return "green";
+              if (modelName.includes("QWQ")) return "yellow";
+              if (modelName.includes("Llama")) return "purple";
+              if (modelName.includes("Claude")) return "red";
+              
+              // Fallback to index-based
+              const colorKeys: (keyof typeof colors.lightText)[] = ["blue", "green", "yellow", "red", "purple"];
+              return colorKeys[fallbackIndex % colorKeys.length];
+            }
+            
+            // Debug colors in tooltip
+            console.log('AreaPanel tooltip colors:', {
+              isDark: currentTheme === "dark",
+              darkTextColors: colors.darkText,
+              lightTextColors: colors.lightText,
+              usedColors: combinedPayload?.map(entry => entry.color)
+            });
+            
             if (stackingGroup) {
               combinedPayload?.reverse();
             } else {
@@ -150,14 +183,14 @@ function AreaPanel({
                   return (
                     <div key={index}>
                       <span
-                        style={{
-                          color: entry.color,
-                          fontWeight: "bold",
-                          display: "inline-block",
-                          padding: "2px 0",
+                        style={{ 
+                          color: entry.color, 
+                          fontWeight: 'bold',
+                          display: 'inline-block',
+                          padding: '2px 0'
                         }}
                         dangerouslySetInnerHTML={{
-                          __html: `<span style="color:${entry.color} !important;">${readableModelName(entry.name!.toString())}: ${valueFormatter(Number(entry.value))}</span>`,
+                          __html: `<span style="color:${entry.color} !important;">${readableModelName(entry.name!.toString())}: ${valueFormatter(Number(entry.value))}</span>`
                         }}
                       />
                     </div>
@@ -168,8 +201,9 @@ function AreaPanel({
           }}
         />
         {labelsArray.map((label, index) => {
-          const colorKey = getColorKeyForModel(label, index);
-          const color = currentTheme === "dark" ? colors.dark[colorKey] : colors.light[colorKey];
+          const color = currentTheme === "dark"
+            ? Object.values(colors.dark)[index]
+            : Object.values(colors.light)[index];
           return (
             <Area
               key={index}
@@ -226,14 +260,14 @@ function BarGaugePanel({
     name: label,
     Tokens: Number(series[series.length - 1].data[label] || 0),
   }));
-
+  
   const { theme } = useTheme();
   const [currentTheme, setCurrentTheme] = useState(theme);
-
+  
   useEffect(() => {
     setCurrentTheme(theme);
   }, [theme]);
-
+  
   return (
     <ResponsiveContainer width="100%" height={250}>
       <BarChart data={barData} layout="vertical" margin={{ top: 0, right: 0, left: 20, bottom: 0 }}>
@@ -263,12 +297,35 @@ function BarGaugePanel({
         <Tooltip
           content={props => {
             const { payload, label } = props;
-
+            
             // Get color based on model name
             const modelName = label || "";
             const colorKey = getColorKeyForModel(modelName, labelsArray.indexOf(label));
-            const textColor = currentTheme === "dark" ? colors.darkText[colorKey] : colors.lightText[colorKey];
-
+            const textColor = currentTheme === "dark"
+              ? colors.darkText[colorKey]
+              : colors.lightText[colorKey];
+            
+            // Helper function to get consistent color mapping
+            function getColorKeyForModel(modelName: string, fallbackIndex: number): keyof typeof colors.lightText {
+              if (modelName.includes("Qwen2")) return "blue";
+              if (modelName.includes("DeepSeek")) return "green";
+              if (modelName.includes("QWQ")) return "yellow";
+              if (modelName.includes("Llama")) return "purple";
+              if (modelName.includes("Claude")) return "red";
+              
+              // Fallback to index-based
+              const colorKeys: (keyof typeof colors.lightText)[] = ["blue", "green", "yellow", "red", "purple"];
+              return colorKeys[fallbackIndex % colorKeys.length];
+            }
+            
+            // Debug colors in bar tooltip
+            console.log('BarChart tooltip colors:', {
+              isDark: currentTheme === "dark",
+              labelIndex: labelsArray.indexOf(label),
+              darkTextColor: Object.values(colors.darkText)[labelsArray.indexOf(label)],
+              lightTextColor: Object.values(colors.lightText)[labelsArray.indexOf(label)]
+            });
+            
             return (
               <div
                 style={{
@@ -286,22 +343,24 @@ function BarGaugePanel({
                   key={`${payload?.[0]?.name}-value`}
                   style={{
                     color: textColor,
-                    fontWeight: "bold",
-                    display: "block",
-                    padding: "2px 0",
+                    fontWeight: 'bold',
+                    display: 'block',
+                    padding: '2px 0'
                   }}
                   dangerouslySetInnerHTML={{
-                    __html: `<span style="color:${textColor} !important;">${payload?.[0]?.name}: ${valueFormatter(Number(payload?.[0]?.value))}</span>`,
+                    __html: `<span style="color:${textColor} !important;">${payload?.[0]?.name}: ${valueFormatter(Number(payload?.[0]?.value))}</span>`
                   }}
-                ></div>
+                >
+                </div>
               </div>
             );
           }}
         />
         <Bar dataKey="Tokens" radius={[0, 4, 4, 0]} barSize={20}>
-          {barData.map((entry, index) => {
-            const colorKey = getColorKeyForModel(entry.name, index);
-            const barColor = currentTheme === "dark" ? colors.dark[colorKey] : colors.light[colorKey];
+          {labelsArray.map((entry, index) => {
+            const barColor = currentTheme === "dark"
+              ? Object.values(colors.dark)[index]
+              : Object.values(colors.light)[index];
             return <Cell key={`cell-${index}`} fill={barColor} fillOpacity={0.6} />;
           })}
         </Bar>
@@ -532,7 +591,6 @@ export default function NetworkStatusPage() {
       }[]
     | null
   >(null);
-  const [models, setModels] = useState<string[]>([]);
   const { theme } = useTheme();
 
   useEffect(() => {
@@ -573,8 +631,9 @@ export default function NetworkStatusPage() {
     })();
   }, []);
 
+
   return (
-    <div className="relative min-h-full w-full">
+    <div className="relative min-h-screen w-full">
       {/* Content */}
       <div className="relative z-10">
         <div className="space-y-4 p-6">

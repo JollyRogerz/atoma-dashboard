@@ -23,10 +23,14 @@ const inter = Inter({ subsets: ["latin"] });
 
 export const metadata = {
   title: "Atoma Cloud",
-  description: "Distributed AI inference of the largest open-source AI models for text, voice, and image generation.",
+  description:
+    "Distributed AI inference of the largest open-source AI models for text, voice, and image generation.",
   generator: "v0.dev",
   icons: {
-    icon: [{ url: "/favicon.svg", type: "image/svg+xml" }, { url: "/favicon.ico" }],
+    icon: [
+      { url: "/favicon.svg", type: "image/svg+xml" },
+      { url: "/favicon.ico" }
+    ],
   },
 };
 
@@ -39,16 +43,16 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <SettingsProvider>
           <AppStateProvider>
             <SuiWrap>
-              <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
+              <ThemeProvider attribute="class" defaultTheme="dark" enableSystem suppressHydrationWarning>
                 <TooltipProvider delayDuration={0}>
                   <ClientWrapper>
                     <div className="h-screen flex overflow-hidden bg-transparent">
                     <div className="h-screen flex overflow-hidden bg-transparent">
                       <Sidebar />
-                      <div className="flex-1 flex flex-col h-full bg-transparent">
+                      <div className="flex-1 flex flex-col h-screen bg-transparent">
                         <TopNav />
                         <div className="w-full p-4 flex-1 overflow-auto bg-transparent">
-                          <div className="w-full h-full bg-transparent">{children}</div>
+                          <main className="w-full h-full bg-transparent">{children}</main>
                         </div>
                       </div>
                     </div>
