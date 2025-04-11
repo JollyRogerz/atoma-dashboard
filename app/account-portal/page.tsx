@@ -238,7 +238,7 @@ export default function DashboardPage() {
             <ConnectModal
               trigger={
                 <Button className="w-full justify-start bg-white dark:bg-darkMode text-gray-800 dark:text-gray-200 border border-gray-300 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-600">
-                  Connect sui wallet
+                  Connect Sui Wallet
                 </Button>
               }
             />
