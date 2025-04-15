@@ -123,19 +123,6 @@ function AreaPanel({
               };
             });
 
-            // Helper function to get consistent color mapping
-            function getColorKeyForModel(modelName: string, fallbackIndex: number): keyof typeof colors.lightText {
-              if (modelName.includes("Qwen2")) return "blue";
-              if (modelName.includes("DeepSeek")) return "green";
-              if (modelName.includes("QWQ")) return "yellow";
-              if (modelName.includes("Llama")) return "purple";
-              if (modelName.includes("Claude")) return "red";
-
-              // Fallback to index-based
-              const colorKeys: (keyof typeof colors.lightText)[] = ["blue", "green", "yellow", "red", "purple"];
-              return colorKeys[fallbackIndex % colorKeys.length];
-            }
-
             if (stackingGroup) {
               combinedPayload?.reverse();
             } else {
@@ -197,6 +184,19 @@ function AreaPanel({
       </AreaChart>
     </ResponsiveContainer>
   );
+}
+
+// Helper function to get consistent color mapping
+function getColorKeyForModel(modelName: string, fallbackIndex: number): keyof typeof colors.lightText {
+  if (modelName.includes("Qwen2")) return "blue";
+  if (modelName.includes("DeepSeek")) return "green";
+  if (modelName.includes("QWQ")) return "yellow";
+  if (modelName.includes("Llama")) return "purple";
+  if (modelName.includes("Claude")) return "red";
+
+  // Fallback to index-based
+  const colorKeys: (keyof typeof colors.lightText)[] = ["blue", "green", "yellow", "red", "purple"];
+  return colorKeys[fallbackIndex % colorKeys.length];
 }
 
 function BarGaugePanel({
@@ -265,19 +265,6 @@ function BarGaugePanel({
             const modelName = label || "";
             const colorKey = getColorKeyForModel(modelName, labelsArray.indexOf(label));
             const textColor = currentTheme === "dark" ? colors.darkText[colorKey] : colors.lightText[colorKey];
-
-            // Helper function to get consistent color mapping
-            function getColorKeyForModel(modelName: string, fallbackIndex: number): keyof typeof colors.lightText {
-              if (modelName.includes("Qwen2")) return "blue";
-              if (modelName.includes("DeepSeek")) return "green";
-              if (modelName.includes("QWQ")) return "yellow";
-              if (modelName.includes("Llama")) return "purple";
-              if (modelName.includes("Claude")) return "red";
-
-              // Fallback to index-based
-              const colorKeys: (keyof typeof colors.lightText)[] = ["blue", "green", "yellow", "red", "purple"];
-              return colorKeys[fallbackIndex % colorKeys.length];
-            }
 
             return (
               <div
