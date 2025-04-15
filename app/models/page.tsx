@@ -59,7 +59,12 @@ function ModelCard({ name, price, modalities }: { name: string; price: string; m
           </div>
         </CardContent>
       </Card>
-      <ApiUsageDialog isOpen={showApiDialog} onClose={() => setShowApiDialog(false)} modelName={name} />
+      <ApiUsageDialog 
+        isOpen={showApiDialog} 
+        onClose={() => setShowApiDialog(false)} 
+        modelName={name} 
+        modality={modalities[0]}
+      />
     </>
   );
 }

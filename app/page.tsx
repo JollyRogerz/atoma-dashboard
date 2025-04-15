@@ -85,11 +85,6 @@ function AreaPanel({
     setCurrentTheme(theme);
   }, [theme]);
 
-  const percentToHex = (percent: number): string => {
-    const clampedPercent = Math.max(0, Math.min(100, percent));
-    const decimalValue = Math.round((clampedPercent / 100) * 255);
-    return decimalValue.toString(16).padStart(2, "0").toUpperCase();
-  };
   return (
     <ResponsiveContainer width="100%" height={250}>
       <AreaChart data={series} margin={{ top: 0, right: 0, bottom: 0 }}>
@@ -141,14 +136,6 @@ function AreaPanel({
               return colorKeys[fallbackIndex % colorKeys.length];
             }
 
-            // Debug colors in tooltip
-            console.log("AreaPanel tooltip colors:", {
-              isDark: currentTheme === "dark",
-              darkTextColors: colors.darkText,
-              lightTextColors: colors.lightText,
-              usedColors: combinedPayload?.map(entry => entry.color),
-            });
-
             if (stackingGroup) {
               combinedPayload?.reverse();
             } else {
@@ -191,8 +178,8 @@ function AreaPanel({
           }}
         />
         {labelsArray.map((label, index) => {
-          const color =
-            currentTheme === "dark" ? Object.values(colors.dark)[index] : Object.values(colors.light)[index];
+          const colorKey = getColorKeyForModel(label, index);
+          const color = currentTheme === "dark" ? colors.dark[colorKey] : colors.light[colorKey];
           return (
             <Area
               key={index}
@@ -292,14 +279,6 @@ function BarGaugePanel({
               return colorKeys[fallbackIndex % colorKeys.length];
             }
 
-            // Debug colors in bar tooltip
-            console.log("BarChart tooltip colors:", {
-              isDark: currentTheme === "dark",
-              labelIndex: labelsArray.indexOf(label),
-              darkTextColor: Object.values(colors.darkText)[labelsArray.indexOf(label)],
-              lightTextColor: Object.values(colors.lightText)[labelsArray.indexOf(label)],
-            });
-
             return (
               <div
                 style={{
@@ -330,9 +309,9 @@ function BarGaugePanel({
           }}
         />
         <Bar dataKey="Tokens" radius={[0, 4, 4, 0]} barSize={20}>
-          {labelsArray.map((entry, index) => {
-            const barColor =
-              currentTheme === "dark" ? Object.values(colors.dark)[index] : Object.values(colors.light)[index];
+          {barData.map((entry, index) => {
+            const colorKey = getColorKeyForModel(entry.name, index);
+            const barColor = currentTheme === "dark" ? colors.dark[colorKey] : colors.light[colorKey];
             return <Cell key={`cell-${index}`} fill={barColor} fillOpacity={0.6} />;
           })}
         </Bar>

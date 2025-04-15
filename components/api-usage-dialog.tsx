@@ -3,15 +3,55 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Copy, Check } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ModelModality } from "@/lib/atoma";
+import { ModelModality, Task } from "@/lib/atoma";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { getTasks } from "@/lib/api";
+import { simplifyModelName } from "@/lib/utils";
 
 interface ApiUsageDialogProps {
   isOpen: boolean;
   onClose: () => void;
   modelName: string;
   modality: ModelModality;
+  showModelSelector?: boolean;
+}
+
+const modalityToCategory = (modality: ModelModality): "chat" | "embeddings" | "images" | null => {
+  switch (modality) {
+    case ModelModality.ChatCompletions:
+      return "chat";
+    case ModelModality.Embeddings:
+      return "embeddings";
+    case ModelModality.ImagesGenerations:
+      return "images";
+    default:
+      return null;
+  }
+};
+
+function processModelsForModality(
+  models: [Task, ModelModality[]][],
+  modality: ModelModality
+): { modelName: string; model: string }[] {
+  const uniqueModels = new Map<string, { modelName: string; model: string }>();
+
+  models
+    .filter(([task, capabilities]) => 
+        Array.isArray(capabilities) && capabilities.includes(modality)
+    )
+    .forEach(([task]) => {
+      const modelId = task.model_name || "";
+      if (modelId && !uniqueModels.has(modelId)) {
+        uniqueModels.set(modelId, {
+          modelName: simplifyModelName(modelId),
+          model: modelId,
+        });
+      }
+    });
+
+  return Array.from(uniqueModels.values()).sort((a, b) => a.modelName.localeCompare(b.modelName));
 }
 
 function getPythonCode(modelName: string, modality: ModelModality) {
@@ -132,11 +172,55 @@ async function run() {
 run();`;
   }
 }
-export function ApiUsageDialog({ isOpen, onClose, modelName, modality }: ApiUsageDialogProps) {
-  const [copied, setCopied] = useState(false);
-  const [activeTab, setActiveTab] = useState<string>("curl");
 
-  // Determine the endpoint based on the model name
+export function ApiUsageDialog({
+  isOpen,
+  onClose,
+  modelName: initialModelName,
+  modality,
+  showModelSelector = false,
+}: ApiUsageDialogProps) {
+  const [copied, setCopied] = useState(false);
+  const [activeTab, setActiveTab] = useState<string>("python");
+  const [selectedModel, setSelectedModel] = useState<string>(initialModelName);
+  const [availableModels, setAvailableModels] = useState<{ modelName: string; model: string }[]>([]);
+  const [isLoadingModels, setIsLoadingModels] = useState(showModelSelector);
+
+  useEffect(() => {
+    if (isOpen && showModelSelector) {
+      setIsLoadingModels(true);
+      setSelectedModel('');
+      setAvailableModels([]);
+      getTasks()
+        .then(response => {
+          const models = processModelsForModality(response.data, modality);
+          setAvailableModels(models);
+          
+          if (models.length > 0) {
+            const initialModelIsValid = models.some(m => m.model === initialModelName);
+            if (initialModelIsValid) {
+              setSelectedModel(initialModelName);
+            } else {
+              setSelectedModel(models[0].model);
+            }
+          } else {
+             setSelectedModel(''); 
+          }
+        })
+        .catch(error => {
+          console.error("Error fetching models for dialog:", error);
+           setSelectedModel('');
+           setAvailableModels([]);
+        })
+        .finally(() => {
+          setIsLoadingModels(false);
+        });
+    } else if (!showModelSelector) {
+        setSelectedModel(initialModelName);
+        setIsLoadingModels(false);
+    }
+  }, [isOpen, showModelSelector, modality, initialModelName]);
+
   const getEndpoint = () => {
     if (modality === ModelModality.ChatCompletions) {
       return "/v1/chat/completions";
@@ -147,11 +231,12 @@ export function ApiUsageDialog({ isOpen, onClose, modelName, modality }: ApiUsag
     }
   };
 
-  // Generate the appropriate request body based on the model
+  const currentModelForCode = selectedModel;
+
   const getRequestBody = () => {
     if (modality === ModelModality.ChatCompletions) {
       return `{
-  "model": "${modelName}",
+  "model": "${currentModelForCode}",
   "messages": [
     {
       "role": "system",
@@ -170,30 +255,27 @@ export function ApiUsageDialog({ isOpen, onClose, modelName, modality }: ApiUsag
 }`;
     } else if (modality === ModelModality.ImagesGenerations) {
       return `{
-  "model": "${modelName}",
+  "model": "${currentModelForCode}",
   "prompt": "A serene landscape with mountains",
   "n": 1,
   "size": "1024x1024"
 }`;
     } else {
       return `{
-  "model": "${modelName}",
+  "model": "${currentModelForCode}",
   "input": "The food was delicious and the waiter..."
 }`;
     }
   };
 
-  // Generate curl command
   const curlCode = `curl https://api.atoma.network${getEndpoint()} \\
 -H "Content-Type: application/json" \\
 -H "Authorization: Bearer $YOUR_API_KEY" \\
 -d '${getRequestBody()}'`;
 
-  // Generate Python code
-  const pythonCode = getPythonCode(modelName, modality);
+  const pythonCode = getPythonCode(currentModelForCode, modality);
 
-  // Generate TypeScript code
-  const typescriptCode = getTypescriptCode(modelName, modality);
+  const typescriptCode = getTypescriptCode(currentModelForCode, modality);
 
   const copyToClipboard = () => {
     const codeMap = {
@@ -207,18 +289,60 @@ export function ApiUsageDialog({ isOpen, onClose, modelName, modality }: ApiUsag
     setTimeout(() => setCopied(false), 2000);
   };
 
+  const displayModelName = showModelSelector 
+      ? (availableModels.find(m => m.model === selectedModel)?.modelName || selectedModel)
+      : simplifyModelName(initialModelName);
+
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-[700px]">
-        <DialogHeader>
-          <DialogTitle>API Usage for {modelName}</DialogTitle>
+        <DialogHeader className="flex flex-row items-center justify-between gap-2">
+          {showModelSelector ? (
+            <div className="flex items-center gap-2 flex-grow">
+              <DialogTitle className="whitespace-nowrap">API Usage for</DialogTitle>
+              {isLoadingModels ? (
+                <div className="text-sm text-muted-foreground">Loading models...</div>
+              ) : availableModels.length > 0 ? (
+                <Select value={selectedModel} onValueChange={setSelectedModel}>
+                  <SelectTrigger className="w-auto min-w-[250px] flex-grow">
+                    <SelectValue placeholder="Select model" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {availableModels.map((model) => (
+                      <SelectItem key={model.model} value={model.model}>
+                        {model.modelName}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              ) : (
+                  <div className="text-sm text-muted-foreground pl-2">No models available for this modality.</div>
+              )}
+            </div>
+          ) : (
+             <DialogTitle className="whitespace-nowrap flex-grow">
+                API Usage for {displayModelName}
+            </DialogTitle>
+          )}
+          {!isLoadingModels && selectedModel && (
+              <Button
+                size="icon"
+                variant="ghost"
+                className="h-8 w-8 hover:bg-muted-foreground/20 flex-shrink-0"
+                onClick={copyToClipboard}
+                title="Copy code snippet"
+              >
+                {copied ? <Check className="h-4 w-4 text-green-500" /> : <Copy className="h-4 w-4 text-muted-foreground" />}
+                <span className="sr-only">Copy code</span>
+              </Button>
+          )}
         </DialogHeader>
 
-        <Tabs defaultValue="curl" value={activeTab} onValueChange={setActiveTab}>
+        <Tabs defaultValue="python" value={activeTab} onValueChange={setActiveTab}>
           <TabsList className="grid w-full grid-cols-3">
-            <TabsTrigger value="curl">cURL</TabsTrigger>
             <TabsTrigger value="python">Python</TabsTrigger>
             <TabsTrigger value="typescript">TypeScript</TabsTrigger>
+            <TabsTrigger value="curl">cURL</TabsTrigger>
           </TabsList>
 
           <TabsContent value="curl" className="relative">
@@ -239,16 +363,6 @@ export function ApiUsageDialog({ isOpen, onClose, modelName, modality }: ApiUsag
             </pre>
           </TabsContent>
         </Tabs>
-
-        <Button
-          size="icon"
-          variant="ghost"
-          className="absolute top-16 right-6 h-8 w-8 hover:bg-muted-foreground/20"
-          onClick={copyToClipboard}
-        >
-          {copied ? <Check className="h-4 w-4 text-green-500" /> : <Copy className="h-4 w-4 text-muted-foreground" />}
-          <span className="sr-only">Copy code</span>
-        </Button>
       </DialogContent>
     </Dialog>
   );

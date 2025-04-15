@@ -129,10 +129,11 @@ export function ApiDocumentation() {
       <ApiUsageDialog
         isOpen={isApiDialogOpen}
         onClose={() => setIsApiDialogOpen(false)}
-        modelName={"MODEL_NAME"}
+        modelName={''}
         modality={
           endpoints.find(endpoint => endpoint.name === selectedEndpoint)?.modality || ModelModality.ChatCompletions
         }
+        showModelSelector={true}
       />
     </Card>
   );
