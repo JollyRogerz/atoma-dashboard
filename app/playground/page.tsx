@@ -24,6 +24,7 @@ import config from "@/config/config";
 import LoadingCircle from "../../components/LoadingCircle";
 import { useSettings } from "../../contexts/settings-context";
 import ReactMarkdown from "react-markdown";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 export type ModelCategories = "chat" | "embeddings" | "images";
 
@@ -106,9 +107,14 @@ export default function PlaygroundPage() {
     loadModels();
   }, []);
 
-  // Auto-scroll to bottom when new messages arrive
+  // Auto-scroll messages container only, with containment
   useEffect(() => {
-    chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    // Instead of using scrollIntoView (which can scroll the whole page),
+    // scroll only the direct parent container
+    const messagesContainer = chatEndRef.current?.parentElement;
+    if (messagesContainer && chatEndRef.current) {
+      messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    }
   }, [messages, streamingResponse]);
 
   const endpoints = {
@@ -251,8 +257,8 @@ export default function PlaygroundPage() {
   };
 
   return (
-    <div className="relative min-h-screen w-full overflow-hidden">
-      <div className="relative z-10 h-[calc(100vh-6rem)] overflow-hidden">
+    <div className="h-screen overflow-hidden">
+      <div className="h-[calc(100vh-64px)] overflow-hidden">
         <div className="h-full p-4 grid grid-cols-[1fr,400px] gap-4">
           <Card className="flex flex-col overflow-hidden bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
             {/* Header Section */}
@@ -263,20 +269,20 @@ export default function PlaygroundPage() {
                   {modelError ? (
                     <div className="text-red-500">{modelError}</div>
                   ) : (
-                    currentModels.map(model => (
-                      <Button
-                        key={model.model}
-                        variant="ghost"
-                        className={`px-2 py-1 text-xs rounded-lg border ${
-                          selectedModel === model.model
-                            ? "bg-primary text-primary-foreground border-primary"
-                            : "text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800/60 hover:text-gray-900 dark:hover:text-gray-200 border-transparent"
-                        }`}
-                        onClick={() => setSelectedModel(model.model)}
-                      >
-                        {readableModelName(model.model)}
-                      </Button>
-                    ))
+                    <div className="flex items-center">
+                      <Select value={selectedModel} onValueChange={setSelectedModel}>
+                        <SelectTrigger className="w-[180px]">
+                          <SelectValue placeholder="Select a model" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {currentModels.map(model => (
+                            <SelectItem key={model.model} value={model.model}>
+                              {readableModelName(model.model)}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
                   )}
                 </div>
 
