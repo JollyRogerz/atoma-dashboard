@@ -446,7 +446,7 @@ function Panel({
         )}
         {data ? (
           <PanelData
-            data={data.data}
+            data={data}
             type={type}
             fieldConfig={fieldConfig}
             timeFilter={timeFilter}
@@ -469,13 +469,12 @@ function Dashboard({
   activeModels,
 }: {
   title: string;
-  panels: { title: string; description?: string; fieldConfig: any; data: any; type: string; query: { from: string } }[];
+  panels: { title: string; description?: string; fieldConfig: any; data: any; type: string; from: string }[];
   activeModels: string[];
 }) {
   return (
     <>
-      {panels.map(({ title, description, fieldConfig, data, query, type }) => {
-        const from: string = query["from"];
+      {panels.map(({ title, description, fieldConfig, data, from, type }) => {
         const regex = /now-(\d+)([dmh])/;
         const match = from.match(regex);
         const range = match ? parseInt(match[1], 10) : null;
@@ -526,7 +525,7 @@ export default function NetworkStatusPage() {
   const [graphs, setGraphs] = useState<
     | {
         title: string;
-        panels: { title: string; description?: string; fieldConfig: any; query: any; data: any; type: string }[];
+        panels: { title: string; description?: string; fieldConfig: any; from: string; data: any; type: string }[];
       }[]
     | null
   >(null);
@@ -558,29 +557,16 @@ export default function NetworkStatusPage() {
       setGraphs(
         graphs.data.map(({ title, panels }) => ({
           title: title,
-          panels: panels.map(({ title, description, field_config, query, type }) => ({
+          panels: panels.map(({ title, description, field_config, from, type, data }) => ({
             title,
             description,
-            query,
+            from,
             fieldConfig: field_config,
-            data: null,
+            data,
             type,
           })),
         }))
       );
-      graphs.data.forEach(({ title, panels }, dashboardIndex) => {
-        panels.forEach(async ({ query, interval }, panelIndex) => {
-          query.queries.forEach((q: any) => {
-            q.interval = interval;
-          });
-          let panelData = await getGraphData(query);
-          setGraphs(graphs => {
-            const updatedGraphs = [...graphs!];
-            updatedGraphs[dashboardIndex].panels[panelIndex].data = panelData;
-            return updatedGraphs;
-          });
-        });
-      });
     })();
   }, []);
 
@@ -590,7 +576,7 @@ export default function NetworkStatusPage() {
       <div className="relative z-10">
         <div className="space-y-4 p-6">
           <MetricsCards />
-          {graphs && graphs.every(graph => graph.panels.every(panel => panel.data)) ? (
+          {graphs ? (
             <div className="grid md:grid-cols-2 gap-6">
               {graphs.map(({ title, panels }) => (
                 <Dashboard key={title} title={title} panels={panels} activeModels={models} />
