@@ -177,18 +177,9 @@ export const getGraphs = async () => {
   return await credentialsApi.get<
     {
       title: string;
-      panels: { description?: string; title: string; field_config: any; from: string; type: string; data: any }[];
+      panels: { description?: string; title: string; field_config: any; query: any; interval?: string; type: string }[];
     }[]
   >("/get_graphs");
-};
-
-export interface Stats {
-  title: string;
-  panels: { description?: string; title: string; field_config: any; from: string; type: string; data: any }[];
-}
-
-export const getStats = async () => {
-  return await credentialsApi.get<Stats[]>("/get_stats");
 };
 
 export const getGraphData = async (query: any) => {
