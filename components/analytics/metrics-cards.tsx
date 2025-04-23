@@ -3,7 +3,15 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Network, Activity, Box, Cpu, Clock, ArrowUpRight } from "lucide-react";
 import React from "react";
 import { formatNumber } from "@/lib/utils";
-import { getComputeUnitsProcessed, getLatency, getNodesDistribution, getSubscriptions, getTasks } from "@/lib/api";
+import {
+  getComputeUnitsProcessed,
+  getLatency,
+  getNodesDistribution,
+  getStats,
+  getSubscriptions,
+  getTasks,
+  type Stats,
+} from "@/lib/api";
 
 export function MetricsCards() {
   const [metricsData, setMetricsData] = React.useState({
@@ -20,14 +28,14 @@ export function MetricsCards() {
       try {
         const tasksPromise = getTasks();
         const nodesPromise = getNodesDistribution();
-        const latencyPromise = getLatency();
+        const statsPromise = getStats();
         const subscriptionsPromise = getSubscriptions();
         const computeUnitsPromise = getComputeUnitsProcessed();
 
-        const [tasksRes, nodesRes, latencyRes, subscriptionsRes, computeUnitsRes] = await Promise.all([
+        const [tasksRes, nodesRes, statsRes, subscriptionsRes, computeUnitsRes] = await Promise.all([
           tasksPromise,
           nodesPromise,
-          latencyPromise,
+          statsPromise,
           subscriptionsPromise,
           computeUnitsPromise,
         ]);
@@ -57,29 +65,23 @@ export function MetricsCards() {
           { totalUnits: 0, totalRequests: 0, totalTime: 0 }
         );
 
-        // Performance
-        const latency = latencyRes?.data
-          ? latencyRes.data.reduce(
-              (acc: any, item: any) => {
-                acc.totalLatency += item.latency;
-                acc.totalRequests += item.requests;
-                return acc;
-              },
-              { totalLatency: 0, totalRequests: 0 }
-            )
-          : null;
-
-        const averageLatency = latency?.totalLatency / latency?.totalRequests;
-
         // Throughput
         const averageThroughPut = totalComputeUnits?.totalRequests / (totalComputeUnits?.totalTime / 3600); // The totalTime is in seconds
+
+        const getStatsValue = (stats: Stats[], name: string) => {
+          const latency = stats.find(dashboard => dashboard.title === name)?.panels?.[0]?.data?.results?.A?.frames?.[0];
+          const valueIndex = latency?.schema?.fields?.findIndex((field: any) => field.name === "Value");
+          return latency?.data?.values?.[valueIndex]?.[0];
+        };
+
+        const latency = getStatsValue(statsRes.data, "Performance");
 
         setMetricsData(prevData => ({
           totalNodes: formatNumber(totalNodes),
           nodesOnline: formatNumber(nodesOnline),
           models: formatNumber(modelCount),
           tokens: formatNumber(totalComputeUnits?.totalUnits),
-          latency: (isFinite(averageLatency) ? averageLatency.toFixed(2) : "-") + "ms",
+          latency: (isFinite(latency) ? latency.toFixed(2) : "-") + "ms",
           throughPut: isFinite(averageThroughPut) ? formatNumber(averageThroughPut) : "-",
         }));
       } catch (err) {
