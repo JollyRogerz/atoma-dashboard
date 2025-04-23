@@ -75,12 +75,13 @@ export function MetricsCards() {
         };
 
         const latency = getStatsValue(statsRes.data, "Performance");
+        const tokens = getStatsValue(statsRes.data, "Tokens");
 
         setMetricsData(prevData => ({
           totalNodes: formatNumber(totalNodes),
           nodesOnline: formatNumber(nodesOnline),
           models: formatNumber(modelCount),
-          tokens: formatNumber(totalComputeUnits?.totalUnits),
+          tokens: formatNumber(tokens),
           latency: (isFinite(latency) ? latency.toFixed(2) : "-") + "ms",
           throughPut: isFinite(averageThroughPut) ? formatNumber(averageThroughPut) : "-",
         }));
