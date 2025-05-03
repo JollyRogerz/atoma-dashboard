@@ -6,39 +6,29 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { useState } from "react";
 import { ApiUsageDialog } from "@/components/api-usage-dialog";
 import { ModelModality } from "@/lib/atoma";
-import { Lock, Unlock } from "lucide-react";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
 
 const endpoints = [
   {
     name: "Chat Completions",
     endpoint: "/v1/chat/completions",
-    confidentialEndpoint: "/v1/confidential/chat/completions",
     modality: ModelModality.ChatCompletions,
     method: "POST",
   },
   {
     name: "Images Generations",
     endpoint: "/v1/images/generations",
-    confidentialEndpoint: "/v1/confidential/images/generations",
     modality: ModelModality.ImagesGenerations,
     method: "POST",
   },
   {
     name: "Embeddings",
     endpoint: "/v1/embeddings",
-    confidentialEndpoint: "/v1/confidential/embeddings",
     modality: ModelModality.Embeddings,
     method: "POST",
   },
 ];
 
-const regularExampleCode = `# Chat Completion Example
+const exampleCode = `# Chat Completion Example
 curl https://api.atoma.network/v1/chat/completions \\
   -H "Content-Type: application/json" \\
   -H "Authorization: Bearer $YOUR_API_KEY" \\
@@ -78,91 +68,14 @@ curl https://api.atoma.network/v1/chat/completions \\
   ]
 }`;
 
-const confidentialExampleCode = `# Python Example
-from atoma_sdk import AtomaSDK
-import os
-
-with AtomaSDK(
-    bearer_auth=os.getenv("ATOMASDK_BEARER_AUTH", ""),
-) as atoma_sdk:
-    completion = atoma_sdk.confidential_chat.create(
-      model="meta-llama/Llama-3.3-70B-Instruct",
-      messages=[
-        {"role": "developer", "content": "You are a helpful assistant."},
-        {"role": "user", "content": "Hello!"}
-      ]
-    )
-    print(completion.choices[0].message)
-
-# cURL Example
-curl --request POST \\
-  --url https://api.atoma.network/v1/confidential/chat/completions \\
-  --header 'Authorization: Bearer <token>' \\
-  --header 'Content-Type: application/json' \\
-  --data '{
-  "ciphertext": "<string>",
-  "client_dh_public_key": "<string>",
-  "model_name": "<string>",
-  "node_dh_public_key": "<string>",
-  "nonce": "<string>",
-  "num_compute_units": 1,
-  "plaintext_body_hash": "<string>",
-  "salt": "<string>",
-  "stack_small_id": 1,
-  "stream": true
-}'
-
-# TypeScript Example
-import { AtomaSDK } from "atoma-sdk";
-
-const atomaSDK = new AtomaSDK({
-  bearerAuth: process.env["ATOMASDK_BEARER_AUTH"] ?? "",
-});
-
-async function run() {
-  const completion = await atomaSDK.confidentialChat.create({
-    messages: [
-      {"role": "developer", "content": "You are a helpful assistant."},
-      {"role": "user", "content": "Hello!"}
-    ],
-    model: "meta-llama/Llama-3.3-70B-Instruct"
-  });
-
-  console.log(completion.choices[0]);
-}
-
-run();`;
-
 export function ApiDocumentation() {
   const [selectedEndpoint, setSelectedEndpoint] = useState<string | null>(null);
   const [isApiDialogOpen, setIsApiDialogOpen] = useState(false);
-  const [isConfidentialMode, setIsConfidentialMode] = useState(false);
 
   return (
     <Card className="h-[280px]">
       <CardHeader className="pb-2">
-        <div className="flex items-center justify-between">
-          <CardTitle className="text-primary">Quick Reference</CardTitle>
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <button
-                  onClick={() => setIsConfidentialMode(!isConfidentialMode)}
-                  className="p-1 rounded-full hover:bg-muted transition-colors"
-                >
-                  {isConfidentialMode ? (
-                    <Lock className="h-4 w-4 text-orange-500" />
-                  ) : (
-                    <Unlock className="h-4 w-4 text-muted-foreground" />
-                  )}
-                </button>
-              </TooltipTrigger>
-              <TooltipContent>
-                <p>Toggle confidential compute endpoints</p>
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
-        </div>
+        <CardTitle className="text-primary">Quick Reference</CardTitle>
       </CardHeader>
       <CardContent className="p-0">
         <Tabs defaultValue="endpoints" className="h-[208px]">
@@ -192,19 +105,12 @@ export function ApiDocumentation() {
                       <span className="font-medium text-sm group-hover:text-primary transition-colors">
                         {endpoint.name}
                       </span>
-                      <div className="flex items-center gap-2">
-                        {isConfidentialMode && (
-                          <span className="text-xs text-orange-500 bg-orange-500/10 px-2 py-0.5 rounded">
-                            Confidential
-                          </span>
-                        )}
-                        <span className="text-primary text-xs font-mono bg-secondary dark:bg-purple-900/20 px-2 py-0.5 rounded transition-all duration-200 group-hover:bg-secondary dark:group-hover:bg-secondary group-hover:scale-105 group-active:scale-95">
-                          {endpoint.method}
-                        </span>
-                      </div>
+                      <span className="text-primary text-xs font-mono bg-secondary dark:bg-purple-900/20 px-2 py-0.5 rounded transition-all duration-200 group-hover:bg-secondary dark:group-hover:bg-secondary group-hover:scale-105 group-active:scale-95">
+                        {endpoint.method}
+                      </span>
                     </div>
                     <code className="text-xs text-muted-foreground font-mono group-hover:text-foreground transition-colors">
-                      {isConfidentialMode ? endpoint.confidentialEndpoint : endpoint.endpoint}
+                      {endpoint.endpoint}
                     </code>
                   </div>
                 ))}
@@ -213,7 +119,7 @@ export function ApiDocumentation() {
             <TabsContent value="example" className="p-4 m-0">
               <div className="rounded-lg bg-muted/50 p-3">
                 <pre className="text-xs text-muted-foreground font-mono whitespace-pre overflow-x-auto">
-                  <code>{isConfidentialMode ? confidentialExampleCode : regularExampleCode}</code>
+                  <code>{exampleCode}</code>
                 </pre>
               </div>
             </TabsContent>
@@ -228,7 +134,6 @@ export function ApiDocumentation() {
           endpoints.find(endpoint => endpoint.name === selectedEndpoint)?.modality || ModelModality.ChatCompletions
         }
         showModelSelector={true}
-        isConfidential={isConfidentialMode}
       />
     </Card>
   );
