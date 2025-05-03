@@ -9,13 +9,6 @@ import Link from "next/link";
 import { getSubscriptions, getTasks } from "@/lib/api";
 import { modalityToFeatureName, simplifyModelName } from "@/lib/utils";
 import { ModelModality, NodeSubscription, Task } from "@/lib/atoma";
-import { Lock, Unlock } from "lucide-react";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
 
 interface ModelSection {
   type: ModelModality;
@@ -33,8 +26,7 @@ const ModalityToCategory = {
   [ModelModality.Embeddings]: "embedding",
 };
 
-function ModelCard({ name, price, modalities, isConfidential }: { name: string; price: string; modalities: ModelModality[]; isConfidential: boolean }) {
-function ModelCard({ name, price, modalities, isConfidential }: { name: string; price: string; modalities: ModelModality[]; isConfidential: boolean }) {
+function ModelCard({ name, price, modalities }: { name: string; price: string; modalities: ModelModality[] }) {
   const [showApiDialog, setShowApiDialog] = useState(false);
 
   return (
@@ -46,22 +38,14 @@ function ModelCard({ name, price, modalities, isConfidential }: { name: string; 
               <h3 className="text-base font-medium leading-snug line-clamp-2">{simplifyModelName(name)}</h3>
               <p className="text-sm text-muted-foreground">${price} per 1M tokens</p>
             </div>
-            <div className="flex items-center gap-2">
-              {isConfidential && (
-                <span className="inline-flex items-center rounded-md bg-orange-500/10 px-2 py-1 text-xs font-medium text-orange-500 ring-1 ring-inset ring-orange-500/20">
-                  <Lock className="h-3 w-3 mr-1" />
-                  Confidential
-                </span>
-              )}
-              {modalities.map(modality => (
-                <span
-                  className="inline-flex items-center rounded-md bg-primary/10 px-2 py-1 text-xs font-medium text-primary ring-1 ring-inset ring-primary/20"
-                  key={modality}
-                >
-                  {ModalityToCategory[modality]}
-                </span>
-              ))}
-            </div>
+            {modalities.map(modality => (
+              <span
+                className="inline-flex items-center rounded-md bg-primary/10 px-2 py-1 text-xs font-medium text-primary ring-1 ring-inset ring-primary/20"
+                key={modality}
+              >
+                {ModalityToCategory[modality]}
+              </span>
+            ))}
           </div>
           <div className="grid grid-cols-2 gap-2">
             <Link href="/playground" className="w-full">
@@ -80,8 +64,6 @@ function ModelCard({ name, price, modalities, isConfidential }: { name: string; 
         onClose={() => setShowApiDialog(false)}
         modelName={name}
         modality={modalities[0]}
-        isConfidential={isConfidential}
-        isConfidential={isConfidential}
       />
     </>
   );
@@ -90,8 +72,6 @@ function ModelCard({ name, price, modalities, isConfidential }: { name: string; 
 export default function ModelsPage() {
   // Track currently selected modality and whether confidential mode is enabled via dropdown
   const [selectedCategory, setSelectedCategory] = useState<ModelModality>(ModelModality.ChatCompletions);
-  const [isConfidentialMode, setIsConfidentialMode] = useState(false);
-  const [isConfidentialMode, setIsConfidentialMode] = useState(false);
   const [modelsData, setModelsData] = useState<
     Record<
       ModelModality,
@@ -201,31 +181,7 @@ export default function ModelsPage() {
       <div className="relative z-10">
         <div className="container mx-auto px-4 py-8 space-y-8">
           <div className="flex justify-between items-center">
-            <div className="flex items-center gap-4">
-              <h1 className="text-2xl font-semibold text-primary">Models</h1>
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <button
-                      onClick={() => setIsConfidentialMode(!isConfidentialMode)}
-                      className="p-1 rounded-full hover:bg-muted transition-colors"
-                    >
-                      {isConfidentialMode ? (
-                        <Lock className="h-4 w-4 text-orange-500" />
-                      ) : (
-                        <Unlock className="h-4 w-4 text-muted-foreground" />
-                      )}
-                    </button>
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p>Toggle confidential compute models</p>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
-            </div>
-            <div className="flex items-center gap-4">
-              <h1 className="text-2xl font-semibold text-primary">Models</h1>
-            </div>
+            <h1 className="text-2xl font-semibold text-primary">Models</h1>
             <Select
               value={encodeSelectValue(selectedCategory, isConfidentialMode)}
               onValueChange={(value: string) => {
@@ -265,13 +221,7 @@ export default function ModelsPage() {
                 className="grid gap-6 md:grid-cols-2 lg:grid-cols-3"
               >
                 {section.models.map(model => (
-                  <ModelCard 
-                    key={model.name} 
-                    name={model.name} 
-                    price={model.price} 
-                    modalities={model.modalities} 
-                    isConfidential={isConfidentialMode}
-                  />
+                  <ModelCard key={model.name} name={model.name} price={model.price} modalities={model.modalities} />
                 ))}
               </div>
             </div>
@@ -281,4 +231,3 @@ export default function ModelsPage() {
     </div>
   );
 }
-
