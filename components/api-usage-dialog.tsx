@@ -17,6 +17,7 @@ interface ApiUsageDialogProps {
   modality: ModelModality;
   showModelSelector?: boolean;
   isConfidential?: boolean;
+  isConfidential?: boolean;
 }
 
 const modalityToCategory = (modality: ModelModality): "chat" | "embeddings" | "images" | null => {
@@ -75,6 +76,26 @@ with AtomaSDK(
     print(completion.choices[0].message)`;
   }
 
+function getPythonCode(modelName: string, modality: ModelModality, isConfidential: boolean) {
+  if (isConfidential) {
+    return `from atoma_sdk import AtomaSDK
+import os
+
+with AtomaSDK(
+    bearer_auth=os.getenv("ATOMASDK_BEARER_AUTH", ""),
+) as atoma_sdk:
+
+    completion = atoma_sdk.confidential_chat.create(
+      model="${modelName}",
+      messages=[
+        {"role": "developer", "content": "You are a helpful assistant."},
+        {"role": "user", "content": "Hello!"}
+      ]
+    )
+
+    print(completion.choices[0].message)`;
+  }
+
   switch (modality) {
     case ModelModality.ChatCompletions:
       return `from atoma_sdk import AtomaSDK
@@ -102,6 +123,7 @@ with AtomaSDK(
 ) as atoma_sdk:
 
     res = atoma_sdk.images.generate(
+    res = atoma_sdk.images.generate(
       model="${modelName}",
       prompt="A cute baby sea otter floating on its back",
       n=1,
@@ -128,6 +150,29 @@ with AtomaSDK(
     print(res)`;
   }
 }
+
+function getTypescriptCode(modelName: string, modality: ModelModality, isConfidential: boolean) {
+  if (isConfidential) {
+    return `import { AtomaSDK } from "atoma-sdk";
+
+const atomaSDK = new AtomaSDK({
+  bearerAuth: process.env["ATOMASDK_BEARER_AUTH"] ?? "",
+});
+
+async function run() {
+  const completion = await atomaSDK.confidentialChat.create({
+    messages: [
+      {"role": "developer", "content": "You are a helpful assistant."},
+      {"role": "user", "content": "Hello!"}
+    ],
+    model: "${modelName}"
+  });
+
+  console.log(completion.choices[0]);
+}
+
+run();`;
+  }
 
 function getTypescriptCode(modelName: string, modality: ModelModality, isConfidential: boolean) {
   if (isConfidential) {
@@ -222,6 +267,7 @@ export function ApiUsageDialog({
   modality,
   showModelSelector = false,
   isConfidential = false,
+  isConfidential = false,
 }: ApiUsageDialogProps) {
   const [copied, setCopied] = useState(false);
   const [activeTab, setActiveTab] = useState<string>("python");
@@ -274,12 +320,12 @@ export function ApiUsageDialog({
         return "/v1/confidential/embeddings";
       }
     } else {
-    if (modality === ModelModality.ChatCompletions) {
-      return "/v1/chat/completions";
-    } else if (modality === ModelModality.ImagesGenerations) {
-      return "/v1/images/generations";
-    } else if (modality === ModelModality.Embeddings) {
-      return "/v1/embeddings";
+      if (modality === ModelModality.ChatCompletions) {
+        return "/v1/chat/completions";
+      } else if (modality === ModelModality.ImagesGenerations) {
+        return "/v1/images/generations";
+      } else if (modality === ModelModality.Embeddings) {
+        return "/v1/embeddings";
       }
     }
   };
@@ -287,6 +333,21 @@ export function ApiUsageDialog({
   const currentModelForCode = selectedModel;
 
   const getRequestBody = () => {
+    if (isConfidential) {
+      return `{
+  "ciphertext": "<string>",
+  "client_dh_public_key": "<string>",
+  "model_name": "${currentModelForCode}",
+  "node_dh_public_key": "<string>",
+  "nonce": "<string>",
+  "num_compute_units": 1,
+  "plaintext_body_hash": "<string>",
+  "salt": "<string>",
+  "stack_small_id": 1,
+  "stream": true
+}`;
+    }
+
     if (isConfidential) {
       return `{
   "ciphertext": "<string>",
@@ -341,9 +402,16 @@ export function ApiUsageDialog({
   --header 'Authorization: Bearer ${isConfidential ? '<token>' : '$YOUR_API_KEY'}' \\
   --header 'Content-Type: application/json' \\
   --data '${getRequestBody()}'`;
+  const curlCode = `curl ${isConfidential ? '--request POST \\' : ''} \\
+  --url https://api.atoma.network${getEndpoint()} \\
+  --header 'Authorization: Bearer ${isConfidential ? '<token>' : '$YOUR_API_KEY'}' \\
+  --header 'Content-Type: application/json' \\
+  --data '${getRequestBody()}'`;
 
   const pythonCode = getPythonCode(currentModelForCode, modality, isConfidential);
+  const pythonCode = getPythonCode(currentModelForCode, modality, isConfidential);
 
+  const typescriptCode = getTypescriptCode(currentModelForCode, modality, isConfidential);
   const typescriptCode = getTypescriptCode(currentModelForCode, modality, isConfidential);
 
   const copyToClipboard = () => {
