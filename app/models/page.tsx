@@ -16,7 +16,6 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import React from "react";
 
 interface ModelSection {
   type: ModelModality;
@@ -35,6 +34,7 @@ const ModalityToCategory = {
 };
 
 function ModelCard({ name, price, modalities, isConfidential }: { name: string; price: string; modalities: ModelModality[]; isConfidential: boolean }) {
+function ModelCard({ name, price, modalities, isConfidential }: { name: string; price: string; modalities: ModelModality[]; isConfidential: boolean }) {
   const [showApiDialog, setShowApiDialog] = useState(false);
 
   return (
@@ -46,20 +46,24 @@ function ModelCard({ name, price, modalities, isConfidential }: { name: string; 
               <h3 className="text-base font-medium leading-snug line-clamp-2">{simplifyModelName(name)}</h3>
               <p className="text-sm text-muted-foreground">${price} per 1M tokens</p>
             </div>
-            <div className="flex flex-wrap items-center gap-1 max-w-[40%] justify-end">
+            <div className="flex items-center gap-2">
+              {isConfidential && (
+                <span className="inline-flex items-center rounded-md bg-orange-500/10 px-2 py-1 text-xs font-medium text-orange-500 ring-1 ring-inset ring-orange-500/20">
+                  <Lock className="h-3 w-3 mr-1" />
+                  Confidential
+                </span>
+              )}
               {modalities.map(modality => (
                 <span
-                  className={`inline-flex items-center rounded-md ${isConfidential && modality === ModelModality.ChatCompletions ? 'bg-orange-500/10 text-orange-500 ring-orange-500/20' : 'bg-primary/10 text-primary ring-primary/20'} px-2 py-0.5 text-xs font-medium ring-1 ring-inset whitespace-nowrap`}
+                  className="inline-flex items-center rounded-md bg-primary/10 px-2 py-1 text-xs font-medium text-primary ring-1 ring-inset ring-primary/20"
                   key={modality}
                 >
-                  {isConfidential && modality === ModelModality.ChatCompletions && <Lock className="h-3 w-3 mr-1" />}
                   {ModalityToCategory[modality]}
                 </span>
               ))}
             </div>
           </div>
-          <div className="flex-grow" />
-          <div className="grid grid-cols-2 gap-2 mt-4">
+          <div className="grid grid-cols-2 gap-2">
             <Link href="/playground" className="w-full">
               <Button variant="outline" className="w-full h-9">
                 Playground
@@ -76,6 +80,7 @@ function ModelCard({ name, price, modalities, isConfidential }: { name: string; 
         onClose={() => setShowApiDialog(false)}
         modelName={name}
         modality={modalities[0]}
+        isConfidential={isConfidential}
         isConfidential={isConfidential}
       />
     </>
@@ -198,6 +203,25 @@ export default function ModelsPage() {
           <div className="flex justify-between items-center">
             <div className="flex items-center gap-4">
               <h1 className="text-2xl font-semibold text-primary">Models</h1>
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <button
+                      onClick={() => setIsConfidentialMode(!isConfidentialMode)}
+                      className="p-1 rounded-full hover:bg-muted transition-colors"
+                    >
+                      {isConfidentialMode ? (
+                        <Lock className="h-4 w-4 text-orange-500" />
+                      ) : (
+                        <Unlock className="h-4 w-4 text-muted-foreground" />
+                      )}
+                    </button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Toggle confidential compute models</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
             </div>
             <div className="flex items-center gap-4">
               <h1 className="text-2xl font-semibold text-primary">Models</h1>
@@ -241,14 +265,13 @@ export default function ModelsPage() {
                 className="grid gap-6 md:grid-cols-2 lg:grid-cols-3"
               >
                 {section.models.map(model => (
-                  <div key={model.name} className="h-full">
-                    <ModelCard
-                      name={model.name}
-                      price={model.price}
-                      modalities={model.modalities}
-                      isConfidential={section.isConfidential}
-                    />
-                  </div>
+                  <ModelCard 
+                    key={model.name} 
+                    name={model.name} 
+                    price={model.price} 
+                    modalities={model.modalities} 
+                    isConfidential={isConfidentialMode}
+                  />
                 ))}
               </div>
             </div>
