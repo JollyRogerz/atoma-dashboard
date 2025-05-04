@@ -92,7 +92,7 @@ export default function DashboardPage() {
       const zkLogin = new ZkLogin();
       await zkLogin.initialize(settings, updateSettings, updateZkLoginSettings);
       zkLogin
-        .payUSDC(amount * 1000000, suiClient)
+        .payUSDC(amount * 1000000, suiClient as any)
         .then(res => {
           const txDigest = res.digest;
           // const txDigest = "ASp9K5Ms1HS1sKW2H4oa4Q9q6Zz3kBqKUn3x9JbZcGsw";
@@ -129,7 +129,7 @@ export default function DashboardPage() {
         // We haven't proven the SUI address yet
         throw new Error("SUI address not found or not matching");
       }
-      let res = await payUSDC(amount * 1000000, suiClient, signAndExecuteTransaction, account);
+      let res = await payUSDC(amount * 1000000, suiClient as any, signAndExecuteTransaction, account);
       const txDigest = (res as { digest: string }).digest;
       res = await usdcPayment(txDigest);
       setShowAddFunds(true);
