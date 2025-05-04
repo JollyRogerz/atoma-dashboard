@@ -43,7 +43,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <SettingsProvider>
           <AppStateProvider>
             <SuiWrap>
-              <ThemeProvider attribute="class" defaultTheme="dark" enableSystem suppressHydrationWarning>
+              <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
                 <TooltipProvider delayDuration={0}>
                   <ClientWrapper>
                     <div className="h-screen flex overflow-hidden bg-transparent">
