@@ -9,7 +9,7 @@ import { toast } from "sonner";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { useEffect, useState } from "react";
 import { useCurrentAccount, useCurrentWallet } from "@mysten/dapp-kit";
-import { getUserProfile, saveUserProfile } from "@/lib/api";
+import { getUserProfile } from "@/lib/api";
 import ZkLogin from "@/lib/zklogin";
 import { disconnectWallet } from "@/lib/wallet";
 
