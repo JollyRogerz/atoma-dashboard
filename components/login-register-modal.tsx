@@ -14,18 +14,18 @@ import {
 interface LoginRegisterModalProps {
   isOpen: boolean
   onClose: () => void
-  error: string | null
-  onSubmit: (email: string, password: string, isLogin: boolean) => void
+  error?: string | null
+  onSubmit?: (email: string, password: string, isLogin: boolean) => void
 }
 
-export function LoginRegisterModal({ isOpen, onClose, error, onSubmit }: LoginRegisterModalProps) {
+export function LoginRegisterModal({ isOpen, onClose, error = null, onSubmit = () => {} }: LoginRegisterModalProps) {
   const [isLogin, setIsLogin] = useState(true)
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    onSubmit(email, password, isLogin)
+    onSubmit?.(email, password, isLogin)
   }
 
   const toggleMode = () => setIsLogin(!isLogin)
