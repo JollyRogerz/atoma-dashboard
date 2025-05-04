@@ -316,7 +316,9 @@ export function Sidebar() {
           <div className="flex-1 overflow-auto dark:bg-darkMode">
             <nav className="flex-1 space-y-2 px-2 py-4 dark:text-[#8f8f98]">
               {navigation.map(item => (
-                <NavItem key={item.name} item={item} isCollapsed={isCollapsed} mounted={mounted} />
+                (item.name !== "Settings" || settings.loggedIn) && (
+                  <NavItem key={item.name} item={item} isCollapsed={isCollapsed} mounted={mounted} />
+                )
               ))}
             </nav>
           </div>
