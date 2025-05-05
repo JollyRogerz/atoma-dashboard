@@ -1,3 +1,4 @@
+import type React from "react";
 import { Sidebar } from "./sidebar";
 import { TopNav } from "./top-nav";
 
