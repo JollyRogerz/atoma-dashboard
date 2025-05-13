@@ -102,7 +102,7 @@ export function UsageHistory() {
           })
       );
     })();
-  }, [settings.loggedIn]);
+  }, [settings.loggedIn, showToast]);
   return (
     <Card>
       <CardHeader>
