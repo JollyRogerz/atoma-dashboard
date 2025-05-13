@@ -53,9 +53,9 @@ export function ApiKeyCard() {
     }
     setApiKeys(null);
     try {
-      let tokens = await listApiKeys();
-      let userProfile = await getUserProfile();
-      let apiKeys: ApiKey[] = tokens.data.map(token => {
+      const tokens = await listApiKeys();
+      const userProfile = await getUserProfile();
+      const apiKeys: ApiKey[] = tokens.data.map(token => {
         return {
           name: token.name,
           key: `sk-...${token.token_last_4}`,

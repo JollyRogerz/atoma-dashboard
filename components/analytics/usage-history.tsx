@@ -77,15 +77,15 @@ export function UsageHistory() {
     }
     setUsageHistory(null);
     (async () => {
-      let stacksPromise = await getAllStacks().catch(ex => {
+      const stacksPromise = await getAllStacks().catch(ex => {
         showToast("Error occurred", "error");
         return { data: [] };
       });
-      let tasksPromise = getAllTasks().catch(ex => {
+      const tasksPromise = getAllTasks().catch(ex => {
         showToast("Error occurred", "error");
         return { data: [] };
       });
-      let [stacks, tasks] = await Promise.all([stacksPromise, tasksPromise]);
+      const [stacks, tasks] = await Promise.all([stacksPromise, tasksPromise]);
       setUsageHistory(
         stacks.data
           .sort(([, timestamp0], [, timestamp1]) => (timestamp0 < timestamp1 ? 1 : timestamp0 > timestamp1 ? -1 : 0))
