@@ -193,8 +193,8 @@ const AuthForm: React.FC<AuthFormProps> = ({ type, onClose }) => {
         {loginType === "login" ? (
           <>
           <>
-            Don't have an account?{" "}
-            <Button variant="link" className="p-0 h-auto text-primary hover:text-primary/90" onClick={() => setLoginType("register")}>
+            Don&apos;t have an account?{" "}
+            <Button variant="link" className="p-0 h-auto text-[#dc6d4b] hover:text-[#dc6d4b]/90" onClick={() => setLoginType("register")}>
               Sign up
             </Button>
           </>
