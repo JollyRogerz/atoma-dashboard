@@ -19,9 +19,9 @@ export const disconnectWallet = (
   }
 
   // Clear wallet connection from localStorage to prevent auto-reconnect
-  localStorage.removeItem('suiWallet');
-  localStorage.removeItem('sui:preferredWallet');
+  localStorage.removeItem("suiWallet");
+  localStorage.removeItem("sui:preferredWallet");
 
   // Force reload to ensure wallet state is completely reset
   window.location.reload();
-}; 
+};
