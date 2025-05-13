@@ -1,0 +1,102 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+      - dash/*
+  pull_request:
+    branches:
+      - main
+      - dash/*
+
+jobs:
+  lint:
+    name: Lint & Format Check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Cache dependencies
+        uses: actions/cache@v3
+        with:
+          path: '**/node_modules'
+          key: ${{ runner.os }}-modules-${{ hashFiles('**/package-lock.json') }}
+
+      - name: Install dependencies
+        run: npm ci --force
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Check formatting
+        run: npx prettier --check .
+
+  typecheck:
+    name: Type Check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Cache dependencies
+        uses: actions/cache@v3
+        with:
+          path: '**/node_modules'
+          key: ${{ runner.os }}-modules-${{ hashFiles('**/package-lock.json') }}
+
+      - name: Install dependencies
+        run: npm ci --force
+
+      - name: TypeScript Check
+        run: npx tsc --noEmit
+
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Cache dependencies
+        uses: actions/cache@v3
+        with:
+          path: |
+            **/node_modules
+            ${{ github.workspace }}/.next/cache
+          key: ${{ runner.os }}-nextjs-${{ hashFiles('**/package-lock.json') }}-${{ hashFiles('**.[jt]s', '**.[jt]sx') }}
+          restore-keys: |
+            ${{ runner.os }}-nextjs-${{ hashFiles('**/package-lock.json') }}-
+
+      - name: Install dependencies
+        run: npm ci --force
+
+      - name: Build
+        env:
+          NEXT_PUBLIC_API_URL: "https://credentials.atoma.network"
+          NEXT_PUBLIC_ATOMA_URL: "https://api.atoma.network/v1/"
+          NEXT_PUBLIC_PROXY_WALLET: "0xec2c53f7c706e37518afedb71bbe46021fb5b1ab1c2a56754541120cac8d7a9e"
+          NEXT_PUBLIC_USDC_TYPE: "0xa1ec7fc00a6f40db9693ad1415d0c193ad3906494428cf252621037bd7117e29::usdc::USDC"
+          NEXT_PUBLIC_SUI_RPC_URL: "https://fullnode.testnet.sui.io:443"
+          NEXT_PUBLIC_PROVER_URL: "https://prover.atoma.network"
+          NEXT_PUBLIC_GOOGLE_OAUTH_SCOPE: "openid email profile"
+          NEXT_PUBLIC_GOOGLE_CLIENT_ID: "135471414073-41r9t89rejgfr6bc9aptjpm75o4oedk2.apps.googleusercontent.com"
+          NEXT_PUBLIC_GOOGLE_REDIRECT_URI: "https://cloud.atoma.network/auth/google"
+          NEXT_PUBLIC_ENABLE_ZK_LOGIN_GOOGLE: "true"
+        run: npm run build 
