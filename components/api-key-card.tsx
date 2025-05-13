@@ -77,7 +77,7 @@ export function ApiKeyCard() {
 
   useEffect(() => {
     updateApiTokens();
-  }, [newGeneratedKey]);
+  }, [newGeneratedKey, updateApiTokens]);
 
   const handleRevokeKey = async (key: number) => {
     try {
@@ -177,7 +177,7 @@ export function ApiKeyCard() {
           <DialogHeader>
             <DialogTitle>Create new secret key</DialogTitle>
             <DialogDescription>
-              Give your key a name to remember it by. This is only for your reference—it won't affect how the key works.
+              Give your key a name to remember it by. This is only for your reference—it won&apos;t affect how the key works.
             </DialogDescription>
           </DialogHeader>
           
@@ -235,8 +235,8 @@ export function ApiKeyCard() {
             <DialogTitle>Save your key</DialogTitle>
             <DialogDescription>
               Please save your secret key in a safe place since{" "}
-              <span className="font-semibold">you won't be able to view it again</span>. Keep it secure, as anyone
-              with your API key can make requests on your behalf. If you do lose it, you'll need to generate a new
+              <span className="font-semibold">you won&apos;t be able to view it again</span>. Keep it secure, as anyone
+              with your API key can make requests on your behalf. If you do lose it, you&apos;ll need to generate a new
               one.
             <DialogDescription>
               Please save your secret key in a safe place since{" "}
