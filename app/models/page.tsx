@@ -10,12 +10,7 @@ import { getSubscriptions, getTasks } from "@/lib/api";
 import { modalityToFeatureName, simplifyModelName } from "@/lib/utils";
 import { ModelModality, NodeSubscription, Task } from "@/lib/atoma";
 import { Lock, Unlock } from "lucide-react";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import React from "react";
 
 interface ModelSection {
@@ -39,7 +34,17 @@ const ModalityToCategory = {
   [ModelModality.Embeddings]: "embedding",
 };
 
-function ModelCard({ name, price, modalities, isConfidential }: { name: string; price: string; modalities: ModelModality[]; isConfidential: boolean }) {
+function ModelCard({
+  name,
+  price,
+  modalities,
+  isConfidential,
+}: {
+  name: string;
+  price: string;
+  modalities: ModelModality[];
+  isConfidential: boolean;
+}) {
   const [showApiDialog, setShowApiDialog] = useState(false);
 
   return (
@@ -54,7 +59,7 @@ function ModelCard({ name, price, modalities, isConfidential }: { name: string; 
             <div className="flex flex-wrap items-center gap-1 max-w-[40%] justify-end">
               {modalities.map(modality => (
                 <span
-                  className={`inline-flex items-center rounded-md ${isConfidential && modality === ModelModality.ChatCompletions ? 'bg-orange-500/10 text-orange-500 ring-orange-500/20' : 'bg-primary/10 text-primary ring-primary/20'} px-1.5 py-0.5 text-xs font-medium ring-1 ring-inset whitespace-nowrap`}
+                  className={`inline-flex items-center rounded-md ${isConfidential && modality === ModelModality.ChatCompletions ? "bg-orange-500/10 text-orange-500 ring-orange-500/20" : "bg-primary/10 text-primary ring-primary/20"} px-1.5 py-0.5 text-xs font-medium ring-1 ring-inset whitespace-nowrap`}
                   key={modality}
                 >
                   {isConfidential && modality === ModelModality.ChatCompletions && <Lock className="h-3 w-3 mr-0.5" />}
@@ -234,7 +239,7 @@ export default function ModelsPage() {
                 <SelectValue placeholder="Select completion type" />
               </SelectTrigger>
               <SelectContent>
-                {Object.values(ModelModality).map(modality => (
+                {Object.values(ModelModality).map(modality =>
                   modelsData[modality].length > 0 ? (
                     <React.Fragment key={modality}>
                       <SelectItem value={encodeSelectValue(modality, false)}>
@@ -245,32 +250,30 @@ export default function ModelsPage() {
                       </SelectItem>
                     </React.Fragment>
                   ) : null
-                ))}
+                )}
               </SelectContent>
             </Select>
           </div>
 
           {orderedSections
             .filter(section => section.models.length > 0)
-            .map((section) => (
-            <div key={section.id} className="space-y-4">
-              <h2 className="text-lg font-medium text-primary">{section.title}</h2>
-              <div
-                className="grid gap-4 md:grid-cols-2 lg:grid-cols-3"
-              >
-                {section.models.map((model) => (
-                  <div key={model.name} className="h-full">
-                    <ModelCard
-                      name={model.name}
-                      price={model.price}
-                      modalities={model.modalities}
-                      isConfidential={section.isConfidential}
-                    />
-                  </div>
-                ))}
+            .map(section => (
+              <div key={section.id} className="space-y-4">
+                <h2 className="text-lg font-medium text-primary">{section.title}</h2>
+                <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                  {section.models.map(model => (
+                    <div key={model.name} className="h-full">
+                      <ModelCard
+                        name={model.name}
+                        price={model.price}
+                        modalities={model.modalities}
+                        isConfidential={section.isConfidential}
+                      />
+                    </div>
+                  ))}
+                </div>
               </div>
-            </div>
-          ))}
+            ))}
         </div>
       </div>
     </div>

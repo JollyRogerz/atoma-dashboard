@@ -103,7 +103,9 @@ export function ModelSettingsDialog({ isOpen, onClose, settings, onSave }: Model
               max={2}
               step={0.1}
             />
-            <p className="text-xs text-muted-foreground">Increases the model&apos;s likelihood to talk about new topics</p>
+            <p className="text-xs text-muted-foreground">
+              Increases the model&apos;s likelihood to talk about new topics
+            </p>
           </div>
         </div>
         <div className="flex justify-end space-x-2">
