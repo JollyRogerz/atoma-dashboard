@@ -556,7 +556,7 @@ export default function NetworkStatusPage() {
         }
         setModels(models => [...models, task.model_name!]);
       }
-      let graphs = await getGraphs();
+      const graphs = await getGraphs();
       setGraphs(
         graphs.data.map(({ title, panels }) => ({
           title: title,
