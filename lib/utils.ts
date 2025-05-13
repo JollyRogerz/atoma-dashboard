@@ -1,3 +1,4 @@
+import type { SuiClient } from "@mysten/sui/client";
 import { Transaction } from "@mysten/sui/transactions";
 import { WalletAccount } from "@mysten/wallet-standard";
 import type { UseMutateAsyncFunction } from "@tanstack/react-query";
@@ -48,9 +49,8 @@ const USDC_TYPE = process.env.NEXT_PUBLIC_USDC_TYPE;
 
 export const payUSDC = async (
   amount: number,
-  // Using any to avoid type conflicts between different versions of SuiClient in the mono-repo
+  client: SuiClient,
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  client: any,
   signAndExecuteTransaction: UseMutateAsyncFunction<any, any, any, unknown>,
   account: WalletAccount
 ): Promise<unknown> => {
