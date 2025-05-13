@@ -38,12 +38,12 @@ function ModelCard({ name, price, modalities, isConfidential }: { name: string; 
 
   return (
     <>
-      <Card className="overflow-hidden flex flex-col h-full min-h-[180px]">
-        <CardContent className="p-4 flex flex-col grow">
-          <div className="flex justify-between items-start mb-3">
+      <Card className="overflow-hidden flex flex-col h-full min-h-[160px]">
+        <CardContent className="p-3 flex flex-col grow">
+          <div className="flex justify-between items-start mb-2">
             <div className="pr-2">
-              <h3 className="text-base font-medium leading-snug line-clamp-2">{simplifyModelName(name)}</h3>
-              <p className="text-sm text-muted-foreground">${price} per 1M tokens</p>
+              <h3 className="text-sm font-medium leading-snug line-clamp-2">{simplifyModelName(name)}</h3>
+              <p className="text-xs text-muted-foreground">${price} per 1M tokens</p>
             </div>
             <div className="flex items-center gap-2">
               {isConfidential && (
@@ -54,21 +54,23 @@ function ModelCard({ name, price, modalities, isConfidential }: { name: string; 
               )}
               {modalities.map(modality => (
                 <span
-                  className="inline-flex items-center rounded-md bg-primary/10 px-2 py-1 text-xs font-medium text-primary ring-1 ring-inset ring-primary/20"
+                  className={`inline-flex items-center rounded-md ${isConfidential && modality === ModelModality.ChatCompletions ? 'bg-orange-500/10 text-orange-500 ring-orange-500/20' : 'bg-primary/10 text-primary ring-primary/20'} px-1.5 py-0.5 text-xs font-medium ring-1 ring-inset whitespace-nowrap`}
                   key={modality}
                 >
+                  {isConfidential && modality === ModelModality.ChatCompletions && <Lock className="h-3 w-3 mr-0.5" />}
                   {ModalityToCategory[modality]}
                 </span>
               ))}
             </div>
           </div>
-          <div className="grid grid-cols-2 gap-2">
+          <div className="flex-grow" />
+          <div className="grid grid-cols-2 gap-1.5 mt-3">
             <Link href="/playground" className="w-full">
-              <Button variant="outline" className="w-full h-9">
+              <Button variant="outline" className="w-full h-8 text-xs">
                 Playground
               </Button>
             </Link>
-            <Button variant="outline" className="w-full h-9" onClick={() => setShowApiDialog(true)}>
+            <Button variant="outline" className="w-full h-8 text-xs" onClick={() => setShowApiDialog(true)}>
               API
             </Button>
           </div>
@@ -252,11 +254,11 @@ export default function ModelsPage() {
 
           {orderedSections
             .filter(section => section.models.length > 0)
-            .map(section => (
-            <div key={section.id} className="space-y-6">
+            .map((section) => (
+            <div key={section.id} className="space-y-4">
               <h2 className="text-lg font-medium text-primary">{section.title}</h2>
               <div
-                className="grid gap-6 md:grid-cols-2 lg:grid-cols-3"
+                className="grid gap-4 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5"
               >
                 {section.models.map(model => (
                   <ModelCard 
