@@ -237,7 +237,7 @@ export default class ZkLogin {
     return zkLoginSignature;
   };
 
-  payUSDC = async (amount: number, client: any): Promise<any> => {
+  payUSDC = async (amount: number, client: SuiClient): Promise<SuiTransactionBlockResponse> => {
     const USDC_TYPE = process.env.NEXT_PUBLIC_USDC_TYPE;
     const accountAddress = this.zkLoginUserAddress;
     if (!accountAddress) {

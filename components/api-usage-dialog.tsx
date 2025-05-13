@@ -274,12 +274,12 @@ export function ApiUsageDialog({
         return "/v1/confidential/embeddings";
       }
     } else {
-      if (modality === ModelModality.ChatCompletions) {
-        return "/v1/chat/completions";
-      } else if (modality === ModelModality.ImagesGenerations) {
-        return "/v1/images/generations";
-      } else if (modality === ModelModality.Embeddings) {
-        return "/v1/embeddings";
+    if (modality === ModelModality.ChatCompletions) {
+      return "/v1/chat/completions";
+    } else if (modality === ModelModality.ImagesGenerations) {
+      return "/v1/images/generations";
+    } else if (modality === ModelModality.Embeddings) {
+      return "/v1/embeddings";
       }
     }
   };
