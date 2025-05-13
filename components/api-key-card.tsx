@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -44,7 +44,7 @@ export function ApiKeyCard() {
   const [selectedToRevokeToken, setSelectedToRevokeToken] = useState<{ id: number; name: string } | null>(null);
   const { settings } = useSettings();
 
-  const updateApiTokens = async () => {
+  const updateApiTokens = useCallback(async () => {
     if (!settings.loggedIn) {
       setApiKeys([]);
       return;
@@ -67,7 +67,7 @@ export function ApiKeyCard() {
       });
       setApiKeys(apiKeys);
     } catch (error) {}
-  };
+  }, [settings.loggedIn]);
 
   useEffect(() => {
     setLoggedIn(settings.loggedIn);
