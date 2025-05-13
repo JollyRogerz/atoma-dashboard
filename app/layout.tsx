@@ -23,14 +23,10 @@ const inter = Inter({ subsets: ["latin"] });
 
 export const metadata = {
   title: "Atoma Cloud",
-  description:
-    "Distributed AI inference of the largest open-source AI models for text, voice, and image generation.",
+  description: "Distributed AI inference of the largest open-source AI models for text, voice, and image generation.",
   generator: "v0.dev",
   icons: {
-    icon: [
-      { url: "/favicon.svg", type: "image/svg+xml" },
-      { url: "/favicon.ico" }
-    ],
+    icon: [{ url: "/favicon.svg", type: "image/svg+xml" }, { url: "/favicon.ico" }],
   },
 };
 
