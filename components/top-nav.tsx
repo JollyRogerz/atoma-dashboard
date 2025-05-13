@@ -60,7 +60,7 @@ export function TopNav() {
     if (settings.loggedIn) {
       (async () => {
         try {
-          let res = await getUserProfile();
+          const res = await getUserProfile();
           setUsername(res.data.email);
         } catch (error) {
           console.log(error);

@@ -25,7 +25,7 @@ export default function SettingsPage() {
     (async () => {
       setLoggedIn(settings.loggedIn);
       if (settings.loggedIn) {
-        let profile = await getUserProfile();
+        const profile = await getUserProfile();
         setUserProfile(profile.data);
         if (settings.zkLogin.isEnabled) {
           setAddress(settings.zkLogin.address);
