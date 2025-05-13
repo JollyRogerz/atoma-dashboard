@@ -20,13 +20,13 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
-          cache: 'npm'
+          node-version: "20"
+          cache: "npm"
 
       - name: Cache dependencies
         uses: actions/cache@v3
         with:
-          path: '**/node_modules'
+          path: "**/node_modules"
           key: ${{ runner.os }}-modules-${{ hashFiles('**/package-lock.json') }}
 
       - name: Install dependencies
@@ -47,13 +47,13 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
-          cache: 'npm'
+          node-version: "20"
+          cache: "npm"
 
       - name: Cache dependencies
         uses: actions/cache@v3
         with:
-          path: '**/node_modules'
+          path: "**/node_modules"
           key: ${{ runner.os }}-modules-${{ hashFiles('**/package-lock.json') }}
 
       - name: Install dependencies
@@ -71,8 +71,8 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
-          cache: 'npm'
+          node-version: "20"
+          cache: "npm"
 
       - name: Cache dependencies
         uses: actions/cache@v3
@@ -99,4 +99,4 @@ jobs:
           NEXT_PUBLIC_GOOGLE_CLIENT_ID: "135471414073-41r9t89rejgfr6bc9aptjpm75o4oedk2.apps.googleusercontent.com"
           NEXT_PUBLIC_GOOGLE_REDIRECT_URI: "https://cloud.atoma.network/auth/google"
           NEXT_PUBLIC_ENABLE_ZK_LOGIN_GOOGLE: "true"
-        run: npm run build 
+        run: npm run build
