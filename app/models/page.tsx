@@ -28,6 +28,11 @@ interface ModelSection {
   }[];
 }
 
+interface ModelSectionWithId extends ModelSection {
+  id: string;
+  isConfidential: boolean;
+}
+
 const ModalityToCategory = {
   [ModelModality.ChatCompletions]: "chat",
   [ModelModality.ImagesGenerations]: "image",
@@ -197,6 +202,25 @@ export default function ModelsPage() {
           <div className="flex justify-between items-center">
             <div className="flex items-center gap-4">
               <h1 className="text-2xl font-semibold text-primary">Models</h1>
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <button
+                      onClick={() => setIsConfidentialMode(!isConfidentialMode)}
+                      className="p-1 rounded-full hover:bg-muted transition-colors"
+                    >
+                      {isConfidentialMode ? (
+                        <Lock className="h-4 w-4 text-orange-500" />
+                      ) : (
+                        <Unlock className="h-4 w-4 text-muted-foreground" />
+                      )}
+                    </button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Toggle confidential compute models</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
             </div>
             <Select
               value={encodeSelectValue(selectedCategory, isConfidentialMode)}
@@ -228,13 +252,13 @@ export default function ModelsPage() {
 
           {orderedSections
             .filter(section => section.models.length > 0)
-            .map(section => (
+            .map((section) => (
             <div key={section.id} className="space-y-6">
               <h2 className="text-lg font-medium text-primary">{section.title}</h2>
               <div
                 className="grid gap-6 md:grid-cols-2 lg:grid-cols-3"
               >
-                {section.models.map(model => (
+                {section.models.map((model) => (
                   <div key={model.name} className="h-full">
                     <ModelCard
                       name={model.name}
