@@ -7,12 +7,7 @@ import { useState } from "react";
 import { ApiUsageDialog } from "@/components/api-usage-dialog";
 import { ModelModality } from "@/lib/atoma";
 import { Lock, Unlock } from "lucide-react";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 const endpoints = [
   {
@@ -223,7 +218,7 @@ export function ApiDocumentation() {
       <ApiUsageDialog
         isOpen={isApiDialogOpen}
         onClose={() => setIsApiDialogOpen(false)}
-        modelName={''}
+        modelName={""}
         modality={
           endpoints.find(endpoint => endpoint.name === selectedEndpoint)?.modality || ModelModality.ChatCompletions
         }

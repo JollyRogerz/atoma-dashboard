@@ -17,7 +17,7 @@ export async function fetchAvailableModels(): Promise<TaskResponse> {
 
 export function readableModelName(modelName: string) {
   if (!modelName) return "";
-  
+
   switch (modelName) {
     case "Qwen/QwQ-32B":
       return "QWQ 32B";
@@ -37,29 +37,30 @@ export function readableModelName(modelName: string) {
       // Extract model name and size from format like "model/Name-Size-Extra"
       const sizeMatch = modelName.match(/(\d+[BM])/);
       const size = sizeMatch ? sizeMatch[0] : "";
-      
+
       // Extract model name without vendor prefix
       let name = modelName;
-      if (modelName.includes('/')) {
-        name = modelName.split('/').pop() || modelName;
+      if (modelName.includes("/")) {
+        name = modelName.split("/").pop() || modelName;
       }
-      
+
       // Clean up name and return concise version
-      name = name.replace(/-Instruct(-FP\d)?(-dynamic)?$/i, "")
-                .replace(/-/g, " ")
-                .replace(/\s+/g, " ")
-                .trim();
-      
+      name = name
+        .replace(/-Instruct(-FP\d)?(-dynamic)?$/i, "")
+        .replace(/-/g, " ")
+        .replace(/\s+/g, " ")
+        .trim();
+
       // If we have both name and size, make sure size appears at the end
       if (size && !name.endsWith(size)) {
         name = name.replace(size, "").trim() + " " + size;
       }
-      
+
       // Limit length for chart display
       if (name.length > 20) {
         name = name.substring(0, 18) + "...";
       }
-      
+
       return name;
   }
 }
