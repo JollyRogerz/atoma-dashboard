@@ -16,13 +16,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { Lock, Unlock } from "lucide-react";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
+import React from "react";
 
 interface ModelSection {
   type: ModelModality;
@@ -45,62 +39,42 @@ function ModelCard({ name, price, modalities, isConfidential }: { name: string; 
 
   return (
     <>
-      <Card className="overflow-hidden">
-        <CardContent className="p-6">
-          <div className="flex justify-between items-start mb-4">
-            <div>
-              <h3 className="text-base font-medium">{simplifyModelName(name)}</h3>
+      <Card className="overflow-hidden flex flex-col h-full min-h-[180px]">
+        <CardContent className="p-4 flex flex-col grow">
+          <div className="flex justify-between items-start mb-3">
+            <div className="pr-2">
+              <h3 className="text-base font-medium leading-snug line-clamp-2">{simplifyModelName(name)}</h3>
               <p className="text-sm text-muted-foreground">${price} per 1M tokens</p>
             </div>
-            <div className="flex items-center gap-2">
-              {isConfidential && (
-                <span className="inline-flex items-center rounded-md bg-orange-500/10 px-2 py-1 text-xs font-medium text-orange-500 ring-1 ring-inset ring-orange-500/20">
-                  <Lock className="h-3 w-3 mr-1" />
-                  Confidential
-                </span>
-              )}
+            <div className="flex flex-wrap items-center gap-1 max-w-[40%] justify-end">
               {modalities.map(modality => (
                 <span
-                  className="inline-flex items-center rounded-md bg-primary/10 px-2 py-1 text-xs font-medium text-primary ring-1 ring-inset ring-primary/20"
+                  className={`inline-flex items-center rounded-md ${isConfidential && modality === ModelModality.ChatCompletions ? 'bg-orange-500/10 text-orange-500 ring-orange-500/20' : 'bg-primary/10 text-primary ring-primary/20'} px-2 py-0.5 text-xs font-medium ring-1 ring-inset whitespace-nowrap`}
                   key={modality}
                 >
-                  {ModalityToCategory[modality]}
-                </span>
-              ))}
-            </div>
-            <div className="flex items-center gap-2">
-              {isConfidential && (
-                <span className="inline-flex items-center rounded-md bg-orange-500/10 px-2 py-1 text-xs font-medium text-orange-500 ring-1 ring-inset ring-orange-500/20">
-                  <Lock className="h-3 w-3 mr-1" />
-                  Confidential
-                </span>
-              )}
-              {modalities.map(modality => (
-                <span
-                  className="inline-flex items-center rounded-md bg-primary/10 px-2 py-1 text-xs font-medium text-primary ring-1 ring-inset ring-primary/20"
-                  key={modality}
-                >
+                  {isConfidential && modality === ModelModality.ChatCompletions && <Lock className="h-3 w-3 mr-1" />}
                   {ModalityToCategory[modality]}
                 </span>
               ))}
             </div>
           </div>
-          <div className="grid grid-cols-2 gap-2">
+          <div className="flex-grow" />
+          <div className="grid grid-cols-2 gap-2 mt-4">
             <Link href="/playground" className="w-full">
-              <Button variant="outline" className="w-full">
+              <Button variant="outline" className="w-full h-9">
                 Playground
               </Button>
             </Link>
-            <Button variant="outline" className="w-full" onClick={() => setShowApiDialog(true)}>
+            <Button variant="outline" className="w-full h-9" onClick={() => setShowApiDialog(true)}>
               API
             </Button>
           </div>
         </CardContent>
       </Card>
-      <ApiUsageDialog 
-        isOpen={showApiDialog} 
-        onClose={() => setShowApiDialog(false)} 
-        modelName={name} 
+      <ApiUsageDialog
+        isOpen={showApiDialog}
+        onClose={() => setShowApiDialog(false)}
+        modelName={name}
         modality={modalities[0]}
         isConfidential={isConfidential}
       />
@@ -109,6 +83,7 @@ function ModelCard({ name, price, modalities, isConfidential }: { name: string; 
 }
 
 export default function ModelsPage() {
+  // Track currently selected modality and whether confidential mode is enabled via dropdown
   const [selectedCategory, setSelectedCategory] = useState<ModelModality>(ModelModality.ChatCompletions);
   const [isConfidentialMode, setIsConfidentialMode] = useState(false);
   const [isConfidentialMode, setIsConfidentialMode] = useState(false);
@@ -126,6 +101,16 @@ export default function ModelsPage() {
     [ModelModality.ImagesGenerations]: [],
     [ModelModality.Embeddings]: [],
   });
+
+  // Helper to encode/decode Select values (modality|confidentialFlag)
+  const encodeSelectValue = (modality: ModelModality, confidential: boolean) => `${modality}|${confidential}`;
+  const decodeSelectValue = (value: string): { modality: ModelModality; confidential: boolean } => {
+    const [modalityStr, confidentialStr] = value.split("|");
+    return {
+      modality: modalityStr as ModelModality,
+      confidential: confidentialStr === "true",
+    };
+  };
 
   useEffect(() => {
     (async () => {
@@ -179,30 +164,30 @@ export default function ModelsPage() {
     })();
   }, []);
 
-  const modelSections: ModelSection[] = [
-    {
-      type: ModelModality.ChatCompletions,
-      title: modalityToFeatureName(ModelModality.ChatCompletions),
-      models: modelsData[ModelModality.ChatCompletions],
-    },
-    {
-      type: ModelModality.ImagesGenerations,
-      title: modalityToFeatureName(ModelModality.ImagesGenerations),
-      models: modelsData[ModelModality.ImagesGenerations],
-    },
-    {
-      type: ModelModality.Embeddings,
-      title: modalityToFeatureName(ModelModality.Embeddings),
-      models: modelsData[ModelModality.Embeddings],
-    },
-  ];
+  // Build sections for both regular and confidential categories
+  const modelSections = Object.values(ModelModality).flatMap(modality => {
+    const baseTitle = modalityToFeatureName(modality);
+    return [
+      {
+        id: encodeSelectValue(modality, false),
+        title: baseTitle,
+        models: modelsData[modality],
+        isConfidential: false,
+      },
+      {
+        id: encodeSelectValue(modality, true),
+        title: `Confidential ${baseTitle}`,
+        models: modelsData[modality],
+        isConfidential: true,
+      },
+    ];
+  });
 
-  // Reorder sections based on selected category
+  // Reorder so selected section appears first
+  const selectedId = encodeSelectValue(selectedCategory, isConfidentialMode);
   const orderedSections = [
-    // Selected category first
-    ...modelSections.filter(section => section.type === selectedCategory),
-    // Other categories after
-    ...modelSections.filter(section => section.type !== selectedCategory),
+    ...modelSections.filter(section => section.id === selectedId),
+    ...modelSections.filter(section => section.id !== selectedId),
   ];
 
   return (
@@ -213,63 +198,33 @@ export default function ModelsPage() {
           <div className="flex justify-between items-center">
             <div className="flex items-center gap-4">
               <h1 className="text-2xl font-semibold text-primary">Models</h1>
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <button
-                      onClick={() => setIsConfidentialMode(!isConfidentialMode)}
-                      className="p-1 rounded-full hover:bg-muted transition-colors"
-                    >
-                      {isConfidentialMode ? (
-                        <Lock className="h-4 w-4 text-orange-500" />
-                      ) : (
-                        <Unlock className="h-4 w-4 text-muted-foreground" />
-                      )}
-                    </button>
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p>Toggle confidential compute models</p>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
             </div>
             <div className="flex items-center gap-4">
               <h1 className="text-2xl font-semibold text-primary">Models</h1>
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <button
-                      onClick={() => setIsConfidentialMode(!isConfidentialMode)}
-                      className="p-1 rounded-full hover:bg-muted transition-colors"
-                    >
-                      {isConfidentialMode ? (
-                        <Lock className="h-4 w-4 text-orange-500" />
-                      ) : (
-                        <Unlock className="h-4 w-4 text-muted-foreground" />
-                      )}
-                    </button>
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p>Toggle confidential compute models</p>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
             </div>
             <Select
-              defaultValue="chat"
-              value={selectedCategory}
-              onValueChange={(value: ModelModality) => setSelectedCategory(value)}
+              value={encodeSelectValue(selectedCategory, isConfidentialMode)}
+              onValueChange={(value: string) => {
+                const { modality, confidential } = decodeSelectValue(value);
+                setSelectedCategory(modality);
+                setIsConfidentialMode(confidential);
+              }}
             >
-              <SelectTrigger className="w-[180px]">
+              <SelectTrigger className="w-[220px]">
                 <SelectValue placeholder="Select completion type" />
               </SelectTrigger>
               <SelectContent>
                 {Object.values(ModelModality).map(modality => (
                 {Object.values(ModelModality).map(modality => (
                   modelsData[modality].length > 0 ? (
-                    <SelectItem key={modality} value={modality}>
-                      {modalityToFeatureName(modality)}
-                    </SelectItem>
+                    <React.Fragment key={modality}>
+                      <SelectItem value={encodeSelectValue(modality, false)}>
+                        {modalityToFeatureName(modality)}
+                      </SelectItem>
+                      <SelectItem value={encodeSelectValue(modality, true)}>
+                        {`Confidential ${modalityToFeatureName(modality)}`}
+                      </SelectItem>
+                    </React.Fragment>
                   ) : null
                 ))}
                 ))}
@@ -280,17 +235,20 @@ export default function ModelsPage() {
           {orderedSections
             .filter(section => section.models.length > 0)
             .map(section => (
-            <div key={section.type} className="space-y-6">
+            <div key={section.id} className="space-y-6">
               <h2 className="text-lg font-medium text-primary">{section.title}</h2>
-              <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+              <div
+                className="grid gap-6 md:grid-cols-2 lg:grid-cols-3"
+              >
                 {section.models.map(model => (
-                  <ModelCard 
-                    key={model.name} 
-                    name={model.name} 
-                    price={model.price} 
-                    modalities={model.modalities} 
-                    isConfidential={isConfidentialMode}
-                  />
+                  <div key={model.name} className="h-full">
+                    <ModelCard
+                      name={model.name}
+                      price={model.price}
+                      modalities={model.modalities}
+                      isConfidential={section.isConfidential}
+                    />
+                  </div>
                 ))}
               </div>
             </div>
