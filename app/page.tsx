@@ -175,7 +175,7 @@ function AreaPanel({
                   fontWeight: "bold",
                   color: "var(--card-foreground)",
                   padding: "8px",
-                  maxWidth: "300px"
+                  maxWidth: "300px",
                 }}
               >
                 <div>{formattedLabel}</div>
@@ -338,7 +338,7 @@ function BarGaugePanel({
                   fontWeight: "bold",
                   color: "var(--card-foreground)",
                   padding: "8px",
-                  maxWidth: "300px"
+                  maxWidth: "300px",
                 }}
               >
                 <div>{readableModelName(label)}</div>
