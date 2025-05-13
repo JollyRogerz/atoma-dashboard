@@ -39,9 +39,9 @@ function ModelCard({ name, price, modalities, isConfidential }: { name: string; 
 
   return (
     <>
-      <Card className="overflow-hidden flex flex-col h-full min-h-[160px]">
-        <CardContent className="p-3 flex flex-col grow">
-          <div className="flex justify-between items-start mb-2">
+      <Card className="overflow-hidden flex flex-col h-full min-h-[120px]">
+        <CardContent className="p-2.5 flex flex-col grow">
+          <div className="flex justify-between items-start mb-1.5">
             <div className="pr-2">
               <h3 className="text-sm font-medium leading-snug line-clamp-2">{simplifyModelName(name)}</h3>
               <p className="text-xs text-muted-foreground">${price} per 1M tokens</p>
@@ -59,13 +59,13 @@ function ModelCard({ name, price, modalities, isConfidential }: { name: string; 
             </div>
           </div>
           <div className="flex-grow" />
-          <div className="grid grid-cols-2 gap-1.5 mt-3">
+          <div className="grid grid-cols-2 gap-1.5 mt-2">
             <Link href="/playground" className="w-full">
-              <Button variant="outline" className="w-full h-8 text-xs">
+              <Button variant="outline" className="w-full h-7 text-xs">
                 Playground
               </Button>
             </Link>
-            <Button variant="outline" className="w-full h-8 text-xs" onClick={() => setShowApiDialog(true)}>
+            <Button variant="outline" className="w-full h-7 text-xs" onClick={() => setShowApiDialog(true)}>
               API
             </Button>
           </div>
@@ -232,7 +232,7 @@ export default function ModelsPage() {
             <div key={section.id} className="space-y-4">
               <h2 className="text-lg font-medium text-primary">{section.title}</h2>
               <div
-                className="grid gap-4 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5"
+                className="grid gap-4 md:grid-cols-2 lg:grid-cols-3"
               >
                 {section.models.map(model => (
                   <div key={model.name} className="h-full">
