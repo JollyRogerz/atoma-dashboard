@@ -1,6 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { getAllStacks, getBalance } from "@/lib/api";
 import { useSettings } from "@/contexts/settings-context";
 import { useAppState } from "@/contexts/app-state";
@@ -15,7 +15,7 @@ export function CreditBalanceCard({ handleAddFunds }: { handleAddFunds: () => vo
   const { settings } = useSettings();
   const { state, updateState } = useAppState();
 
-  const updateBalance = async () => {
+  const updateBalance = useCallback(async () => {
     updateState({ refreshBalance: false });
     setLoggedIn(settings.loggedIn);
     if (!settings.loggedIn) {
@@ -41,16 +41,16 @@ export function CreditBalanceCard({ handleAddFunds }: { handleAddFunds: () => vo
     } catch (error) {
       console.error("Failed to fetch balance", error);
     }
-  };
+  }, [settings.loggedIn, updateState]);
 
   useEffect(() => {
     updateBalance();
-  }, [settings.loggedIn]);
+  }, [settings.loggedIn, updateBalance]);
 
   useEffect(() => {
     if (!state.refreshBalance) return;
     updateBalance();
-  }, [state.refreshBalance]);
+  }, [state.refreshBalance, updateBalance]);
 
   return (
     <Card className="h-[280px] flex flex-col">

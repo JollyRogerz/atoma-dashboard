@@ -38,17 +38,17 @@ export function BillingSummaryCard() {
       const stacks = await getAllStacks();
       setTotalTokens(
         stacks.data.reduce((sum, [stack, timestamp]) => {
-          new Date(timestamp) >= startOfMonth && new Date(timestamp) <= endOfMonth
-            ? (sum += stack.already_computed_units)
-            : sum;
+          if (new Date(timestamp) >= startOfMonth && new Date(timestamp) <= endOfMonth) {
+            sum += stack.already_computed_units;
+          }
           return sum;
         }, 0)
       );
       setTotalApiCalls(
         stacks.data.reduce((sum, [stack, timestamp]) => {
-          new Date(timestamp) >= startOfMonth && new Date(timestamp) <= endOfMonth
-            ? (sum += stack.num_total_messages)
-            : sum;
+          if (new Date(timestamp) >= startOfMonth && new Date(timestamp) <= endOfMonth) {
+            sum += stack.num_total_messages;
+          }
           return sum;
         }, 0)
       );
