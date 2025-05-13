@@ -6,13 +6,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { useState } from "react";
 import { ApiUsageDialog } from "@/components/api-usage-dialog";
 import { ModelModality } from "@/lib/atoma";
-import { Lock, Unlock } from "lucide-react";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
+import { Checkbox } from "@/components/ui/checkbox";
 
 const endpoints = [
   {
@@ -143,25 +137,20 @@ export function ApiDocumentation() {
       <CardHeader className="pb-2">
         <div className="flex items-center justify-between">
           <CardTitle className="text-primary">Quick Reference</CardTitle>
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <button
-                  onClick={() => setIsConfidentialMode(!isConfidentialMode)}
-                  className="p-1 rounded-full hover:bg-muted transition-colors"
-                >
-                  {isConfidentialMode ? (
-                    <Lock className="h-4 w-4 text-orange-500" />
-                  ) : (
-                    <Unlock className="h-4 w-4 text-muted-foreground" />
-                  )}
-                </button>
-              </TooltipTrigger>
-              <TooltipContent>
-                <p>Toggle confidential compute endpoints</p>
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
+          <label className="flex items-center gap-2 cursor-pointer select-none">
+            <Checkbox
+              checked={isConfidentialMode}
+              onCheckedChange={checked => setIsConfidentialMode(!!checked)}
+              id="confidential-toggle"
+            />
+            <span className={
+              isConfidentialMode
+                ? "text-orange-500 font-medium text-xs transition-colors"
+                : "text-muted-foreground font-medium text-xs transition-colors"
+            }>
+              Confidential
+            </span>
+          </label>
         </div>
       </CardHeader>
       <CardContent className="p-0">
