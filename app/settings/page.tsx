@@ -38,7 +38,7 @@ export default function SettingsPage() {
         setUserProfile({ email: "" });
       }
     })();
-  }, [settings.loggedIn, account]);
+  }, [settings.loggedIn, account, settings.zkLogin.address, settings.zkLogin.isEnabled]);
 
   const handleDisconnectWallet = () => {
     disconnectWallet(wallet, settings, updateZkLoginSettings);
