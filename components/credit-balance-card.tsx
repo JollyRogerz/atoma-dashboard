@@ -27,7 +27,7 @@ export function CreditBalanceCard({ handleAddFunds }: { handleAddFunds: () => vo
       const balancePromise = getBalance();
       const allStacksPromise = getAllStacks();
       const [balanceRes, allStacksRes] = await Promise.all([balancePromise, allStacksPromise]);
-      let lockedBalance =
+      const lockedBalance =
         allStacksRes?.data.reduce(
           (acc: number, [stack]: any) =>
             acc +
@@ -35,7 +35,7 @@ export function CreditBalanceCard({ handleAddFunds }: { handleAddFunds: () => vo
               stack.price_per_one_million_compute_units,
           0
         ) / USDC_TO_USD;
-      let freeBalance = balanceRes?.data / USDC_TO_USD;
+      const freeBalance = balanceRes?.data / USDC_TO_USD;
       setFreeBalance(isNaN(freeBalance) ? "0" : freeBalance.toFixed(2));
       setBalance(isNaN(freeBalance + lockedBalance) ? "0" : (freeBalance + lockedBalance).toFixed(2));
     } catch (error) {

@@ -111,7 +111,7 @@ export function BackgroundGrid() {
       top: `${y}px`,
       width: `${CELL_SIZE}px`,
       height: `${CELL_SIZE}px`,
-      position: 'absolute' as 'absolute'
+      position: 'absolute' as const
     };
   };
 
