@@ -15,50 +15,54 @@ export async function fetchAvailableModels(): Promise<TaskResponse> {
   }
 }
 
-export function readableModelName(modelName: string): string {
+export function readableModelName(modelName: string) {
   if (!modelName) return "";
 
-  let namePart = modelName.split("/").pop() || modelName;
-  const sizeMatch = namePart.match(/(\d+[BM])/i); // case-insensitive size match
-  const size = sizeMatch ? sizeMatch[0] : "";
+  switch (modelName) {
+    case "Qwen/QwQ-32B":
+      return "QWQ 32B";
+    case "neuralmagic/DeepSeek-R1-Distill-Llama-70B-FP8-dynamic":
+      return "DeepSeek R1 70B";
+    case "neuralmagic/Qwen2-72B-Instruct-FP8":
+      return "Qwen2 72B";
+    case "meta-llama/Llama-3.1-8B-Instruct":
+      return "Llama 3.1 8B";
+    case "Infermatic/Llama-3.3-70B-Instruct-FP8-Dynamic":
+      return "Llama 3.3 70B";
+    case "mistralai/Mistral-Nemo-Instruct-2407":
+      return "Mistral Nemo";
+    case "DeepSeek-V3-0324":
+      return "DeepSeek V3";
+    default:
+      // Extract model name and size from format like "model/Name-Size-Extra"
+      const sizeMatch = modelName.match(/(\d+[BM])/);
+      const size = sizeMatch ? sizeMatch[0] : "";
 
-  const suffixesToRemove = [
-    /-Instruct-FP\d+-dynamic$/i,
-    /-Instruct-FP\d+$/i,
-    /-Instruct-dynamic$/i,
-    /-FP\d+-dynamic$/i,
-    /-Instruct$/i,
-    /-FP\d+$/i,
-    /-dynamic$/i,
-  ];
+      // Extract model name without vendor prefix
+      let name = modelName;
+      if (modelName.includes("/")) {
+        name = modelName.split("/").pop() || modelName;
+      }
 
-  for (const suffixRegex of suffixesToRemove) {
-    namePart = namePart.replace(suffixRegex, "");
+      // Clean up name and return concise version
+      name = name
+        .replace(/-Instruct(-FP\d)?(-dynamic)?$/i, "")
+        .replace(/-/g, " ")
+        .replace(/\s+/g, " ")
+        .trim();
+
+      // If we have both name and size, make sure size appears at the end
+      if (size && !name.endsWith(size)) {
+        name = name.replace(size, "").trim() + " " + size;
+      }
+
+      // Limit length for chart display
+      if (name.length > 20) {
+        name = name.substring(0, 18) + "...";
+      }
+
+      return name;
   }
-
-  // Additional cleanup for cases where tokens appear in the middle of the string
-  namePart = namePart
-    .replace(/-Instruct/gi, "")
-    .replace(/-FP\d+/gi, "")
-    .replace(/-dynamic/gi, "");
-
-  namePart = namePart.replace(/-/g, " ").replace(/\s+/g, " ").trim();
-
-  let baseName = namePart;
-  if (size) {
-    // Remove the first occurrence of the size token (e.g. 70B, 40M) from anywhere in the string to avoid duplication
-    const sizeRemovalRegex = new RegExp(size, "i");
-    baseName = namePart.replace(sizeRemovalRegex, "").replace(/\s+/g, " ").trim();
-  }
-
-  let finalName = baseName;
-  if (size && baseName) {
-    finalName = `${baseName} ${size}`;
-  } else if (size && !baseName) {
-    finalName = size;
-  }
-
-  return finalName;
 }
 
 export function processModelsForCategory(
