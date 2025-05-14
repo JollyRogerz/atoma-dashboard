@@ -121,11 +121,6 @@ export const listApiKeys = async () => {
   return await credentialsApi.get<Token[]>("/api_tokens");
 };
 
-export const getComputeUnitsProcessed = async () => {
-  const hoursSince2025 = Math.floor((Date.now() - new Date("2025-01-01T00:00:00Z").getTime()) / (1000 * 60 * 60));
-  return await credentialsApi.get<ComputedUnitsProcessedResponse[]>(`/compute_units_processed?hours=${hoursSince2025}`);
-};
-
 export const getLatency = async () => {
   return await credentialsApi.get<LatencyResponse[]>("/latency?hours=168");
 };

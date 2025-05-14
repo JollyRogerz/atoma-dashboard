@@ -3,15 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Network, Activity, Box, Cpu, Clock, ArrowUpRight } from "lucide-react";
 import React from "react";
 import { formatNumber } from "@/lib/utils";
-import {
-  getComputeUnitsProcessed,
-  getLatency,
-  getNodesDistribution,
-  getStats,
-  getSubscriptions,
-  getTasks,
-  type Stats,
-} from "@/lib/api";
+import { getLatency, getNodesDistribution, getStats, getSubscriptions, getTasks, type Stats } from "@/lib/api";
 
 export function MetricsCards() {
   const [metricsData, setMetricsData] = React.useState({
@@ -30,14 +22,12 @@ export function MetricsCards() {
         const nodesPromise = getNodesDistribution();
         const statsPromise = getStats();
         const subscriptionsPromise = getSubscriptions();
-        const computeUnitsPromise = getComputeUnitsProcessed();
 
-        const [tasksRes, nodesRes, statsRes, subscriptionsRes, computeUnitsRes] = await Promise.all([
+        const [tasksRes, nodesRes, statsRes, subscriptionsRes] = await Promise.all([
           tasksPromise,
           nodesPromise,
           statsPromise,
           subscriptionsPromise,
-          computeUnitsPromise,
         ]);
 
         // Total nodes
@@ -54,20 +44,6 @@ export function MetricsCards() {
         // Models
         const modelCount = new Set<string>(tasksRes.data.map(([task, _]) => task.model_name!)).size;
 
-        // Tokens
-        const totalComputeUnits = computeUnitsRes?.data.reduce(
-          (acc: any, item: any) => {
-            acc.totalUnits += item.amount;
-            acc.totalRequests += item.requests;
-            acc.totalTime += item.time;
-            return acc;
-          },
-          { totalUnits: 0, totalRequests: 0, totalTime: 0 }
-        );
-
-        // Throughput
-        const averageThroughPut = totalComputeUnits?.totalRequests / (totalComputeUnits?.totalTime / 3600); // The totalTime is in seconds
-
         const getStatsValue = (stats: Stats[], name: string) => {
           const latency = stats.find(dashboard => dashboard.title === name)?.panels?.[0]?.data?.results?.A?.frames?.[0];
           const valueIndex = latency?.schema?.fields?.findIndex((field: any) => field.name === "Value");
@@ -76,6 +52,7 @@ export function MetricsCards() {
 
         const latency = getStatsValue(statsRes.data, "Performance");
         const tokens = getStatsValue(statsRes.data, "Tokens");
+        const throughput = getStatsValue(statsRes.data, "Throughput");
 
         setMetricsData(prevData => ({
           totalNodes: formatNumber(totalNodes),
@@ -83,7 +60,7 @@ export function MetricsCards() {
           models: formatNumber(modelCount),
           tokens: formatNumber(tokens),
           latency: (isFinite(latency) ? latency.toFixed(2) : "-") + "ms",
-          throughPut: isFinite(averageThroughPut) ? formatNumber(averageThroughPut) : "-",
+          throughPut: isFinite(throughput) ? formatNumber(throughput) : "-",
         }));
       } catch (err) {
         console.error("Failed to fetch metrics", err);
