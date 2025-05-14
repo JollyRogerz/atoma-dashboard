@@ -1,7 +1,5 @@
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
-![CI](https://github.com/JollyRogerz/atoma-dashboard/actions/workflows/ci.yaml/badge.svg)
-
 ## Getting Started
 
 First, run the development server:
@@ -31,7 +29,6 @@ The application can be deployed using Docker Compose with configurable settings 
 Copy `.env.example` to `.env` and configure the following variables:
 
 - `DASHBOARD_REPLICAS`: Number of service replicas to run
-
   - Set to `1` for development/testing environments (default)
   - Set to `3` or more for production environments requiring high availability
   - Example: `DASHBOARD_REPLICAS=3`
