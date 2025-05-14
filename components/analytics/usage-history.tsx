@@ -5,6 +5,7 @@ import { getAllStacks, getAllTasks } from "@/lib/api";
 import { useToast } from "@/app/toast-provider";
 import LoadingCircle from "../LoadingCircle";
 import { useSettings } from "@/contexts/settings-context";
+import { modelNameEllipsisClass } from "@/app/page";
 
 const usageData = [
   {
@@ -123,7 +124,9 @@ export function UsageHistory() {
               {usageHistory.map((row, index) => (
                 <TableRow key={index}>
                   <TableCell>{row.date}</TableCell>
-                  <TableCell className="font-mono text-sm">{row.model}</TableCell>
+                  <TableCell className="font-mono text-sm">
+                    <span className={modelNameEllipsisClass} title={row.model}>{row.model}</span>
+                  </TableCell>
                   <TableCell className="text-right">{row.tokens}</TableCell>
                   <TableCell className="text-right">{row.cost}</TableCell>
                 </TableRow>
