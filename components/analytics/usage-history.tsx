@@ -6,6 +6,7 @@ import { useToast } from "@/app/toast-provider";
 import LoadingCircle from "../LoadingCircle";
 import { useSettings } from "@/contexts/settings-context";
 import { modelNameEllipsisClass } from "@/app/page";
+import { readableModelName } from "@/utils/utils";
 
 const usageData = [
   {
