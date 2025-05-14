@@ -125,7 +125,7 @@ export function UsageHistory() {
                 <TableRow key={index}>
                   <TableCell>{row.date}</TableCell>
                   <TableCell className="font-mono text-sm">
-                    <span className={modelNameEllipsisClass} title={row.model}>{row.model}</span>
+                    <span className={modelNameEllipsisClass} title={row.model}>{readableModelName(row.model)}</span>
                   </TableCell>
                   <TableCell className="text-right">{row.tokens}</TableCell>
                   <TableCell className="text-right">{row.cost}</TableCell>
