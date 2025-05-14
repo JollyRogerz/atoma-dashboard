@@ -12,7 +12,6 @@ import { ModelModality, NodeSubscription, Task } from "@/lib/atoma-types";
 import { Lock, Unlock } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import React from "react";
-import { useSettings } from "@/contexts/settings-context";
 
 interface ModelSection {
   type: ModelModality;
@@ -29,76 +28,77 @@ interface ModelSectionWithId extends ModelSection {
   isConfidential: boolean;
 }
 
+interface ModelSectionWithId extends ModelSection {
+  id: string;
+  isConfidential: boolean;
+}
+
 const ModalityToCategory = {
   [ModelModality.ChatCompletions]: "chat",
   [ModelModality.ImagesGenerations]: "image",
   [ModelModality.Embeddings]: "embedding",
 };
 
-const ModelCard = React.memo(
-  ({
-    name,
-    price,
-    modalities,
-    isConfidential,
-  }: {
-    name: string;
-    price: string;
-    modalities: ModelModality[];
-    isConfidential: boolean;
-  }) => {
-    const [showApiDialog, setShowApiDialog] = useState(false);
+function ModelCard({
+  name,
+  price,
+  modalities,
+  isConfidential,
+}: {
+  name: string;
+  price: string;
+  modalities: ModelModality[];
+  isConfidential: boolean;
+}) {
+  const [showApiDialog, setShowApiDialog] = useState(false);
 
-    return (
-      <>
-        <Card className="overflow-hidden flex flex-col h-full min-h-[150px]">
-          <CardContent className="p-3 flex flex-col grow">
-            <div className="flex justify-between items-start mb-2">
-              <div className="pr-2">
-                <h3 className="text-base font-medium leading-snug line-clamp-2">{simplifyModelName(name)}</h3>
-                <p className="text-sm text-muted-foreground">${price} per 1M tokens</p>
-              </div>
-              <div className="flex flex-wrap items-center gap-1 max-w-[40%] justify-end">
-                {modalities.map(modality => (
-                  <span
-                    className={`inline-flex items-center rounded-md ${isConfidential && modality === ModelModality.ChatCompletions ? "bg-orange-500/10 text-orange-500 ring-orange-500/20" : "bg-primary/10 text-primary ring-primary/20"} px-1.5 py-0.5 text-xs font-medium ring-1 ring-inset whitespace-nowrap`}
-                    key={modality}
-                  >
-                    {isConfidential && modality === ModelModality.ChatCompletions && (
-                      <Lock className="h-3 w-3 mr-0.5" />
-                    )}
-                    {ModalityToCategory[modality]}
-                  </span>
-                ))}
-              </div>
+  return (
+    <>
+      <Card className="overflow-hidden flex flex-col h-full min-h-[120px]">
+        <CardContent className="p-2.5 flex flex-col grow">
+          <div className="flex justify-between items-start mb-1.5">
+            <div className="pr-2">
+              <h3 className="text-sm font-medium leading-snug line-clamp-2">{simplifyModelName(name)}</h3>
+              <p className="text-xs text-muted-foreground">${price} per 1M tokens</p>
             </div>
-            <div className="flex-grow" />
-            <div className="grid grid-cols-2 gap-1.5 mt-2">
-              <Link href="/playground" className="w-full">
-                <Button variant="outline" className="w-full h-8 text-sm">
-                  Playground
-                </Button>
-              </Link>
-              <Button variant="outline" className="w-full h-8 text-sm" onClick={() => setShowApiDialog(true)}>
-                API
+            <div className="flex flex-wrap items-center gap-1 max-w-[40%] justify-end">
+              {modalities.map(modality => (
+                <span
+                  className={`inline-flex items-center rounded-md ${isConfidential && modality === ModelModality.ChatCompletions ? "bg-orange-500/10 text-orange-500 ring-orange-500/20" : "bg-primary/10 text-primary ring-primary/20"} px-1.5 py-0.5 text-xs font-medium ring-1 ring-inset whitespace-nowrap`}
+                  key={modality}
+                >
+                  {isConfidential && modality === ModelModality.ChatCompletions && <Lock className="h-3 w-3 mr-0.5" />}
+                  {ModalityToCategory[modality]}
+                </span>
+              ))}
+            </div>
+          </div>
+          <div className="flex-grow" />
+          <div className="grid grid-cols-2 gap-1.5 mt-2">
+            <Link href="/playground" className="w-full">
+              <Button variant="outline" className="w-full h-7 text-xs">
+                Playground
               </Button>
-            </div>
-          </CardContent>
-        </Card>
-        <ApiUsageDialog
-          isOpen={showApiDialog}
-          onClose={() => setShowApiDialog(false)}
-          modelName={name}
-          modality={modalities[0]}
-          isConfidential={isConfidential}
-        />
-      </>
-    );
-  }
-);
-ModelCard.displayName = "ModelCard";
+            </Link>
+            <Button variant="outline" className="w-full h-7 text-xs" onClick={() => setShowApiDialog(true)}>
+              API
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+      <ApiUsageDialog
+        isOpen={showApiDialog}
+        onClose={() => setShowApiDialog(false)}
+        modelName={name}
+        modality={modalities[0]}
+        isConfidential={isConfidential}
+      />
+    </>
+  );
+}
 
 export default function ModelsPage() {
+  // Track currently selected modality and whether confidential mode is enabled via dropdown
   // Track currently selected modality and whether confidential mode is enabled via dropdown
   const [selectedCategory, setSelectedCategory] = useState<ModelModality>(ModelModality.ChatCompletions);
   const [isConfidentialMode, setIsConfidentialMode] = useState(false);
@@ -116,6 +116,16 @@ export default function ModelsPage() {
     [ModelModality.ImagesGenerations]: [],
     [ModelModality.Embeddings]: [],
   });
+
+  // Helper to encode/decode Select values (modality|confidentialFlag)
+  const encodeSelectValue = (modality: ModelModality, confidential: boolean) => `${modality}|${confidential}`;
+  const decodeSelectValue = (value: string): { modality: ModelModality; confidential: boolean } => {
+    const [modalityStr, confidentialStr] = value.split("|");
+    return {
+      modality: modalityStr as ModelModality,
+      confidential: confidentialStr === "true",
+    };
+  };
 
   // Helper to encode/decode Select values (modality|confidentialFlag)
   const encodeSelectValue = (modality: ModelModality, confidential: boolean) => `${modality}|${confidential}`;
@@ -200,7 +210,30 @@ export default function ModelsPage() {
 
   // Reorder so selected section appears first
   const selectedId = encodeSelectValue(selectedCategory, isConfidentialMode);
+  // Build sections for both regular and confidential categories
+  const modelSections = Object.values(ModelModality).flatMap(modality => {
+    const baseTitle = modalityToFeatureName(modality);
+    return [
+      {
+        id: encodeSelectValue(modality, false),
+        title: baseTitle,
+        models: modelsData[modality],
+        isConfidential: false,
+      },
+      {
+        id: encodeSelectValue(modality, true),
+        title: `Confidential ${baseTitle}`,
+        models: modelsData[modality],
+        isConfidential: true,
+      },
+    ];
+  });
+
+  // Reorder so selected section appears first
+  const selectedId = encodeSelectValue(selectedCategory, isConfidentialMode);
   const orderedSections = [
+    ...modelSections.filter(section => section.id === selectedId),
+    ...modelSections.filter(section => section.id !== selectedId),
     ...modelSections.filter(section => section.id === selectedId),
     ...modelSections.filter(section => section.id !== selectedId),
   ];
@@ -221,11 +254,19 @@ export default function ModelsPage() {
                 setSelectedCategory(modality);
                 setIsConfidentialMode(confidential);
               }}
+              value={encodeSelectValue(selectedCategory, isConfidentialMode)}
+              onValueChange={(value: string) => {
+                const { modality, confidential } = decodeSelectValue(value);
+                setSelectedCategory(modality);
+                setIsConfidentialMode(confidential);
+              }}
             >
+              <SelectTrigger className="w-[220px]">
               <SelectTrigger className="w-[220px]">
                 <SelectValue placeholder="Select completion type" />
               </SelectTrigger>
               <SelectContent>
+                {Object.values(ModelModality).map(modality =>
                 {Object.values(ModelModality).map(modality =>
                   modelsData[modality].length > 0 ? (
                     <React.Fragment key={modality}>
@@ -236,7 +277,16 @@ export default function ModelsPage() {
                         {`Confidential ${modalityToFeatureName(modality)}`}
                       </SelectItem>
                     </React.Fragment>
+                    <React.Fragment key={modality}>
+                      <SelectItem value={encodeSelectValue(modality, false)}>
+                        {modalityToFeatureName(modality)}
+                      </SelectItem>
+                      <SelectItem value={encodeSelectValue(modality, true)}>
+                        {`Confidential ${modalityToFeatureName(modality)}`}
+                      </SelectItem>
+                    </React.Fragment>
                   ) : null
+                )}
                 )}
               </SelectContent>
             </Select>
@@ -245,6 +295,22 @@ export default function ModelsPage() {
           {orderedSections
             .filter(section => section.models.length > 0)
             .map(section => (
+              <div key={section.id} className="space-y-4">
+                <h2 className="text-lg font-medium text-primary">{section.title}</h2>
+                <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                  {section.models.map(model => (
+                    <div key={model.name} className="h-full">
+                      <ModelCard
+                        name={model.name}
+                        price={model.price}
+                        modalities={model.modalities}
+                        isConfidential={section.isConfidential}
+                      />
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ))}
               <div key={section.id} className="space-y-4">
                 <h2 className="text-lg font-medium text-primary">{section.title}</h2>
                 <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">

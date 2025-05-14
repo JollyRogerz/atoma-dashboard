@@ -1,6 +1,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { getAllStacks, getBalance } from "@/lib/api";
 import { useSettings } from "@/contexts/settings-context";
 import { useAppState } from "@/contexts/app-state";
@@ -16,9 +17,7 @@ export function CreditBalanceCard({ handleAddFunds }: { handleAddFunds: () => vo
   const { state, updateState } = useAppState();
 
   const updateBalance = useCallback(async () => {
-    if (state.refreshBalance) {
-      updateState({ refreshBalance: false });
-    }
+    updateState({ refreshBalance: false });
     setLoggedIn(settings.loggedIn);
     if (!settings.loggedIn) {
       setBalance("-");
@@ -30,6 +29,7 @@ export function CreditBalanceCard({ handleAddFunds }: { handleAddFunds: () => vo
       const allStacksPromise = getAllStacks();
       const [balanceRes, allStacksRes] = await Promise.all([balancePromise, allStacksPromise]);
       const lockedBalance =
+      const lockedBalance =
         allStacksRes?.data.reduce(
           (acc: number, [stack]: any) =>
             acc +
@@ -38,20 +38,23 @@ export function CreditBalanceCard({ handleAddFunds }: { handleAddFunds: () => vo
           0
         ) / USDC_TO_USD;
       const freeBalance = balanceRes?.data / USDC_TO_USD;
+      const freeBalance = balanceRes?.data / USDC_TO_USD;
       setFreeBalance(isNaN(freeBalance) ? "0" : freeBalance.toFixed(2));
       setBalance(isNaN(freeBalance + lockedBalance) ? "0" : (freeBalance + lockedBalance).toFixed(2));
     } catch (error) {
       console.error("Failed to fetch balance", error);
     }
-  }, [settings.loggedIn, updateState, state.refreshBalance]);
+  }, [settings.loggedIn, updateState]);
 
   useEffect(() => {
     updateBalance();
+  }, [settings.loggedIn, updateBalance]);
   }, [settings.loggedIn, updateBalance]);
 
   useEffect(() => {
     if (!state.refreshBalance) return;
     updateBalance();
+  }, [state.refreshBalance, updateBalance]);
   }, [state.refreshBalance, updateBalance]);
 
   return (

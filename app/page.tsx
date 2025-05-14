@@ -13,15 +13,292 @@ import { formatNumber } from "@/lib/utils";
 import { useTheme } from "next-themes";
 import type { NodeSubscription } from "@/lib/atoma-types";
 import { readableModelName } from "@/utils/utils";
-import React from "react";
 
-// Statically import the chart panels for diagnostics
-import AreaPanel from "@/components/charts/AreaPanel";
-import BarGaugePanel from "@/components/charts/BarGaugePanel";
+// Colors for different chart types
+const colors = {
+  light: {
+    blue: "#BAE6FD",
+    green: "#D1FAE5",
+    yellow: "#FFF3C9",
+    red: "#FFC9C9",
+    purple: "#E9D5FF",
+  },
+  lightText: {
+    // Add this new object for tooltip text colors
+    blue: "#2563eb",
+    green: "#059669",
+    yellow: "#b45309",
+    red: "#dc2626",
+    purple: "#7c3aed",
+  },
+  darkText: {
+    blue: "#1e3a8a",
+    green: "#064e3b",
+    yellow: "#713f12",
+    red: "#7f1d1d",
+    purple: "#581c87",
+  },
+  dark: {
+    blue: "#1e3a8a",
+    green: "#064e3b",
+    yellow: "#713f12",
+    red: "#7f1d1d",
+    purple: "#581c87",
+  },
+};
 
-// Remove the dynamic import definitions for DynamicAreaPanel and DynamicBarGaugePanel
-// const DynamicAreaPanel = ...
-// const DynamicBarGaugePanel = ...
+function AreaPanel({
+  series,
+  tickFormatter,
+  timeFilter,
+  valueFormatter,
+  labelsArray,
+  fillOpacity,
+  stackingGroup,
+}: {
+  series: {
+    time: string;
+    data: Record<string, string>;
+  }[];
+  tickFormatter: (value: string) => string;
+  timeFilter: (date: Date) => boolean;
+  valueFormatter: (value: number) => string;
+  labelsArray: string[];
+  fillOpacity?: number;
+  stackingGroup?: string;
+}) {
+  const wholeHourTicks = series.map(({ time }) => time).filter(timeStr => timeFilter(new Date(timeStr)));
+  const { theme } = useTheme();
+  const [currentTheme, setCurrentTheme] = useState(theme);
+
+  useEffect(() => {
+    setCurrentTheme(theme);
+  }, [theme]);
+
+  return (
+    <ResponsiveContainer width="100%" height={250}>
+      <AreaChart data={series} margin={{ top: 0, right: 0, bottom: 0 }}>
+        <CartesianGrid
+          horizontal={true}
+          vertical={false}
+          stroke="hsl(var(--border))"
+          strokeDasharray="2 2"
+          strokeWidth={0.5}
+          opacity={0.2}
+        />
+        <XAxis
+          dataKey="time"
+          axisLine={false}
+          tickLine={false}
+          tick={{ fill: "#888888", fontSize: 12 }}
+          tickFormatter={tickFormatter}
+          ticks={wholeHourTicks}
+        />
+        <YAxis
+          axisLine={false}
+          tickLine={false}
+          tick={{ fill: "#888888", fontSize: 12 }}
+          width={80}
+          tickFormatter={valueFormatter}
+        />
+        <Tooltip
+          content={props => {
+            const { payload, label } = props;
+            const combinedPayload = payload?.map((entry, index) => {
+              const modelName = entry.name?.toString() || "";
+              const colorKey = getColorKeyForModel(modelName, index);
+              return {
+                ...entry,
+                color: currentTheme === "dark" ? colors.darkText[colorKey] : colors.lightText[colorKey],
+              };
+            });
+
+            if (stackingGroup) {
+              combinedPayload?.reverse();
+            } else {
+              combinedPayload?.sort((a, b) => Number(b.value) - Number(a.value));
+            }
+            const formattedLabel = new Date(label).toLocaleDateString();
+            return (
+              <div
+                style={{
+                  backgroundColor: "hsl(var(--card))",
+                  border: "1px solid var(--border)",
+                  borderRadius: "6px",
+                  boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
+                  fontWeight: "bold",
+                  color: "var(--card-foreground)",
+                  padding: "8px",
+                  maxWidth: "300px",
+                }}
+              >
+                <div>{formattedLabel}</div>
+
+                {combinedPayload?.map((entry, index) => {
+                  return (
+                    <div key={index}>
+                      <span
+                        style={{
+                          color: entry.color,
+                          fontWeight: "bold",
+                          display: "inline-block",
+                          padding: "2px 0",
+                        }}
+                        dangerouslySetInnerHTML={{
+                          __html: `<span style="color:${entry.color} !important;">${readableModelName(entry.name!.toString())}: ${valueFormatter(Number(entry.value))}</span>`,
+                        }}
+                      />
+                    </div>
+                  );
+                })}
+              </div>
+            );
+          }}
+        />
+        {labelsArray.map((label, index) => {
+          const colorKey = getColorKeyForModel(label, index);
+          const color = currentTheme === "dark" ? colors.dark[colorKey] : colors.light[colorKey];
+          return (
+            <Area
+              key={index}
+              name={label}
+              type="monotone"
+              dataKey={data => data.data[label] || 0}
+              stroke={color}
+              strokeWidth={2}
+              fill={color}
+              fillOpacity={fillOpacity ? fillOpacity / 100 : 0}
+              stackId={stackingGroup}
+            />
+          );
+        })}
+      </AreaChart>
+    </ResponsiveContainer>
+  );
+}
+
+// Helper function to get consistent color mapping
+function getColorKeyForModel(modelName: string, fallbackIndex: number): keyof typeof colors.lightText {
+  if (modelName.includes("Qwen2")) return "blue";
+  if (modelName.includes("DeepSeek")) return "green";
+  if (modelName.includes("QWQ")) return "yellow";
+  if (modelName.includes("Llama")) return "purple";
+  if (modelName.includes("Claude")) return "red";
+
+  // Fallback to index-based
+  const colorKeys: (keyof typeof colors.lightText)[] = ["blue", "green", "yellow", "red", "purple"];
+  return colorKeys[fallbackIndex % colorKeys.length];
+}
+
+function BarGaugePanel({
+  series,
+  tickFormatter,
+  timeFilter,
+  valueFormatter,
+  labelsArray,
+  fillOpacity,
+  stackingGroup,
+}: {
+  series: {
+    time: string;
+    data: Record<string, string>;
+  }[];
+  tickFormatter: (value: string) => string;
+  timeFilter: (date: Date) => boolean;
+  valueFormatter: (value: number) => string;
+  labelsArray: string[];
+  fillOpacity?: number;
+  stackingGroup?: string;
+}) {
+  const barData = labelsArray.map(label => ({
+    name: label,
+    Tokens: Number(series[series.length - 1].data[label] || 0),
+  }));
+
+  const { theme } = useTheme();
+  const [currentTheme, setCurrentTheme] = useState(theme);
+
+  useEffect(() => {
+    setCurrentTheme(theme);
+  }, [theme]);
+
+  return (
+    <ResponsiveContainer width="100%" height={250}>
+      <BarChart data={barData} layout="vertical" margin={{ top: 0, right: 10, left: 35, bottom: 0 }}>
+        <CartesianGrid
+          horizontal={true}
+          vertical={false}
+          stroke="hsl(var(--border))"
+          strokeDasharray="4 4"
+          strokeWidth={1}
+          opacity={0.6}
+        />
+        <XAxis
+          type="number"
+          axisLine={false}
+          tickLine={false}
+          tick={{ fill: "#888888", fontSize: 12 }}
+          tickFormatter={valueFormatter}
+        />
+        <YAxis
+          dataKey="name"
+          type="category"
+          axisLine={false}
+          tickLine={false}
+          tick={{ fill: "#888888", fontSize: 11 }}
+          width={120}
+          tickFormatter={readableModelName}
+        />
+        <Tooltip
+          content={props => {
+            const { payload, label } = props;
+
+            // Get color based on model name
+            const modelName = label || "";
+            const colorKey = getColorKeyForModel(modelName, labelsArray.indexOf(label));
+            const textColor = currentTheme === "dark" ? colors.darkText[colorKey] : colors.lightText[colorKey];
+
+            return (
+              <div
+                style={{
+                  backgroundColor: "hsl(var(--card))",
+                  border: "1px solid var(--border)",
+                  borderRadius: "6px",
+                  boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
+                  fontWeight: "bold",
+                  color: "var(--card-foreground)",
+                  padding: "8px",
+                  maxWidth: "300px",
+                }}
+              >
+                <div>{readableModelName(label)}</div>
+                <div
+                  key={`${payload?.[0]?.name}-value`}
+                  style={{
+                    color: textColor,
+                    fontWeight: "bold",
+                    display: "block",
+                    padding: "2px 0",
+                  }}
+                  dangerouslySetInnerHTML={{
+                    __html: `<span style="color:${textColor} !important;">${payload?.[0]?.name}: ${valueFormatter(Number(payload?.[0]?.value))}</span>`,
+                  }}
+                ></div>
+              </div>
+            );
+          }}
+        />
+        <Bar dataKey="Tokens" radius={[0, 4, 4, 0]} barSize={20}>
+          {barData.map((entry, index) => {
+            const colorKey = getColorKeyForModel(entry.name, index);
+            const barColor = currentTheme === "dark" ? colors.dark[colorKey] : colors.light[colorKey];
+            return <Cell key={`cell-${index}`} fill={barColor} fillOpacity={0.6} />;
+          })}
+        </Bar>
+      </BarChart>
+    </ResponsiveContainer>
+  );
+}
 
 function PanelData({
   data,
@@ -281,26 +558,22 @@ export default function NetworkStatusPage() {
             activeModelsFromEffect.push(task.model_name!);
           }
         }
-        setModels(activeModelsFromEffect);
-
-        const graphs = await getGraphs();
-        setGraphs(
-          graphs.data.map(({ title, panels }) => ({
-            title: title,
-            panels: panels.map(({ title: panelTitle, description, field_config, from, type, data }) => ({
-              title: panelTitle,
-              description,
-              from,
-              fieldConfig: field_config,
-              data,
-              type,
-            })),
-          }))
-        );
-      } catch (error) {
-        console.error("Failed to fetch initial page data:", error);
-        setGraphs(null);
+        setModels(models => [...models, task.model_name!]);
       }
+      const graphs = await getGraphs();
+      setGraphs(
+        graphs.data.map(({ title, panels }) => ({
+          title: title,
+          panels: panels.map(({ title, description, field_config, from, type, data }) => ({
+            title,
+            description,
+            from,
+            fieldConfig: field_config,
+            data,
+            type,
+          })),
+        }))
+      );
     })();
   }, []);
 
