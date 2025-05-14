@@ -245,19 +245,11 @@ function BarGaugePanel({
   const TickRenderer = React.memo(({ x, y, payload }: any) => {
     const originalEntry = barData.find(item => item.name === payload.value);
     const simpleName = originalEntry?.displayName || readableModelName(payload.value);
-    
+
     return (
       <g transform={`translate(${x},${y})`}>
         <title>{payload.value}</title>
-        <text
-          x={0}
-          y={0}
-          dy={4}
-          textAnchor="end"
-          fill="#888888"
-          fontSize={11}
-          style={{ cursor: "pointer" }}
-        >
+        <text x={0} y={0} dy={4} textAnchor="end" fill="#888888" fontSize={11} style={{ cursor: "pointer" }}>
           {simpleName}
         </text>
       </g>
@@ -268,54 +260,53 @@ function BarGaugePanel({
   TickRenderer.displayName = "YAxisTickRenderer";
 
   // Memoize the tooltip content renderer
-  const renderTooltip = React.useCallback((props: any) => {
-    const { payload, label } = props;
-    if (!payload || !payload.length) return null;
-    
-    const modelName = label || "";
-    const modelEntry = barData.find(item => item.name === modelName);
-    const displayName = modelEntry?.displayName || readableModelName(modelName);
-    
-    const colorKey = getColorKeyForModel(modelName, labelsArray.indexOf(label));
-    const textColor = currentTheme === "dark" ? colors.darkText[colorKey] : colors.lightText[colorKey];
-    
-    return (
-      <div
-        style={{
-          backgroundColor: "hsl(var(--card))",
-          border: "1px solid var(--border)",
-          borderRadius: "6px",
-          boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
-          fontWeight: "bold",
-          color: "var(--card-foreground)",
-          padding: "8px",
-          maxWidth: "300px",
-        }}
-      >
-        <div>{displayName}</div>
-        <div className="text-xs text-muted-foreground mt-1">{modelName}</div>
+  const renderTooltip = React.useCallback(
+    (props: any) => {
+      const { payload, label } = props;
+      if (!payload || !payload.length) return null;
+
+      const modelName = label || "";
+      const modelEntry = barData.find(item => item.name === modelName);
+      const displayName = modelEntry?.displayName || readableModelName(modelName);
+
+      const colorKey = getColorKeyForModel(modelName, labelsArray.indexOf(label));
+      const textColor = currentTheme === "dark" ? colors.darkText[colorKey] : colors.lightText[colorKey];
+
+      return (
         <div
           style={{
-            color: textColor,
+            backgroundColor: "hsl(var(--card))",
+            border: "1px solid var(--border)",
+            borderRadius: "6px",
+            boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
             fontWeight: "bold",
-            display: "block",
-            padding: "2px 0",
-            marginTop: "4px"
+            color: "var(--card-foreground)",
+            padding: "8px",
+            maxWidth: "300px",
           }}
         >
-          {payload[0]?.name}: {valueFormatter(Number(payload[0]?.value))}
+          <div>{displayName}</div>
+          <div className="text-xs text-muted-foreground mt-1">{modelName}</div>
+          <div
+            style={{
+              color: textColor,
+              fontWeight: "bold",
+              display: "block",
+              padding: "2px 0",
+              marginTop: "4px",
+            }}
+          >
+            {payload[0]?.name}: {valueFormatter(Number(payload[0]?.value))}
+          </div>
         </div>
-      </div>
-    );
-  }, [barData, currentTheme, labelsArray, valueFormatter]);
+      );
+    },
+    [barData, currentTheme, labelsArray, valueFormatter]
+  );
 
   return (
     <ResponsiveContainer width="100%" height={250}>
-      <BarChart 
-        data={barData} 
-        layout="vertical" 
-        margin={{ top: 0, right: 10, left: 20, bottom: 0 }}
-      >
+      <BarChart data={barData} layout="vertical" margin={{ top: 0, right: 10, left: 20, bottom: 0 }}>
         <CartesianGrid
           horizontal={true}
           vertical={false}
