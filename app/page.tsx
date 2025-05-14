@@ -220,10 +220,13 @@ function BarGaugePanel({
   fillOpacity?: number;
   stackingGroup?: string;
 }) {
-  const barData = labelsArray.map(label => ({
-    name: label,
-    Tokens: Number(series[series.length - 1].data[label] || 0),
-  }));
+  // Sort models by usage descending
+  const barData = labelsArray
+    .map(label => ({
+      name: label,
+      Tokens: Number(series[series.length - 1].data[label] || 0),
+    }))
+    .sort((a, b) => b.Tokens - a.Tokens);
 
   const { theme } = useTheme();
   const [currentTheme, setCurrentTheme] = useState(theme);
@@ -232,9 +235,37 @@ function BarGaugePanel({
     setCurrentTheme(theme);
   }, [theme]);
 
+  // Custom tick for YAxis with ellipsis and tooltip
+  const renderYAxisTick = (props: any) => {
+    const { x, y, payload, width } = props;
+    const modelName = readableModelName(payload.value);
+    return (
+      <g transform={`translate(${x},${y})`}>
+        <title>{modelName}</title>
+        <text
+          x={0}
+          y={0}
+          dy={4}
+          textAnchor="end"
+          fill="#888888"
+          fontSize={11}
+          style={{
+            maxWidth: 80,
+            overflow: "hidden",
+            textOverflow: "ellipsis",
+            whiteSpace: "nowrap",
+            cursor: "pointer",
+          }}
+        >
+          {modelName.length > 18 ? modelName.slice(0, 16) + "…" : modelName}
+        </text>
+      </g>
+    );
+  };
+
   return (
     <ResponsiveContainer width="100%" height={250}>
-      <BarChart data={barData} layout="vertical" margin={{ top: 0, right: 10, left: 35, bottom: 0 }}>
+      <BarChart data={barData} layout="vertical" margin={{ top: 0, right: 10, left: 8, bottom: 0 }}>
         <CartesianGrid
           horizontal={true}
           vertical={false}
@@ -255,19 +286,15 @@ function BarGaugePanel({
           type="category"
           axisLine={false}
           tickLine={false}
-          tick={{ fill: "#888888", fontSize: 11 }}
-          width={120}
-          tickFormatter={readableModelName}
+          width={80}
+          tick={renderYAxisTick}
         />
         <Tooltip
           content={props => {
             const { payload, label } = props;
-
-            // Get color based on model name
             const modelName = label || "";
             const colorKey = getColorKeyForModel(modelName, labelsArray.indexOf(label));
             const textColor = currentTheme === "dark" ? colors.darkText[colorKey] : colors.lightText[colorKey];
-
             return (
               <div
                 style={{
@@ -281,7 +308,7 @@ function BarGaugePanel({
                   maxWidth: "300px",
                 }}
               >
-                <div>{readableModelName(label)}</div>
+                <div>{modelName}</div>
                 <div
                   key={`${payload?.[0]?.name}-value`}
                   style={{
@@ -523,6 +550,9 @@ function Dashboard({
     </>
   );
 }
+
+// For tables: add a CSS class for ellipsis and tooltip
+export const modelNameEllipsisClass = "truncate max-w-[160px] cursor-pointer";
 
 export default function NetworkStatusPage() {
   const [graphs, setGraphs] = useState<
