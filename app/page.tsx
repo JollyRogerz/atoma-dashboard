@@ -303,6 +303,9 @@ function BarGaugePanel({
     );
   });
 
+  // Add displayName to the component
+  TickRenderer.displayName = "YAxisTickRenderer";
+
   // Memoize the tooltip content renderer
   const renderTooltip = React.useCallback((props: any) => {
     const { payload, label } = props;
