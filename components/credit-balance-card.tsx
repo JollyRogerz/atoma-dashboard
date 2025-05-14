@@ -43,7 +43,7 @@ export function CreditBalanceCard({ handleAddFunds }: { handleAddFunds: () => vo
     } catch (error) {
       console.error("Failed to fetch balance", error);
     }
-  }, [settings.loggedIn, updateState]);
+  }, [settings.loggedIn, updateState, state.refreshBalance]);
 
   useEffect(() => {
     updateBalance();
