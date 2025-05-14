@@ -16,7 +16,9 @@ export function CreditBalanceCard({ handleAddFunds }: { handleAddFunds: () => vo
   const { state, updateState } = useAppState();
 
   const updateBalance = useCallback(async () => {
-    updateState({ refreshBalance: false });
+    if (state.refreshBalance) {
+      updateState({ refreshBalance: false });
+    }
     setLoggedIn(settings.loggedIn);
     if (!settings.loggedIn) {
       setBalance("-");

@@ -21,6 +21,9 @@ import { TooltipProvider, TooltipTrigger, TooltipContent, Tooltip as ShadTooltip
 import { Info } from "lucide-react";
 import { formatNumber } from "@/lib/utils";
 import { useTheme } from "next-themes";
+import type { NodeSubscription } from "@/lib/atoma";
+import { readableModelName } from "@/utils/utils";
+import React from "react";
 
 // Colors for different chart types
 const colors = {
@@ -257,28 +260,34 @@ function BarGaugePanel({
   fillOpacity?: number;
   stackingGroup?: string;
 }) {
-  // Sort models by usage descending
-  const barData = labelsArray
-    .map(label => ({
-      name: label,
-      Tokens: Number(series[series.length - 1].data[label] || 0),
-    }))
-    .sort((a, b) => b.Tokens - a.Tokens);
-
   const { theme } = useTheme();
   const [currentTheme, setCurrentTheme] = useState(theme);
-  
+
+  // Use useMemo to prevent recalculation on every render
+  const barData = React.useMemo(() => {
+    return labelsArray
+      .map(label => ({
+        name: label,
+        Tokens: Number(series[series.length - 1]?.data[label] || 0),
+        // Pre-compute the display name
+        displayName: readableModelName(label),
+      }))
+      .sort((a, b) => b.Tokens - a.Tokens);
+  }, [labelsArray, series]);
+
+  // Update theme only when it changes
   useEffect(() => {
     setCurrentTheme(theme);
   }, [theme]);
 
-  // Custom tick for YAxis with ellipsis and tooltip
-  const renderYAxisTick = (props: any) => {
-    const { x, y, payload, width } = props;
-    const modelName = readableModelName(payload.value);
+  // Memoize the tick renderer to prevent re-renders
+  const TickRenderer = React.memo(({ x, y, payload }: any) => {
+    const originalEntry = barData.find(item => item.name === payload.value);
+    const simpleName = originalEntry?.displayName || readableModelName(payload.value);
+    
     return (
       <g transform={`translate(${x},${y})`}>
-        <title>{modelName}</title>
+        <title>{payload.value}</title>
         <text
           x={0}
           y={0}
@@ -286,23 +295,63 @@ function BarGaugePanel({
           textAnchor="end"
           fill="#888888"
           fontSize={11}
-          style={{
-            maxWidth: 80,
-            overflow: "hidden",
-            textOverflow: "ellipsis",
-            whiteSpace: "nowrap",
-            cursor: "pointer",
-          }}
+          style={{ cursor: "pointer" }}
         >
-          {modelName.length > 18 ? modelName.slice(0, 16) + "…" : modelName}
+          {simpleName}
         </text>
       </g>
     );
-  };
+  });
+
+  // Memoize the tooltip content renderer
+  const renderTooltip = React.useCallback((props: any) => {
+    const { payload, label } = props;
+    if (!payload || !payload.length) return null;
+    
+    const modelName = label || "";
+    const modelEntry = barData.find(item => item.name === modelName);
+    const displayName = modelEntry?.displayName || readableModelName(modelName);
+    
+    const colorKey = getColorKeyForModel(modelName, labelsArray.indexOf(label));
+    const textColor = currentTheme === "dark" ? colors.darkText[colorKey] : colors.lightText[colorKey];
+    
+    return (
+      <div
+        style={{
+          backgroundColor: "hsl(var(--card))",
+          border: "1px solid var(--border)",
+          borderRadius: "6px",
+          boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
+          fontWeight: "bold",
+          color: "var(--card-foreground)",
+          padding: "8px",
+          maxWidth: "300px",
+        }}
+      >
+        <div>{displayName}</div>
+        <div className="text-xs text-muted-foreground mt-1">{modelName}</div>
+        <div
+          style={{
+            color: textColor,
+            fontWeight: "bold",
+            display: "block",
+            padding: "2px 0",
+            marginTop: "4px"
+          }}
+        >
+          {payload[0]?.name}: {valueFormatter(Number(payload[0]?.value))}
+        </div>
+      </div>
+    );
+  }, [barData, currentTheme, labelsArray, valueFormatter]);
 
   return (
     <ResponsiveContainer width="100%" height={250}>
-      <BarChart data={barData} layout="vertical" margin={{ top: 0, right: 10, left: 8, bottom: 0 }}>
+      <BarChart 
+        data={barData} 
+        layout="vertical" 
+        margin={{ top: 0, right: 10, left: 20, bottom: 0 }}
+      >
         <CartesianGrid
           horizontal={true}
           vertical={false}
@@ -323,46 +372,10 @@ function BarGaugePanel({
           type="category"
           axisLine={false}
           tickLine={false}
-          width={80}
-          tick={renderYAxisTick}
+          width={120}
+          tick={props => <TickRenderer {...props} />}
         />
-        <Tooltip
-          content={props => {
-            const { payload, label } = props;
-            const modelName = label || "";
-            const colorKey = getColorKeyForModel(modelName, labelsArray.indexOf(label));
-            const textColor = currentTheme === "dark" ? colors.darkText[colorKey] : colors.lightText[colorKey];
-            return (
-              <div
-                style={{
-                  backgroundColor: "hsl(var(--card))",
-                  border: "1px solid var(--border)",
-                  borderRadius: "6px",
-                  boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
-                  fontWeight: "bold",
-                  color: "var(--card-foreground)",
-                  padding: "8px",
-                  maxWidth: "300px",
-                }}
-              >
-                <div>{modelName}</div>
-                <div
-                  key={`${payload?.[0]?.name}-value`}
-                  style={{
-                    color: textColor,
-                    fontWeight: 'bold',
-                    display: 'block',
-                    padding: '2px 0'
-                  }}
-                  dangerouslySetInnerHTML={{
-                    __html: `<span style="color:${textColor} !important;">${payload?.[0]?.name}: ${valueFormatter(Number(payload?.[0]?.value))}</span>`
-                  }}
-                >
-                </div>
-              </div>
-            );
-          }}
-        />
+        <Tooltip content={renderTooltip} />
         <Bar dataKey="Tokens" radius={[0, 4, 4, 0]} barSize={20}>
           {labelsArray.map((entry, index) => {
             const barColor = currentTheme === "dark"
@@ -590,8 +603,8 @@ function Dashboard({
   );
 }
 
-// For tables: add a CSS class for ellipsis and tooltip
-export const modelNameEllipsisClass = "truncate max-w-[160px] cursor-pointer";
+// For tables: update modelNameEllipsisClass to allow wrapping, and always use readableModelName with a tooltip
+export const modelNameEllipsisClass = "whitespace-normal break-words cursor-pointer";
 
 export default function NetworkStatusPage() {
   const [graphs, setGraphs] = useState<
