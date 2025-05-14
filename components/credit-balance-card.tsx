@@ -1,6 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { getAllStacks, getBalance } from "@/lib/api";
 import { useSettings } from "@/contexts/settings-context";
 import { useAppState } from "@/contexts/app-state";
@@ -15,7 +15,7 @@ export function CreditBalanceCard({ handleAddFunds }: { handleAddFunds: () => vo
   const { settings } = useSettings();
   const { state, updateState } = useAppState();
 
-  const updateBalance = async () => {
+  const updateBalance = useCallback(async () => {
     updateState({ refreshBalance: false });
     setLoggedIn(settings.loggedIn);
     if (!settings.loggedIn) {
@@ -27,7 +27,7 @@ export function CreditBalanceCard({ handleAddFunds }: { handleAddFunds: () => vo
       const balancePromise = getBalance();
       const allStacksPromise = getAllStacks();
       const [balanceRes, allStacksRes] = await Promise.all([balancePromise, allStacksPromise]);
-      let lockedBalance =
+      const lockedBalance =
         allStacksRes?.data.reduce(
           (acc: number, [stack]: any) =>
             acc +
@@ -35,22 +35,22 @@ export function CreditBalanceCard({ handleAddFunds }: { handleAddFunds: () => vo
               stack.price_per_one_million_compute_units,
           0
         ) / USDC_TO_USD;
-      let freeBalance = balanceRes?.data / USDC_TO_USD;
+      const freeBalance = balanceRes?.data / USDC_TO_USD;
       setFreeBalance(isNaN(freeBalance) ? "0" : freeBalance.toFixed(2));
       setBalance(isNaN(freeBalance + lockedBalance) ? "0" : (freeBalance + lockedBalance).toFixed(2));
     } catch (error) {
       console.error("Failed to fetch balance", error);
     }
-  };
+  }, [settings.loggedIn, updateState]);
 
   useEffect(() => {
     updateBalance();
-  }, [settings.loggedIn]);
+  }, [settings.loggedIn, updateBalance]);
 
   useEffect(() => {
     if (!state.refreshBalance) return;
     updateBalance();
-  }, [state.refreshBalance]);
+  }, [state.refreshBalance, updateBalance]);
 
   return (
     <Card className="h-[280px] flex flex-col">

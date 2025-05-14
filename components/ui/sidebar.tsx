@@ -50,7 +50,7 @@ function useSidebar() {
 
 /**
  * SidebarProvider - Provides sidebar state and functionality to child components
- * 
+ *
  * Props:
  * - defaultOpen: Whether sidebar is open by default
  * - open: Controlled open state
@@ -74,7 +74,7 @@ const SidebarProvider = React.forwardRef<
   const [_open, _setOpen] = React.useState(defaultOpen);
   // Use controlled prop if provided, otherwise use internal state
   const open = openProp ?? _open;
-  
+
   // Function to update sidebar open state and persist to cookie
   const setOpen = React.useCallback(
     (value: boolean | ((value: boolean) => boolean)) => {
@@ -154,7 +154,7 @@ SidebarProvider.displayName = "SidebarProvider";
 
 /**
  * Sidebar - Main sidebar component that adapts to device and configuration
- * 
+ *
  * Props:
  * - side: Which side of the screen to display on
  * - variant: Visual style variant
@@ -256,13 +256,9 @@ Sidebar.displayName = "Sidebar";
  * - SidebarContent: Main scrollable content area
  * - SidebarGroup components: For grouping related items
  * - SidebarMenu components: For navigation menus and items
- * 
+ *
  * The current implementation is simplified but fully functional for basic sidebar needs.
  * The above components can be restored if needed for more advanced UI requirements.
  */
 
-export {
-  Sidebar,
-  SidebarProvider,
-  useSidebar,
-};
+export { Sidebar, SidebarProvider, useSidebar };
