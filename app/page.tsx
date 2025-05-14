@@ -129,7 +129,6 @@ function AreaPanel({
                   fontWeight: "bold",
                   color: "var(--card-foreground)",
                   padding: "8px",
-                  maxWidth: "300px",
                 }}
               >
                 <div>{formattedLabel}</div>
@@ -224,7 +223,7 @@ function BarGaugePanel({
 
   return (
     <ResponsiveContainer width="100%" height={250}>
-      <BarChart data={barData} layout="vertical" margin={{ top: 0, right: 10, left: 35, bottom: 0 }}>
+      <BarChart data={barData} layout="vertical" margin={{ top: 0, right: 0, left: 20, bottom: 0 }}>
         <CartesianGrid
           horizontal={true}
           vertical={false}
@@ -245,8 +244,7 @@ function BarGaugePanel({
           type="category"
           axisLine={false}
           tickLine={false}
-          tick={{ fill: "#888888", fontSize: 11 }}
-          width={120}
+          tick={{ fill: "#888888", fontSize: 12 }}
           tickFormatter={readableModelName}
         />
         <Tooltip
@@ -268,7 +266,6 @@ function BarGaugePanel({
                   fontWeight: "bold",
                   color: "var(--card-foreground)",
                   padding: "8px",
-                  maxWidth: "300px",
                 }}
               >
                 <div>{readableModelName(label)}</div>
@@ -560,7 +557,7 @@ export default function NetworkStatusPage() {
         }
         setModels(models => [...models, task.model_name!]);
       }
-      const graphs = await getGraphs();
+      let graphs = await getGraphs();
       setGraphs(
         graphs.data.map(({ title, panels }) => ({
           title: title,

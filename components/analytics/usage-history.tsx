@@ -80,15 +80,15 @@ export function UsageHistory() {
     }
     setUsageHistory(null);
     (async () => {
-      const stacksPromise = await getAllStacks().catch(ex => {
+      let stacksPromise = await getAllStacks().catch(ex => {
         showToast("Error occurred", "error");
         return { data: [] };
       });
-      const tasksPromise = getAllTasks().catch(ex => {
+      let tasksPromise = getAllTasks().catch(ex => {
         showToast("Error occurred", "error");
         return { data: [] };
       });
-      const [stacks, tasks] = await Promise.all([stacksPromise, tasksPromise]);
+      let [stacks, tasks] = await Promise.all([stacksPromise, tasksPromise]);
       setUsageHistory(
         stacks.data
           .sort(([, timestamp0], [, timestamp1]) => (timestamp0 < timestamp1 ? 1 : timestamp0 > timestamp1 ? -1 : 0))
@@ -105,7 +105,7 @@ export function UsageHistory() {
           })
       );
     })();
-  }, [settings.loggedIn, showToast]);
+  }, [settings.loggedIn]);
   return (
     <Card>
       <CardHeader>

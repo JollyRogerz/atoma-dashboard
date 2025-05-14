@@ -6,9 +6,13 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { useState, useEffect } from "react";
 import { ApiUsageDialog } from "@/components/api-usage-dialog";
 import { ModelModality } from "@/lib/atoma";
-import { Checkbox } from "@/components/ui/checkbox";
 import { Lock, Unlock } from "lucide-react";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 const endpoints = [
   {
@@ -210,8 +214,7 @@ export function ApiDocumentation() {
       <ApiUsageDialog
         isOpen={isApiDialogOpen}
         onClose={() => setIsApiDialogOpen(false)}
-        modelName={""}
-        modelName={""}
+        modelName={''}
         modality={
           endpoints.find(endpoint => endpoint.name === selectedEndpoint)?.modality || ModelModality.ChatCompletions
         }

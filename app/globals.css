@@ -57,12 +57,10 @@
   * {
     @apply border-border;
   }
-
+  
   body {
     @apply text-foreground;
-    font-feature-settings:
-      "rlig" 1,
-      "calt" 1;
+    font-feature-settings: "rlig" 1, "calt" 1;
     min-height: 100vh;
     overflow-x: hidden;
     margin: 0;
@@ -70,7 +68,7 @@
     background-color: white !important;
     position: relative;
   }
-
+  
   html {
     min-height: 100%;
     overflow-x: hidden;
@@ -78,7 +76,7 @@
     padding: 0;
     background-color: white !important;
   }
-
+  
   /* Only apply dark overlay in dark mode */
   .dark body::before {
     content: "";
@@ -91,27 +89,24 @@
     z-index: 0;
     pointer-events: none;
   }
-
+  
   /* Light mode should have white background */
   body::before {
-    display: none;
+    display: none; 
   }
-
-  .dark body,
-  .dark html {
+  
+  .dark body, .dark html {
     background-color: #09090b !important;
     color: #e5e7eb !important;
   }
-
-  #__next,
-  main {
+  
+  #__next, main {
     min-height: 100vh;
     background-color: transparent !important;
   }
 
   /* Remove the bottom fade gradient completely */
-  html::after,
-  body::after {
+  html::after, body::after {
     display: none;
   }
 
@@ -124,19 +119,15 @@
   }
 
   /* Remove transitions for theme switching */
-  *,
-  *::before,
-  *::after {
+  *, *::before, *::after {
     transition: none !important;
   }
 
   /* Only keep transitions for interactive elements */
-  button:not([data-theme-toggle]),
+  button:not([data-theme-toggle]), 
   a:hover,
   .hover-transition {
-    transition:
-      background-color 0.2s ease-in-out,
-      color 0.2s ease-in-out !important;
+    transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out !important;
   }
 
   /* Sidebar specific transitions */
@@ -145,9 +136,7 @@
   .sidebar-item,
   nav a,
   nav div {
-    transition:
-      width 0.2s cubic-bezier(0.4, 0, 0.2, 1),
-      transform 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    transition: width 0.2s cubic-bezier(0.4, 0, 0.2, 1), transform 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
     will-change: width, transform;
   }
 
@@ -170,8 +159,7 @@
   }
 
   /* Add transition for sidebar nav elements */
-  nav a,
-  nav div {
+  nav a, nav div {
     transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
     will-change: transform, opacity;
   }
@@ -208,7 +196,7 @@
 }
 
 /* Base card styling */
-.card,
+.card, 
 [class*="card"],
 [role="region"],
 div[style*="border-radius"],
@@ -226,7 +214,7 @@ div[style*="background-color"] {
 }
 
 /* Force hover styles for light mode */
-body:not(.dark) .card:hover,
+body:not(.dark) .card:hover, 
 body:not(.dark) [class*="card"]:hover,
 body:not(.dark) [role="region"]:hover,
 body:not(.dark) div[style*="border-radius"]:hover,
@@ -238,12 +226,12 @@ body:not(.dark) div[style*="background-color"]:hover {
 }
 
 /* Add hover effect for light mode */
-.card:hover,
+.card:hover, 
 [class*="card"]:hover,
 [role="region"]:hover,
 div[style*="border-radius"]:hover,
 div[style*="background-color"]:hover,
-.card:focus-within,
+.card:focus-within, 
 [class*="card"]:focus-within,
 [role="region"]:focus-within,
 div[style*="border-radius"]:focus-within,
@@ -255,7 +243,7 @@ div[style*="background-color"]:focus-within {
 }
 
 /* Dark mode card styling */
-.dark .card,
+.dark .card, 
 .dark [class*="card"],
 .dark [role="region"],
 .dark div[style*="border-radius"],
@@ -267,12 +255,12 @@ div[style*="background-color"]:focus-within {
 }
 
 /* Dark mode hover effect */
-.dark .card:hover,
+.dark .card:hover, 
 .dark [class*="card"]:hover,
 .dark [role="region"]:hover,
 .dark div[style*="border-radius"]:hover,
 .dark div[style*="background-color"]:hover,
-.dark .card:focus-within,
+.dark .card:focus-within, 
 .dark [class*="card"]:focus-within,
 .dark [role="region"]:focus-within,
 .dark div[style*="border-radius"]:focus-within,
@@ -283,12 +271,12 @@ div[style*="background-color"]:focus-within {
 }
 
 /* Add focus styles to match hover */
-.card:focus,
+.card:focus, 
 [class*="card"]:focus,
 [role="region"]:focus,
 div[style*="border-radius"]:focus,
 div[style*="background-color"]:focus,
-.dark .card:focus,
+.dark .card:focus, 
 .dark [class*="card"]:focus,
 .dark [role="region"]:focus,
 .dark div[style*="border-radius"]:focus,
@@ -374,11 +362,7 @@ div[style*="background-color"]:focus,
 }
 
 /* Layout and positioning */
-main,
-body,
-html,
-#__next,
-[class*="container"] {
+main, body, html, #__next, [class*="container"] {
   background-color: transparent !important;
 }
 
@@ -414,15 +398,7 @@ html,
   z-index: 10;
 }
 
-main,
-header,
-footer,
-nav,
-aside,
-section,
-article,
-.main-content,
-[class*="content"] {
+main, header, footer, nav, aside, section, article, .main-content, [class*="content"] {
   position: relative;
   z-index: 5 !important;
 }
@@ -442,30 +418,30 @@ article,
 /* Re-introduce standard shadcn dialog overlay styles if needed */
 @layer base {
   /* Faster Overlay Animation */
-  [data-state="open"] ~ [data-radix-portal] [data-radix-dialog-overlay],
-  [data-state="open"] ~ [data-radix-dialog-overlay] {
+  [data-state=open] ~ [data-radix-portal] [data-radix-dialog-overlay],
+  [data-state=open] ~ [data-radix-dialog-overlay] {
     @apply fixed inset-0 z-50 bg-black/50 backdrop-blur-sm data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 duration-75;
   }
 
   /* Faster Content Animation */
-  [data-state="open"] ~ [data-radix-portal] [data-radix-dialog-content],
-  [data-state="open"] ~ [data-radix-dialog-content] {
-    @apply fixed left-[50%] top-[50%] z-50 grid w-full max-w-lg translate-x-[-50%] translate-y-[-50%] gap-4 duration-75 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[state=closed]:slide-out-to-left-1/2 data-[state=closed]:slide-out-to-top-[48%] data-[state=open]:slide-in-from-left-1/2 data-[state=open]:slide-in-from-top-[48%];
-    /* Reset base visual styles that might interfere */
-    /* background: transparent !important; */
-    /* padding: 0 !important; */
-    /* box-shadow: none !important; */
-    /* border-radius: 0 !important; */
+  [data-state=open] ~ [data-radix-portal] [data-radix-dialog-content],
+  [data-state=open] ~ [data-radix-dialog-content] {
+     @apply fixed left-[50%] top-[50%] z-50 grid w-full max-w-lg translate-x-[-50%] translate-y-[-50%] gap-4 duration-75 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[state=closed]:slide-out-to-left-1/2 data-[state=closed]:slide-out-to-top-[48%] data-[state=open]:slide-in-from-left-1/2 data-[state=open]:slide-in-from-top-[48%];
+     /* Reset base visual styles that might interfere */
+     /* background: transparent !important; */
+     /* padding: 0 !important; */
+     /* box-shadow: none !important; */
+     /* border-radius: 0 !important; */
   }
 
   /* Style the default Close button */
-  [data-radix-dialog-content] > button[aria-label="Close"] {
+  [data-radix-dialog-content] > button[aria-label='Close'] {
     @apply absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-accent data-[state=open]:text-muted-foreground;
     color: #6b7280 !important;
   }
-  .dark [data-radix-dialog-content] > button[aria-label="Close"] {
-    color: #9ca3af !important;
-  }
+   .dark [data-radix-dialog-content] > button[aria-label='Close'] {
+      color: #9ca3af !important;
+   }
 }
 
 /* Apply EXACT TARGET styles DIRECTLY to DialogContent */
@@ -473,9 +449,7 @@ article,
   background-color: white !important;
   border-radius: 1rem !important;
   border: 1px solid #e5e7eb !important;
-  box-shadow:
-    0 4px 6px -1px rgb(0 0 0 / 0.1),
-    0 2px 4px -2px rgb(0 0 0 / 0.1) !important;
+  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1) !important;
   padding: 2rem !important;
   width: 100% !important;
   max-width: 500px !important;
@@ -484,29 +458,27 @@ article,
 }
 
 .dark [data-radix-dialog-content][aria-describedby][aria-labelledby] {
-  background-color: #1f2937 !important;
-  border-color: #374151 !important;
+  background-color: #1f2937 !important; 
+  border-color: #374151 !important; 
   color: #f9fafb !important;
 }
 
 /* --- Style elements INSIDE the dialog (TARGET IMAGE) --- */
 
 /* Header */
-[data-radix-dialog-content] h2 {
-  /* DialogTitle */
+[data-radix-dialog-content] h2 { /* DialogTitle */
   font-size: 1.25rem !important; /* 20px */
-  line-height: 1.75rem !important;
+  line-height: 1.75rem !important; 
   font-weight: 600 !important;
   color: #111827 !important;
-  margin-bottom: 0.5rem !important;
+  margin-bottom: 0.5rem !important; 
 }
 .dark [data-radix-dialog-content] h2 {
   color: #f9fafb !important;
 }
 
 /* Description */
-[data-radix-dialog-content] p {
-  /* DialogDescription */
+[data-radix-dialog-content] p { /* DialogDescription */
   font-size: 0.875rem !important;
   line-height: 1.25rem !important;
   color: #6b7280 !important;
@@ -536,7 +508,7 @@ article,
   border: 1px solid #dc6d4b !important; /* TARGET: Coral border */
   border-radius: 0.5rem !important; /* TARGET: 8px */
   padding: 0.625rem 0.75rem !important; /* TARGET: 10px 12px */
-  font-size: 0.875rem !important;
+  font-size: 0.875rem !important; 
   background-color: white !important;
   color: #111827 !important;
   margin-top: 0 !important;
@@ -550,8 +522,8 @@ article,
   color: #9ca3af !important;
 }
 [data-radix-dialog-content] input:focus {
-  outline: none !important;
-  box-shadow: none !important; /* Remove focus ring */
+   outline: none !important;
+   box-shadow: none !important; /* Remove focus ring */
 }
 
 /* Footer (Button container) - Align Right */
@@ -568,15 +540,15 @@ article,
   background-color: white !important;
   color: #111827 !important;
   border: 1px solid #d1d5db !important; /* Gray border */
-  padding: 0.5rem 1rem !important;
+  padding: 0.5rem 1rem !important; 
   border-radius: 0.375rem !important; /* 6px */
-  font-size: 0.875rem !important;
+  font-size: 0.875rem !important; 
   font-weight: 500 !important;
   transition: background-color 0.2s !important;
 }
 [data-radix-dialog-content] button[variant="outline"]:hover {
-  background-color: #f9fafb !important;
-  opacity: 1 !important;
+   background-color: #f9fafb !important; 
+   opacity: 1 !important; 
 }
 .dark [data-radix-dialog-content] button[variant="outline"] {
   background-color: #374151 !important;
@@ -584,29 +556,28 @@ article,
   color: #f9fafb !important;
 }
 .dark [data-radix-dialog-content] button[variant="outline"]:hover {
-  background-color: #4b5563 !important;
+   background-color: #4b5563 !important;
 }
 
 /* Create button (TARGET IMAGE style) */
-[data-radix-dialog-content] button:not([variant="outline"]) {
-  /* Primary button */
+[data-radix-dialog-content] button:not([variant="outline"]) { /* Primary button */
   background-color: #edb5a7 !important; /* TARGET: Light Coral background */
   color: white !important; /* TARGET: White text */
   border: none !important;
-  padding: 0.5rem 1rem !important;
+  padding: 0.5rem 1rem !important; 
   border-radius: 0.375rem !important; /* 6px */
-  font-size: 0.875rem !important;
+  font-size: 0.875rem !important; 
   font-weight: 500 !important;
   transition: background-color 0.2s !important;
 }
 [data-radix-dialog-content] button:not([variant="outline"]):hover {
-  background-color: #dc6d4b !important; /* Darker coral on hover */
-  opacity: 1 !important;
+   background-color: #dc6d4b !important; /* Darker coral on hover */
+   opacity: 1 !important; 
 }
 
 /* Prevent scrolling when modal is open */
-body:has([data-state="open"] ~ [data-radix-portal]),
-html:has([data-state="open"] ~ [data-radix-portal]) {
+body:has([data-state=open] ~ [data-radix-portal]),
+html:has([data-state=open] ~ [data-radix-portal]) {
   overflow: hidden !important;
 }
 
@@ -628,14 +599,9 @@ input[type="text"] {
 }
 
 /* Fix header text in modals */
-h1,
-h2,
-h3,
-h4,
-h5,
-h6,
+h1, h2, h3, h4, h5, h6,
 [role="dialog"] h1,
-[role="dialog"] h2,
+[role="dialog"] h2, 
 [role="dialog"] h3,
 [role="dialog"] h4,
 [role="dialog"] p,
@@ -652,12 +618,7 @@ div[role="dialog"] p,
   color: #1f2937 !important;
 }
 
-.dark h1,
-.dark h2,
-.dark h3,
-.dark h4,
-.dark h5,
-.dark h6,
+.dark h1, .dark h2, .dark h3, .dark h4, .dark h5, .dark h6,
 .dark [role="dialog"] h1,
 .dark [role="dialog"] h2,
 .dark [role="dialog"] h3,
@@ -718,7 +679,7 @@ select,
 [type="search"],
 [role="textbox"] {
   color: #1f2937 !important;
-  background-color: #f9fafb !important;
+  background-color: #f9fafb !important; 
   border: 1px solid rgba(180, 180, 180, 0.3) !important;
 }
 
@@ -841,7 +802,7 @@ button[class*="primary"] {
   background-color: hsl(var(--card)) !important;
   border: 1px solid var(--border) !important;
   border-radius: 6px !important;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1) !important;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1) !important;
 }
 
 .recharts-tooltip-cursor {
@@ -1109,7 +1070,7 @@ body.dark [class*="topbar"] button[class*="rounded-md"][class*="text-sm"]:last-c
   }
 
   /* Hide the default close button */
-  .custom-dialog-content > button[aria-label="Close"] {
+  .custom-dialog-content > button[aria-label='Close'] {
     display: none !important;
   }
 
@@ -1139,7 +1100,7 @@ body.dark [class*="topbar"] button[class*="rounded-md"][class*="text-sm"]:last-c
     color: #111827 !important;
     margin-bottom: 0.5rem !important;
   }
-  .dark .custom-dialog-content label {
+   .dark .custom-dialog-content label {
     @apply text-gray-50;
     color: #f9fafb !important;
   }
@@ -1151,7 +1112,7 @@ body.dark [class*="topbar"] button[class*="rounded-md"][class*="text-sm"]:last-c
     background-color: white !important;
     color: #111827 !important;
   }
-  .dark .custom-dialog-content input {
+   .dark .custom-dialog-content input {
     @apply bg-gray-700 border-[#dc6d4b] text-gray-50;
     background-color: #374151 !important;
     border-color: #dc6d4b !important;
@@ -1181,7 +1142,7 @@ body.dark [class*="topbar"] button[class*="rounded-md"][class*="text-sm"]:last-c
     padding: 0.625rem 1.25rem !important;
     border-radius: 0.5rem !important;
   }
-
+  
   .custom-dialog-content footer button:hover {
     opacity: 0.9 !important;
   }
@@ -1195,3 +1156,6 @@ body.dark [class*="topbar"] button[class*="rounded-md"][class*="text-sm"]:last-c
 [data-radix-dialog-content] h2:first-child + p + div input {
   margin-top: 0 !important;
 }
+
+
+
