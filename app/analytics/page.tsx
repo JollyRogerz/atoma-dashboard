@@ -38,7 +38,7 @@ export default function AnalyticsPage() {
         );
       }
     })();
-  }, []);
+  }, [showToast]);
 
   return (
     <div className="relative min-h-screen w-full">
