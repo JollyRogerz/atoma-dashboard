@@ -16,25 +16,52 @@ export async function fetchAvailableModels(): Promise<TaskResponse> {
 }
 
 export function readableModelName(modelName: string) {
+  if (!modelName) return "";
+
   switch (modelName) {
     case "Qwen/QwQ-32B":
       return "QWQ 32B";
     case "neuralmagic/DeepSeek-R1-Distill-Llama-70B-FP8-dynamic":
-      return "DeepSeek: R1 Distill Llama 70B";
+      return "DeepSeek R1 70B";
     case "neuralmagic/Qwen2-72B-Instruct-FP8":
       return "Qwen2 72B";
     case "meta-llama/Llama-3.1-8B-Instruct":
-      return "Llama3.1 8B";
+      return "Llama 3.1 8B";
     case "Infermatic/Llama-3.3-70B-Instruct-FP8-Dynamic":
-      return "Llama3.3 70B";
+      return "Llama 3.3 70B";
     case "mistralai/Mistral-Nemo-Instruct-2407":
       return "Mistral Nemo";
+    case "DeepSeek-V3-0324":
+      return "DeepSeek V3";
     default:
-      const match = modelName?.match(/\/([^\/]*\d+B)/);
-      if (match) {
-        return match[1].replace(/-/g, " ");
+      // Extract model name and size from format like "model/Name-Size-Extra"
+      const sizeMatch = modelName.match(/(\d+[BM])/);
+      const size = sizeMatch ? sizeMatch[0] : "";
+
+      // Extract model name without vendor prefix
+      let name = modelName;
+      if (modelName.includes("/")) {
+        name = modelName.split("/").pop() || modelName;
       }
-      return modelName;
+
+      // Clean up name and return concise version
+      name = name
+        .replace(/-Instruct(-FP\d)?(-dynamic)?$/i, "")
+        .replace(/-/g, " ")
+        .replace(/\s+/g, " ")
+        .trim();
+
+      // If we have both name and size, make sure size appears at the end
+      if (size && !name.endsWith(size)) {
+        name = name.replace(size, "").trim() + " " + size;
+      }
+
+      // Limit length for chart display
+      if (name.length > 20) {
+        name = name.substring(0, 18) + "...";
+      }
+
+      return name;
   }
 }
 

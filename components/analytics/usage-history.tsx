@@ -5,6 +5,8 @@ import { getAllStacks, getAllTasks } from "@/lib/api";
 import { useToast } from "@/app/toast-provider";
 import LoadingCircle from "../LoadingCircle";
 import { useSettings } from "@/contexts/settings-context";
+import { modelNameEllipsisClass } from "@/app/page";
+import { readableModelName } from "@/utils/utils";
 
 const usageData = [
   {
@@ -77,15 +79,15 @@ export function UsageHistory() {
     }
     setUsageHistory(null);
     (async () => {
-      let stacksPromise = await getAllStacks().catch(ex => {
+      const stacksPromise = await getAllStacks().catch(ex => {
         showToast("Error occurred", "error");
         return { data: [] };
       });
-      let tasksPromise = getAllTasks().catch(ex => {
+      const tasksPromise = getAllTasks().catch(ex => {
         showToast("Error occurred", "error");
         return { data: [] };
       });
-      let [stacks, tasks] = await Promise.all([stacksPromise, tasksPromise]);
+      const [stacks, tasks] = await Promise.all([stacksPromise, tasksPromise]);
       setUsageHistory(
         stacks.data
           .sort(([, timestamp0], [, timestamp1]) => (timestamp0 < timestamp1 ? 1 : timestamp0 > timestamp1 ? -1 : 0))
@@ -102,7 +104,7 @@ export function UsageHistory() {
           })
       );
     })();
-  }, [settings.loggedIn]);
+  }, [settings.loggedIn, showToast]);
   return (
     <Card>
       <CardHeader>
@@ -123,7 +125,11 @@ export function UsageHistory() {
               {usageHistory.map((row, index) => (
                 <TableRow key={index}>
                   <TableCell>{row.date}</TableCell>
-                  <TableCell className="font-mono text-sm">{row.model}</TableCell>
+                  <TableCell className="font-mono text-sm">
+                    <span className={modelNameEllipsisClass} title={row.model}>
+                      {readableModelName(row.model)}
+                    </span>
+                  </TableCell>
                   <TableCell className="text-right">{row.tokens}</TableCell>
                   <TableCell className="text-right">{row.cost}</TableCell>
                 </TableRow>

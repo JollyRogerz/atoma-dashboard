@@ -49,18 +49,21 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, children }) => {
   if (!isOpen || !mounted) return null;
 
   const modalContent = (
-    <div className="fixed inset-0 flex items-center justify-center" style={{ 
-      backgroundColor: "rgba(0, 0, 0, 0.85)",
-      position: "fixed",
-      top: 0,
-      left: 0,
-      right: 0,
-      bottom: 0,
-      zIndex: 999999,
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "center"
-    }}>
+    <div
+      className="fixed inset-0 flex items-center justify-center"
+      style={{
+        backgroundColor: "rgba(0, 0, 0, 0.85)",
+        position: "fixed",
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        zIndex: 999999,
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+      }}
+    >
       <div
         style={{
           backgroundColor: "#1e293b", // Dark blue/gray outer box
@@ -70,10 +73,10 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, children }) => {
           maxWidth: "500px",
           width: "100%",
           position: "relative",
-          zIndex: 1000000
+          zIndex: 1000000,
         }}
       >
-        <button 
+        <button
           style={{
             position: "absolute",
             top: "16px",
@@ -87,14 +90,14 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, children }) => {
             zIndex: 1000001,
             lineHeight: "1",
             padding: "0",
-            margin: "0"
+            margin: "0",
           }}
           onClick={onClose}
           aria-label="Close"
         >
           &#215;
         </button>
-        
+
         <div
           ref={modalRef}
           style={{
@@ -102,7 +105,7 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, children }) => {
             borderRadius: "8px",
             width: "100%",
             position: "relative",
-            color: "white"
+            color: "white",
           }}
         >
           {children}
