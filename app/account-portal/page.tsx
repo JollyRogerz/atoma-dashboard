@@ -67,7 +67,7 @@ export default function DashboardPage() {
       const suiAddress = await getSuiAddress();
       setWalletConfirmed(suiAddress.data != null && suiAddress.data == account?.address);
     })();
-  }, [account]);
+  }, [account, settings.loggedIn]);
 
   const handleAddFunds = () => {
     setShowAddFunds(true);
