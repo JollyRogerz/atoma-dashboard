@@ -12,7 +12,10 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Dialog, DialogContent } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+} from "@/components/ui/dialog";
 import { Avatar } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
@@ -57,7 +60,7 @@ export function TopNav() {
     if (settings.loggedIn) {
       (async () => {
         try {
-          const res = await getUserProfile();
+          let res = await getUserProfile();
           setUsername(res.data.email);
         } catch (error) {
           console.log(error);
@@ -83,8 +86,8 @@ export function TopNav() {
               >
                 Sign in
               </Button>
-              <Button
-                onClick={() => handleAuth("register")}
+              <Button 
+                onClick={() => handleAuth("register")} 
                 className="w-24 rounded-lg bg-[#1C1C1C] hover:bg-[#E97451] text-white dark:bg-white dark:text-[#1C1C1C] dark:hover:bg-[#E97451] dark:hover:text-white transition-all duration-200"
               >
                 Register
@@ -118,7 +121,9 @@ export function TopNav() {
                   </div>
                 </DropdownMenuItem>
                 {(connectionStatus === "connected" || settings.zkLogin.isEnabled) && (
-                  <DropdownMenuItem onClick={handleDisconnect}>Disconnect Wallet</DropdownMenuItem>
+                  <DropdownMenuItem onClick={handleDisconnect}>
+                    Disconnect Wallet
+                  </DropdownMenuItem>
                 )}
                 <DropdownMenuItem
                   onClick={() => {
@@ -140,7 +145,7 @@ export function TopNav() {
           )}
         </div>
       </div>
-      <Dialog open={showAuthForm} onOpenChange={open => !open && closeAuthForm()}>
+      <Dialog open={showAuthForm} onOpenChange={(open) => !open && closeAuthForm()}>
         <DialogContent className="sm:max-w-[450px]">
           <AuthForm type={authType as "login" | "register"} onClose={closeAuthForm} />
         </DialogContent>

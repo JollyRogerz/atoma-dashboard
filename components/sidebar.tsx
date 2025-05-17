@@ -54,7 +54,7 @@ interface NavItemProps {
 
 const NavItem = ({ item, isBottom = false, isCollapsed, mounted }: NavItemProps) => {
   const pathname = usePathname();
-
+  
   const content = (
     <>
       <item.icon className={cn("h-5 w-5", !isCollapsed && "mr-3")} />
@@ -91,7 +91,7 @@ const NavItem = ({ item, isBottom = false, isCollapsed, mounted }: NavItemProps)
       {content}
     </Link>
   );
-
+  
   if (!isCollapsed) {
     return linkContent;
   }
@@ -99,7 +99,9 @@ const NavItem = ({ item, isBottom = false, isCollapsed, mounted }: NavItemProps)
   return (
     <TooltipPrimitive.Provider delayDuration={0}>
       <TooltipPrimitive.Root>
-        <TooltipPrimitive.Trigger asChild>{linkContent}</TooltipPrimitive.Trigger>
+        <TooltipPrimitive.Trigger asChild>
+          {linkContent}
+        </TooltipPrimitive.Trigger>
         <TooltipPrimitive.Portal>
           <TooltipPrimitive.Content
             side="right"
@@ -165,11 +167,14 @@ export function Sidebar() {
             isCollapsed ? "w-[56px]" : "w-60",
             isMobileOpen ? "left-0" : "-left-full lg:left-0"
           )}
-          style={{ height: "100vh", minHeight: "100vh" }}
+          style={{ height: '100vh', minHeight: '100vh' }}
         >
           <div className="border-b border-border dark:bg-darkMode">
             <div
-              className={cn("flex h-16 items-center justify-between dark:bg-darkMode", isCollapsed && "justify-center")}
+              className={cn(
+                "flex h-16 items-center justify-between dark:bg-darkMode",
+                isCollapsed && "justify-center"
+              )}
             >
               {!isCollapsed && (
                 <div className="flex items-center w-full">
@@ -208,7 +213,12 @@ export function Sidebar() {
                 </div>
               )}
               {isCollapsed && (
-                <Button variant="ghost" size="sm" className="px-0 h-8 w-8" onClick={() => setIsCollapsed(!isCollapsed)}>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="px-0 h-8 w-8"
+                  onClick={() => setIsCollapsed(!isCollapsed)}
+                >
                   <ChevronLeft
                     className={cn(
                       "h-6 w-6 transition-transform duration-200 ease-out text-[#635c70] dark:text-[#8f8f98] hover:text-secondary-foreground dark:hover:text-secondary-foreground",
@@ -222,12 +232,11 @@ export function Sidebar() {
           </div>
           <div className="flex-1 overflow-auto dark:bg-darkMode">
             <nav className="flex-1 space-y-2 px-2 py-4 dark:text-[#8f8f98]">
-              {navigation.map(
-                item =>
-                  (item.name !== "Settings" || settings.loggedIn) && (
-                    <NavItem key={item.name} item={item} isCollapsed={isCollapsed} mounted={mounted} />
-                  )
-              )}
+              {navigation.map(item => (
+                (item.name !== "Settings" || settings.loggedIn) && (
+                  <NavItem key={item.name} item={item} isCollapsed={isCollapsed} mounted={mounted} />
+                )
+              ))}
             </nav>
           </div>
           <div className="p-2 dark:bg-darkMode">
