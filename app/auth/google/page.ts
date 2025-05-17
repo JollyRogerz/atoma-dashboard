@@ -25,7 +25,7 @@ const Callback = () => {
         router.push("/");
       }
     });
-  }, [router, settings, updateSettings, updateZkLoginSettings]);
+  }, [router]);
 
   return null;
 };

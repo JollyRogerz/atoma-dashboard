@@ -67,7 +67,7 @@ export default function DashboardPage() {
       const suiAddress = await getSuiAddress();
       setWalletConfirmed(suiAddress.data != null && suiAddress.data == account?.address);
     })();
-  }, [account, settings.loggedIn]);
+  }, [account]);
 
   const handleAddFunds = () => {
     setShowAddFunds(true);
@@ -132,6 +132,7 @@ export default function DashboardPage() {
       let res = await payUSDC(amount * 1000000, suiClient as any, signAndExecuteTransaction, account);
       const txDigest = (res as { digest: string }).digest;
       res = await usdcPayment(txDigest);
+      setShowAddFunds(true);
       updateState({ refreshBalance: true });
       setFundsStep("result");
     } catch (error) {
@@ -283,12 +284,8 @@ export default function DashboardPage() {
       <Dialog
         open={showAddFunds}
         onOpenChange={show => {
-          if (!show) {
-            setShowAddFunds(false);
-          } else {
-            setShowAddFunds(true);
-            setFundsStep("choose");
-          }
+          setShowAddFunds(show);
+          setFundsStep("choose");
         }}
       >
         <DialogContent>

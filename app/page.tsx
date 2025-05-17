@@ -13,7 +13,6 @@ import { formatNumber } from "@/lib/utils";
 import { useTheme } from "next-themes";
 import type { NodeSubscription } from "@/lib/atoma-types";
 import { readableModelName } from "@/utils/utils";
-import React from "react";
 
 // Colors for different chart types
 const colors = {
@@ -130,7 +129,6 @@ function AreaPanel({
                   fontWeight: "bold",
                   color: "var(--card-foreground)",
                   padding: "8px",
-                  maxWidth: "300px",
                 }}
               >
                 <div>{formattedLabel}</div>
@@ -211,92 +209,21 @@ function BarGaugePanel({
   fillOpacity?: number;
   stackingGroup?: string;
 }) {
+  const barData = labelsArray.map(label => ({
+    name: label,
+    Tokens: Number(series[series.length - 1].data[label] || 0),
+  }));
+
   const { theme } = useTheme();
   const [currentTheme, setCurrentTheme] = useState(theme);
 
-  // Use useMemo to prevent recalculation on every render
-  const barData = React.useMemo(() => {
-    return labelsArray
-      .map(label => ({
-        name: label,
-        Tokens: Number(series[series.length - 1]?.data[label] || 0),
-        // Pre-compute the display name
-        displayName: readableModelName(label),
-      }))
-      .sort((a, b) => b.Tokens - a.Tokens);
-  }, [labelsArray, series]);
-
-  // Update theme only when it changes
   useEffect(() => {
     setCurrentTheme(theme);
   }, [theme]);
 
-  // Memoize the tick renderer to prevent re-renders
-  const TickRenderer = React.memo(({ x, y, payload }: any) => {
-    const originalEntry = barData.find(item => item.name === payload.value);
-    const simpleName = originalEntry?.displayName || readableModelName(payload.value);
-
-    return (
-      <g transform={`translate(${x},${y})`}>
-        <title>{payload.value}</title>
-        <text x={0} y={0} dy={4} textAnchor="end" fill="#888888" fontSize={11} style={{ cursor: "pointer" }}>
-          {simpleName}
-        </text>
-      </g>
-    );
-  });
-
-  // Add displayName to the component
-  TickRenderer.displayName = "YAxisTickRenderer";
-
-  // Memoize the tooltip content renderer
-  const renderTooltip = React.useCallback(
-    (props: any) => {
-      const { payload, label } = props;
-      if (!payload || !payload.length) return null;
-
-      const modelName = label || "";
-      const modelEntry = barData.find(item => item.name === modelName);
-      const displayName = modelEntry?.displayName || readableModelName(modelName);
-
-      const colorKey = getColorKeyForModel(modelName, labelsArray.indexOf(label));
-      const textColor = currentTheme === "dark" ? colors.darkText[colorKey] : colors.lightText[colorKey];
-
-      return (
-        <div
-          style={{
-            backgroundColor: "hsl(var(--card))",
-            border: "1px solid var(--border)",
-            borderRadius: "6px",
-            boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
-            fontWeight: "bold",
-            color: "var(--card-foreground)",
-            padding: "8px",
-            maxWidth: "300px",
-          }}
-        >
-          <div>{displayName}</div>
-          <div className="text-xs text-muted-foreground mt-1">{modelName}</div>
-          <div
-            style={{
-              color: textColor,
-              fontWeight: "bold",
-              display: "block",
-              padding: "2px 0",
-              marginTop: "4px",
-            }}
-          >
-            {payload[0]?.name}: {valueFormatter(Number(payload[0]?.value))}
-          </div>
-        </div>
-      );
-    },
-    [barData, currentTheme, labelsArray, valueFormatter]
-  );
-
   return (
     <ResponsiveContainer width="100%" height={250}>
-      <BarChart data={barData} layout="vertical" margin={{ top: 0, right: 10, left: 20, bottom: 0 }}>
+      <BarChart data={barData} layout="vertical" margin={{ top: 0, right: 0, left: 20, bottom: 0 }}>
         <CartesianGrid
           horizontal={true}
           vertical={false}
@@ -317,10 +244,47 @@ function BarGaugePanel({
           type="category"
           axisLine={false}
           tickLine={false}
-          width={120}
-          tick={props => <TickRenderer {...props} />}
+          tick={{ fill: "#888888", fontSize: 12 }}
+          tickFormatter={readableModelName}
         />
-        <Tooltip content={renderTooltip} />
+        <Tooltip
+          content={props => {
+            const { payload, label } = props;
+
+            // Get color based on model name
+            const modelName = label || "";
+            const colorKey = getColorKeyForModel(modelName, labelsArray.indexOf(label));
+            const textColor = currentTheme === "dark" ? colors.darkText[colorKey] : colors.lightText[colorKey];
+
+            return (
+              <div
+                style={{
+                  backgroundColor: "hsl(var(--card))",
+                  border: "1px solid var(--border)",
+                  borderRadius: "6px",
+                  boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
+                  fontWeight: "bold",
+                  color: "var(--card-foreground)",
+                  padding: "8px",
+                }}
+              >
+                <div>{readableModelName(label)}</div>
+                <div
+                  key={`${payload?.[0]?.name}-value`}
+                  style={{
+                    color: textColor,
+                    fontWeight: "bold",
+                    display: "block",
+                    padding: "2px 0",
+                  }}
+                  dangerouslySetInnerHTML={{
+                    __html: `<span style="color:${textColor} !important;">${payload?.[0]?.name}: ${valueFormatter(Number(payload?.[0]?.value))}</span>`,
+                  }}
+                ></div>
+              </div>
+            );
+          }}
+        />
         <Bar dataKey="Tokens" radius={[0, 4, 4, 0]} barSize={20}>
           {barData.map((entry, index) => {
             const colorKey = getColorKeyForModel(entry.name, index);
@@ -555,9 +519,6 @@ const Dashboard = React.memo(
 );
 Dashboard.displayName = "Dashboard";
 
-// For tables: update modelNameEllipsisClass to allow wrapping, and always use readableModelName with a tooltip
-export const modelNameEllipsisClass = "whitespace-normal break-words cursor-pointer";
-
 export default function NetworkStatusPage() {
   const [graphs, setGraphs] = useState<
     | {
@@ -596,7 +557,7 @@ export default function NetworkStatusPage() {
         }
         setModels(models => [...models, task.model_name!]);
       }
-      const graphs = await getGraphs();
+      let graphs = await getGraphs();
       setGraphs(
         graphs.data.map(({ title, panels }) => ({
           title: title,

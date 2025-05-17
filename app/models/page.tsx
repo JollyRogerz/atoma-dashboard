@@ -10,8 +10,12 @@ import { getSubscriptions, getTasks } from "@/lib/api";
 import { modalityToFeatureName, simplifyModelName } from "@/lib/utils";
 import { ModelModality, NodeSubscription, Task } from "@/lib/atoma-types";
 import { Lock, Unlock } from "lucide-react";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import React from "react";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 interface ModelSection {
   type: ModelModality;
@@ -23,68 +27,57 @@ interface ModelSection {
   }[];
 }
 
-interface ModelSectionWithId extends ModelSection {
-  id: string;
-  isConfidential: boolean;
-}
-
 const ModalityToCategory = {
   [ModelModality.ChatCompletions]: "chat",
   [ModelModality.ImagesGenerations]: "image",
   [ModelModality.Embeddings]: "embedding",
 };
 
-function ModelCard({
-  name,
-  price,
-  modalities,
-  isConfidential,
-}: {
-  name: string;
-  price: string;
-  modalities: ModelModality[];
-  isConfidential: boolean;
-}) {
+function ModelCard({ name, price, modalities, isConfidential }: { name: string; price: string; modalities: ModelModality[]; isConfidential: boolean }) {
   const [showApiDialog, setShowApiDialog] = useState(false);
 
   return (
     <>
-      <Card className="overflow-hidden flex flex-col h-full min-h-[120px]">
-        <CardContent className="p-2.5 flex flex-col grow">
-          <div className="flex justify-between items-start mb-1.5">
-            <div className="pr-2">
-              <h3 className="text-sm font-medium leading-snug line-clamp-2">{simplifyModelName(name)}</h3>
-              <p className="text-xs text-muted-foreground">${price} per 1M tokens</p>
+      <Card className="overflow-hidden">
+        <CardContent className="p-6">
+          <div className="flex justify-between items-start mb-4">
+            <div>
+              <h3 className="text-base font-medium">{simplifyModelName(name)}</h3>
+              <p className="text-sm text-muted-foreground">${price} per 1M tokens</p>
             </div>
-            <div className="flex flex-wrap items-center gap-1 max-w-[40%] justify-end">
+            <div className="flex items-center gap-2">
+              {isConfidential && (
+                <span className="inline-flex items-center rounded-md bg-orange-500/10 px-2 py-1 text-xs font-medium text-orange-500 ring-1 ring-inset ring-orange-500/20">
+                  <Lock className="h-3 w-3 mr-1" />
+                  Confidential
+                </span>
+              )}
               {modalities.map(modality => (
                 <span
-                  className={`inline-flex items-center rounded-md ${isConfidential && modality === ModelModality.ChatCompletions ? "bg-orange-500/10 text-orange-500 ring-orange-500/20" : "bg-primary/10 text-primary ring-primary/20"} px-1.5 py-0.5 text-xs font-medium ring-1 ring-inset whitespace-nowrap`}
+                  className="inline-flex items-center rounded-md bg-primary/10 px-2 py-1 text-xs font-medium text-primary ring-1 ring-inset ring-primary/20"
                   key={modality}
                 >
-                  {isConfidential && modality === ModelModality.ChatCompletions && <Lock className="h-3 w-3 mr-0.5" />}
                   {ModalityToCategory[modality]}
                 </span>
               ))}
             </div>
           </div>
-          <div className="flex-grow" />
-          <div className="grid grid-cols-2 gap-1.5 mt-2">
+          <div className="grid grid-cols-2 gap-2">
             <Link href="/playground" className="w-full">
-              <Button variant="outline" className="w-full h-7 text-xs">
+              <Button variant="outline" className="w-full">
                 Playground
               </Button>
             </Link>
-            <Button variant="outline" className="w-full h-7 text-xs" onClick={() => setShowApiDialog(true)}>
+            <Button variant="outline" className="w-full" onClick={() => setShowApiDialog(true)}>
               API
             </Button>
           </div>
         </CardContent>
       </Card>
-      <ApiUsageDialog
-        isOpen={showApiDialog}
-        onClose={() => setShowApiDialog(false)}
-        modelName={name}
+      <ApiUsageDialog 
+        isOpen={showApiDialog} 
+        onClose={() => setShowApiDialog(false)} 
+        modelName={name} 
         modality={modalities[0]}
         isConfidential={isConfidential}
       />
@@ -93,7 +86,6 @@ function ModelCard({
 }
 
 export default function ModelsPage() {
-  // Track currently selected modality and whether confidential mode is enabled via dropdown
   const [selectedCategory, setSelectedCategory] = useState<ModelModality>(ModelModality.ChatCompletions);
   const [isConfidentialMode, setIsConfidentialMode] = useState(false);
   const [modelsData, setModelsData] = useState<
@@ -110,16 +102,6 @@ export default function ModelsPage() {
     [ModelModality.ImagesGenerations]: [],
     [ModelModality.Embeddings]: [],
   });
-
-  // Helper to encode/decode Select values (modality|confidentialFlag)
-  const encodeSelectValue = (modality: ModelModality, confidential: boolean) => `${modality}|${confidential}`;
-  const decodeSelectValue = (value: string): { modality: ModelModality; confidential: boolean } => {
-    const [modalityStr, confidentialStr] = value.split("|");
-    return {
-      modality: modalityStr as ModelModality,
-      confidential: confidentialStr === "true",
-    };
-  };
 
   useEffect(() => {
     (async () => {
@@ -173,30 +155,30 @@ export default function ModelsPage() {
     })();
   }, []);
 
-  // Build sections for both regular and confidential categories
-  const modelSections = Object.values(ModelModality).flatMap(modality => {
-    const baseTitle = modalityToFeatureName(modality);
-    return [
-      {
-        id: encodeSelectValue(modality, false),
-        title: baseTitle,
-        models: modelsData[modality],
-        isConfidential: false,
-      },
-      {
-        id: encodeSelectValue(modality, true),
-        title: `Confidential ${baseTitle}`,
-        models: modelsData[modality],
-        isConfidential: true,
-      },
-    ];
-  });
+  const modelSections: ModelSection[] = [
+    {
+      type: ModelModality.ChatCompletions,
+      title: modalityToFeatureName(ModelModality.ChatCompletions),
+      models: modelsData[ModelModality.ChatCompletions],
+    },
+    {
+      type: ModelModality.ImagesGenerations,
+      title: modalityToFeatureName(ModelModality.ImagesGenerations),
+      models: modelsData[ModelModality.ImagesGenerations],
+    },
+    {
+      type: ModelModality.Embeddings,
+      title: modalityToFeatureName(ModelModality.Embeddings),
+      models: modelsData[ModelModality.Embeddings],
+    },
+  ];
 
-  // Reorder so selected section appears first
-  const selectedId = encodeSelectValue(selectedCategory, isConfidentialMode);
+  // Reorder sections based on selected category
   const orderedSections = [
-    ...modelSections.filter(section => section.id === selectedId),
-    ...modelSections.filter(section => section.id !== selectedId),
+    // Selected category first
+    ...modelSections.filter(section => section.type === selectedCategory),
+    // Other categories after
+    ...modelSections.filter(section => section.type !== selectedCategory),
   ];
 
   return (
@@ -209,29 +191,21 @@ export default function ModelsPage() {
               <h1 className="text-2xl font-semibold text-primary">Models</h1>
             </div>
             <Select
-              value={encodeSelectValue(selectedCategory, isConfidentialMode)}
-              onValueChange={(value: string) => {
-                const { modality, confidential } = decodeSelectValue(value);
-                setSelectedCategory(modality);
-                setIsConfidentialMode(confidential);
-              }}
+              defaultValue="chat"
+              value={selectedCategory}
+              onValueChange={(value: ModelModality) => setSelectedCategory(value)}
             >
-              <SelectTrigger className="w-[220px]">
+              <SelectTrigger className="w-[180px]">
                 <SelectValue placeholder="Select completion type" />
               </SelectTrigger>
               <SelectContent>
-                {Object.values(ModelModality).map(modality =>
+                {Object.values(ModelModality).map(modality => (
                   modelsData[modality].length > 0 ? (
-                    <React.Fragment key={modality}>
-                      <SelectItem value={encodeSelectValue(modality, false)}>
-                        {modalityToFeatureName(modality)}
-                      </SelectItem>
-                      <SelectItem value={encodeSelectValue(modality, true)}>
-                        {`Confidential ${modalityToFeatureName(modality)}`}
-                      </SelectItem>
-                    </React.Fragment>
+                    <SelectItem key={modality} value={modality}>
+                      {modalityToFeatureName(modality)}
+                    </SelectItem>
                   ) : null
-                )}
+                ))}
               </SelectContent>
             </Select>
           </div>
@@ -239,22 +213,21 @@ export default function ModelsPage() {
           {orderedSections
             .filter(section => section.models.length > 0)
             .map(section => (
-              <div key={section.id} className="space-y-4">
-                <h2 className="text-lg font-medium text-primary">{section.title}</h2>
-                <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-                  {section.models.map(model => (
-                    <div key={model.name} className="h-full">
-                      <ModelCard
-                        name={model.name}
-                        price={model.price}
-                        modalities={model.modalities}
-                        isConfidential={section.isConfidential}
-                      />
-                    </div>
-                  ))}
-                </div>
+            <div key={section.type} className="space-y-6">
+              <h2 className="text-lg font-medium text-primary">{section.title}</h2>
+              <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                {section.models.map(model => (
+                  <ModelCard 
+                    key={model.name} 
+                    name={model.name} 
+                    price={model.price} 
+                    modalities={model.modalities} 
+                    isConfidential={isConfidentialMode}
+                  />
+                ))}
               </div>
-            ))}
+            </div>
+          ))}
         </div>
       </div>
     </div>
