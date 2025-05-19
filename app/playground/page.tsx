@@ -25,6 +25,8 @@ import config from "@/config/config";
 import LoadingCircle from "../../components/LoadingCircle";
 import { useSettings } from "../../contexts/settings-context";
 import ReactMarkdown from "react-markdown";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { ModelModality } from "@/lib/atoma-types";
 
 export type ModelCategories = "chat" | "embeddings" | "images";
 
