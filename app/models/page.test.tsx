@@ -34,14 +34,14 @@ jest.mock("@/components/ui/select", () => {
     React.Children.forEach(children, child => {
       if (React.isValidElement(child)) {
         if (
-          ((child.type as any).displayName === 'MockSelectContent' ||
-            (child.type as any).displayName === 'SelectContent')
+          (child.type as any).displayName === "MockSelectContent" ||
+          (child.type as any).displayName === "SelectContent"
         ) {
           // eslint-disable-next-line testing-library/no-node-access
           selectItems = React.Children.toArray((child.props as any).children);
         } else if (
-          ((child.type as any).displayName === 'MockSelectTrigger' ||
-            (child.type as any).displayName === 'SelectTrigger')
+          (child.type as any).displayName === "MockSelectTrigger" ||
+          (child.type as any).displayName === "SelectTrigger"
         ) {
           triggerContentNode = child;
         }
