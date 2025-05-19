@@ -34,14 +34,14 @@ jest.mock("@/components/ui/select", () => {
     React.Children.forEach(children, child => {
       if (React.isValidElement(child)) {
         if (
-          (child.type as any).displayName === "MockSelectContent" ||
-          (child.type as any).displayName === "SelectContent"
+          ((child.type as any).displayName === 'MockSelectContent' ||
+            (child.type as any).displayName === 'SelectContent')
         ) {
           // eslint-disable-next-line testing-library/no-node-access
           selectItems = React.Children.toArray((child.props as any).children);
         } else if (
-          (child.type as any).displayName === "MockSelectTrigger" ||
-          (child.type as any).displayName === "SelectTrigger"
+          ((child.type as any).displayName === 'MockSelectTrigger' ||
+            (child.type as any).displayName === 'SelectTrigger')
         ) {
           triggerContentNode = child;
         }
@@ -211,13 +211,11 @@ describe("ModelsPage", () => {
     expect(modelAlphaSection).toBeInTheDocument();
 
     if (modelAlphaSection) {
+      const modelTextElement = within(modelAlphaSection as HTMLElement).getByText("ModelAlpha 7B");
       // eslint-disable-next-line testing-library/no-node-access
-      const modelAlphaCard = within(modelAlphaSection as HTMLElement)
-        .getByText("ModelAlpha 7B")
-        .closest("div.h-full");
+      const modelAlphaCard = modelTextElement.closest("div.h-full");
       expect(modelAlphaCard).toBeInTheDocument();
       if (modelAlphaCard) {
-        // eslint-disable-next-line testing-library/no-node-access
         const apiButton = within(modelAlphaCard as HTMLElement).getByRole("button", { name: /API/i });
         await user.click(apiButton);
         expect(await screen.findByTestId("api-usage-dialog")).toBeInTheDocument();
@@ -235,7 +233,6 @@ describe("ModelsPage", () => {
     const chatConfidentialValue = `${ModelModality.ChatCompletions}|true`;
     await user.selectOptions(selectElement, chatConfidentialValue);
 
-    // Split waitFor for multiple assertions to satisfy linter
     await waitFor(async () => {
       const confidentialChatSectionTitle = await screen.findByRole("heading", {
         name: /^Confidential Chat Completion$/,
