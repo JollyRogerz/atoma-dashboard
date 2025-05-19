@@ -1,7 +1,7 @@
 import { ModelCategories } from "@/app/playground/page";
 import { AxiosResponse } from "axios";
 import { getTasks } from "@/lib/api";
-import { Task, ModelModality } from "@/lib/atoma";
+import { Task, ModelModality } from "@/lib/atoma-types";
 
 export type TaskResponse = [Task, ModelModality[]][];
 
@@ -15,66 +15,54 @@ export async function fetchAvailableModels(): Promise<TaskResponse> {
   }
 }
 
-export function readableModelName(modelName: string) {
+export function readableModelName(modelName: string): string {
   if (!modelName) return "";
 
-  switch (modelName) {
-    case "Qwen/QwQ-32B":
-      return "QWQ 32B";
-    case "neuralmagic/DeepSeek-R1-Distill-Llama-70B-FP8-dynamic":
-      return "DeepSeek R1 70B";
-    case "neuralmagic/Qwen2-72B-Instruct-FP8":
-      return "Qwen2 72B";
-    case "meta-llama/Llama-3.1-8B-Instruct":
-      return "Llama 3.1 8B";
-    case "Infermatic/Llama-3.3-70B-Instruct-FP8-Dynamic":
-      return "Llama 3.3 70B";
-    case "mistralai/Mistral-Nemo-Instruct-2407":
-      return "Mistral Nemo";
-    case "DeepSeek-V3-0324":
-      return "DeepSeek V3";
-    default:
-      // Extract model name and size from format like "model/Name-Size-Extra"
-      const sizeMatch = modelName.match(/(\d+[BM])/);
-      const size = sizeMatch ? sizeMatch[0] : "";
+  let namePart = modelName.split("/").pop() || modelName;
+  const sizeMatch = namePart.match(/(\d+[BM])/);
+  const size = sizeMatch ? sizeMatch[0] : "";
 
-      // Extract model name without vendor prefix
-      let name = modelName;
-      if (modelName.includes("/")) {
-        name = modelName.split("/").pop() || modelName;
-      }
+  // More robust suffix stripping order matters here from more specific to less specific
+  const suffixesToRemove = [
+    /-Instruct-FP\d-dynamic$/i,
+    /-Instruct-FP\d$/i,
+    /-Instruct-dynamic$/i,
+    /-FP\d-dynamic$/i,
+    /-Instruct$/i,
+    /-FP\d$/i, // This will catch -FP8, -FP16 etc.
+    /-dynamic$/i,
+  ];
 
-      // Clean up name and return concise version
-      name = name
-        .replace(/-Instruct(-FP\d)?(-dynamic)?$/i, "")
-        .replace(/-/g, " ")
-        .replace(/\s+/g, " ")
-        .trim();
-
-      // If we have both name and size, make sure size appears at the end
-      if (size && !name.endsWith(size)) {
-        name = name.replace(size, "").trim() + " " + size;
-      }
-
-      // Limit length for chart display
-      if (name.length > 20) {
-        name = name.substring(0, 18) + "...";
-      }
-
-      return name;
+  for (const suffixRegex of suffixesToRemove) {
+    namePart = namePart.replace(suffixRegex, "");
   }
+
+  // Replace hyphens and multiple spaces
+  namePart = namePart.replace(/-/g, " ").replace(/\s+/g, " ").trim();
+
+  if (size) {
+    // Remove the extracted size string from the name part to avoid duplication, then trim
+    let nameWithoutSize = namePart.replace(size, "").replace(/\s+/g, " ").trim();
+    namePart = nameWithoutSize ? `${nameWithoutSize} ${size}` : size;
+  }
+
+  // Limit length for chart display
+  if (namePart.length > 20) {
+    namePart = namePart.substring(0, 18) + "...";
+  }
+
+  return namePart;
 }
 
 export function processModelsForCategory(
   models: TaskResponse,
   category: ModelCategories
 ): { modelName: string; model: string }[] {
-  // Create a Map to store unique models
-
   const uniqueModels = new Map<string, { modelName: string; model: string }>();
 
   models
-    .filter(([model, capabilities]) => {
+    .filter(([task, capabilities]) => {
+      if (task.is_deprecated) return false;
       switch (category) {
         case "chat":
           return capabilities.includes(ModelModality.ChatCompletions);
@@ -86,12 +74,12 @@ export function processModelsForCategory(
           return false;
       }
     })
-    .forEach(([model]) => {
-      const modelName = model.model_name || "";
-      if (modelName && !uniqueModels.has(modelName)) {
-        uniqueModels.set(modelName, {
-          modelName: readableModelName(modelName),
-          model: modelName,
+    .forEach(([task]) => {
+      const modelId = task.model_name || "";
+      if (modelId && !uniqueModels.has(modelId)) {
+        uniqueModels.set(modelId, {
+          modelName: readableModelName(modelId),
+          model: modelId,
         });
       }
     });

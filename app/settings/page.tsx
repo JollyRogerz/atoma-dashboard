@@ -10,7 +10,6 @@ import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { useEffect, useState } from "react";
 import { useCurrentAccount, useCurrentWallet } from "@mysten/dapp-kit";
 import { getUserProfile } from "@/lib/api";
-import ZkLogin from "@/lib/zklogin";
 import { disconnectWallet } from "@/lib/wallet";
 
 export default function SettingsPage() {
@@ -40,9 +39,13 @@ export default function SettingsPage() {
     })();
   }, [settings.loggedIn, account, settings.zkLogin.address, settings.zkLogin.isEnabled]);
 
-  const handleDisconnectWallet = () => {
-    disconnectWallet(wallet, settings, updateZkLoginSettings);
+  const handleDisconnectWallet = async () => {
+    await disconnectWallet(wallet, settings, updateZkLoginSettings);
     setAddress(undefined);
+  };
+
+  const handleSaveChanges = () => {
+    // ... existing code ...
   };
 
   return (

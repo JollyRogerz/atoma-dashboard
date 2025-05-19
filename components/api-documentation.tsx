@@ -3,12 +3,12 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { ApiUsageDialog } from "@/components/api-usage-dialog";
-import { ModelModality } from "@/lib/atoma";
+import { ModelModality } from "@/lib/atoma-types";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Lock, Unlock } from "lucide-react";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { Label } from "@/components/ui/label";
+import { TaskResponse, fetchAvailableModels, readableModelName } from "@/utils/utils";
 
 const endpoints = [
   {
@@ -139,20 +139,16 @@ export function ApiDocumentation() {
       <CardHeader className="pb-2">
         <div className="flex items-center justify-between">
           <CardTitle className="text-primary">Quick Reference</CardTitle>
-          <label className="flex items-center gap-2 cursor-pointer select-none">
+          <div className="flex items-center space-x-2">
             <Checkbox
+              id="confidential-quickref"
               checked={isConfidentialMode}
-              onCheckedChange={checked => setIsConfidentialMode(!!checked)}
-              id="confidential-toggle"
+              onCheckedChange={() => setIsConfidentialMode(!isConfidentialMode)}
             />
-            <span className={
-              isConfidentialMode
-                ? "text-orange-500 font-medium text-xs transition-colors"
-                : "text-muted-foreground font-medium text-xs transition-colors"
-            }>
+            <Label htmlFor="confidential-quickref" className="text-sm font-medium leading-none cursor-pointer">
               Confidential
-            </span>
-          </label>
+            </Label>
+          </div>
         </div>
       </CardHeader>
       <CardContent className="p-0">

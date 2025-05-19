@@ -10,7 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner"; // Assuming sonner is used elsewhere, or replace with shadcn Toast
 
-import ZkLogin from "@/lib/zklogin";
+// import ZkLogin from "@/lib/zklogin"; // Remove static import
 import { useSettings } from "@/contexts/settings-context";
 import { loginUser, registerUser } from "@/lib/api";
 
@@ -62,6 +62,7 @@ const AuthForm: React.FC<AuthFormProps> = ({ type, onClose }) => {
   };
 
   const handleGoogleOauth = async () => {
+    const { default: ZkLogin } = await import("@/lib/zklogin"); // Dynamic import
     const zkLogin = new ZkLogin();
     await zkLogin.initialize(settings, updateSettings, updateZkLoginSettings);
     zkLogin
