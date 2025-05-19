@@ -11,7 +11,7 @@ import type {
   Task,
   Token,
   UserProfile,
-} from "./atoma";
+} from "./atoma-types";
 
 import { Toast } from "primereact/toast";
 

@@ -21,19 +21,21 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: "20"
-          cache: "npm"
+          cache: "yarn"
 
       - name: Cache dependencies
         uses: actions/cache@v3
         with:
           path: "**/node_modules"
-          key: ${{ runner.os }}-modules-${{ hashFiles('**/package-lock.json') }}
+          key: ${{ runner.os }}-yarn-modules-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-yarn-modules-
 
       - name: Install dependencies
-        run: npm ci --force
+        run: yarn install --frozen-lockfile
 
       - name: Lint
-        run: npm run lint
+        run: yarn lint
 
       - name: Check formatting
         run: npx prettier --check .
@@ -48,23 +50,26 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: "20"
-          cache: "npm"
+          cache: "yarn"
 
       - name: Cache dependencies
         uses: actions/cache@v3
         with:
           path: "**/node_modules"
-          key: ${{ runner.os }}-modules-${{ hashFiles('**/package-lock.json') }}
+          key: ${{ runner.os }}-yarn-modules-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-yarn-modules-
 
       - name: Install dependencies
-        run: npm ci --force
+        run: yarn install --frozen-lockfile
 
       - name: TypeScript Check
         run: npx tsc --noEmit
 
-  build:
-    name: Build
+  test:
+    name: Run Tests
     runs-on: ubuntu-latest
+    needs: [lint, typecheck]
     steps:
       - uses: actions/checkout@v4
 
@@ -72,7 +77,34 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: "20"
-          cache: "npm"
+          cache: "yarn"
+
+      - name: Cache dependencies
+        uses: actions/cache@v3
+        with:
+          path: "**/node_modules"
+          key: ${{ runner.os }}-yarn-modules-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-yarn-modules-
+
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
+
+      - name: Run Jest tests
+        run: yarn test
+
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    needs: [test]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "yarn"
 
       - name: Cache dependencies
         uses: actions/cache@v3
@@ -80,12 +112,12 @@ jobs:
           path: |
             **/node_modules
             ${{ github.workspace }}/.next/cache
-          key: ${{ runner.os }}-nextjs-${{ hashFiles('**/package-lock.json') }}-${{ hashFiles('**.[jt]s', '**.[jt]sx') }}
+          key: ${{ runner.os }}-yarn-nextjs-${{ hashFiles('**/yarn.lock') }}-${{ hashFiles('**.[jt]s', '**.[jt]sx') }}
           restore-keys: |
-            ${{ runner.os }}-nextjs-${{ hashFiles('**/package-lock.json') }}-
+            ${{ runner.os }}-yarn-nextjs-${{ hashFiles('**/yarn.lock') }}-
 
       - name: Install dependencies
-        run: npm ci --force
+        run: yarn install --frozen-lockfile
 
       - name: Build
         env:
@@ -99,4 +131,4 @@ jobs:
           NEXT_PUBLIC_GOOGLE_CLIENT_ID: "135471414073-41r9t89rejgfr6bc9aptjpm75o4oedk2.apps.googleusercontent.com"
           NEXT_PUBLIC_GOOGLE_REDIRECT_URI: "https://cloud.atoma.network/auth/google"
           NEXT_PUBLIC_ENABLE_ZK_LOGIN_GOOGLE: "true"
-        run: npm run build
+        run: yarn build

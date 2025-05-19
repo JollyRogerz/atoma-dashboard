@@ -21,6 +21,8 @@ import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import * as TooltipPrimitive from "@radix-ui/react-tooltip";
 import { useSettings } from "@/contexts/settings-context";
+import React from "react";
+import NavItem from "@/components/NavItem";
 
 const navigation = [
   { name: "Network Status", href: "/", icon: Network },
@@ -28,92 +30,19 @@ const navigation = [
   { name: "Models", href: "/models", icon: Box },
   { name: "Playground", href: "/playground", icon: PlayCircle },
   // { name: "Analytics", href: "/analytics", icon: TrendingUp },
-  { name: "Docs", href: "https://docs.atoma.network/cloud-api-reference/get-started", icon: FileText },
   { name: "Settings", href: "/settings", icon: Settings },
+  { name: "Guide", href: "/guide", icon: GraduationCap },
+  // External links moved to the bottom:
+  { name: "Docs", href: "https://docs.atoma.network/cloud-api-reference/get-started", icon: FileText },
   {
     name: "Help",
     href: "https://docs.google.com/forms/d/e/1FAIpQLSeE-AV0oEfo6YGtzo0Ts_vvnm8Crtf1kVhdBtANulH11c0OTA/viewform",
     icon: HelpCircle,
   },
-  { name: "Guide", href: "/guide", icon: GraduationCap },
 ];
 
 // Remove or empty the bottomNavigation array since we moved its items
 const bottomNavigation: any = [];
-
-interface NavItemProps {
-  item: {
-    name: string;
-    href: string;
-    icon: React.ComponentType<{ className?: string }>;
-  };
-  isBottom?: boolean;
-  isCollapsed: boolean;
-  mounted: boolean;
-}
-
-const NavItem = ({ item, isBottom = false, isCollapsed, mounted }: NavItemProps) => {
-  const pathname = usePathname();
-
-  const content = (
-    <>
-      <item.icon className={cn("h-5 w-5", !isCollapsed && "mr-3")} />
-      {!isCollapsed && <span>{item.name}</span>}
-    </>
-  );
-
-  const linkContent = item.href.startsWith("http") ? (
-    <a
-      href={item.href}
-      target="_blank"
-      rel="noopener noreferrer"
-      className={cn(
-        "flex items-center rounded-md px-[34px] py-3 text-base font-medium sidebar-item",
-        pathname === item.href
-          ? "bg-secondary dark:bg-[#27272a] text-secondary-foreground"
-          : "text-muted-foreground hover:bg-secondary/80 hover:dark:bg-[#27272a] hover:text-secondary-foreground",
-        isCollapsed && "justify-center px-3"
-      )}
-    >
-      {content}
-    </a>
-  ) : (
-    <Link
-      href={item.href}
-      className={cn(
-        "flex items-center rounded-md px-[34px] py-3 text-base font-medium sidebar-item",
-        pathname === item.href
-          ? "bg-secondary dark:bg-[#27272a] text-secondary-foreground"
-          : "text-muted-foreground hover:bg-secondary/80 hover:dark:bg-[#27272a] hover:text-secondary-foreground",
-        isCollapsed && "justify-center px-3"
-      )}
-    >
-      {content}
-    </Link>
-  );
-
-  if (!isCollapsed) {
-    return linkContent;
-  }
-
-  return (
-    <TooltipPrimitive.Provider delayDuration={0}>
-      <TooltipPrimitive.Root>
-        <TooltipPrimitive.Trigger asChild>{linkContent}</TooltipPrimitive.Trigger>
-        <TooltipPrimitive.Portal>
-          <TooltipPrimitive.Content
-            side="right"
-            sideOffset={10}
-            className="z-[99999] rounded-md bg-popover px-3 py-1.5 text-sm text-popover-foreground animate-in fade-in-0 zoom-in-95 shadow-md"
-          >
-            {item.name}
-            <TooltipPrimitive.Arrow className="fill-popover" />
-          </TooltipPrimitive.Content>
-        </TooltipPrimitive.Portal>
-      </TooltipPrimitive.Root>
-    </TooltipPrimitive.Provider>
-  );
-};
 
 export function Sidebar() {
   const pathname = usePathname();
