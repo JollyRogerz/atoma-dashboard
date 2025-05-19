@@ -1,13 +1,19 @@
 "use client";
 
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, CSSProperties } from "react";
 import { useTheme } from "next-themes";
 
 // Define constant for cell size to ensure consistency
 const CELL_SIZE = 50;
 
+interface GridDimensions {
+  cols: number;
+  rows: number;
+  totalCells: number;
+}
+
 export function BackgroundGrid() {
-  const [gridItems, setGridItems] = useState<number[]>([]);
+  const [gridDimensions, setGridDimensions] = useState<GridDimensions | null>(null);
   const [mounted, setMounted] = useState(false);
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   // Track recently active cells for trailing effect
@@ -17,16 +23,27 @@ export function BackgroundGrid() {
   useEffect(() => {
     setMounted(true);
 
-    const calculateGridItems = () => {
+    const calculateGridDimensions = () => {
       const width = window.innerWidth;
       const height = window.innerHeight * 10;
-      const cellSize = CELL_SIZE;
-      const cols = Math.ceil(width / cellSize) + 1;
-      const rows = Math.ceil(height / cellSize) + 100;
+      const cols = Math.ceil(width / CELL_SIZE) + 1;
+      const rows = Math.ceil(height / CELL_SIZE) + 100;
       const totalCells = cols * rows;
-
-      setGridItems(Array.from({ length: totalCells }, (_, i) => i));
+      setGridDimensions({ cols, rows, totalCells });
     };
+
+    calculateGridDimensions();
+    window.addEventListener("resize", calculateGridDimensions);
+    window.addEventListener("scroll", calculateGridDimensions);
+
+    return () => {
+      window.removeEventListener("resize", calculateGridDimensions);
+      window.removeEventListener("scroll", calculateGridDimensions);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!mounted || !gridDimensions) return;
 
     const handleMouseMove = (e: MouseEvent) => {
       // Get cursor position
@@ -42,8 +59,7 @@ export function BackgroundGrid() {
         setMousePosition({ x: cellX, y: cellY });
 
         // Calculate the index of the current cell
-        const cols = Math.ceil(window.innerWidth / CELL_SIZE);
-        const currentIndex = cellY * cols + cellX;
+        const currentIndex = cellY * gridDimensions.cols + cellX;
 
         // Add current cell to recent cells with timestamp
         setRecentCells(prev => {
@@ -55,9 +71,6 @@ export function BackgroundGrid() {
       }
     };
 
-    calculateGridItems();
-    window.addEventListener("resize", calculateGridItems);
-    window.addEventListener("scroll", calculateGridItems);
     window.addEventListener("mousemove", handleMouseMove);
 
     // Cleanup trailing effect every 100ms to update fade effect
@@ -66,17 +79,16 @@ export function BackgroundGrid() {
     }, 100);
 
     return () => {
-      window.removeEventListener("resize", calculateGridItems);
-      window.removeEventListener("scroll", calculateGridItems);
       window.removeEventListener("mousemove", handleMouseMove);
       clearInterval(trailInterval);
     };
-  }, [mousePosition.x, mousePosition.y]);
+  }, [mounted, gridDimensions, mousePosition.x, mousePosition.y]);
 
   const isItemActive = (index: number) => {
-    const cols = Math.ceil(window.innerWidth / CELL_SIZE);
-    const itemX = index % cols;
-    const itemY = Math.floor(index / cols);
+    if (!gridDimensions) return { active: false, intensity: 0 };
+
+    const itemX = index % gridDimensions.cols;
+    const itemY = Math.floor(index / gridDimensions.cols);
 
     // Current cell under cursor
     const isCurrentCell = itemX === mousePosition.x && itemY === mousePosition.y;
@@ -101,10 +113,10 @@ export function BackgroundGrid() {
   const isDarkMode = theme === "dark";
 
   // Get the position for each grid item
-  const getGridItemStyle = (index: number) => {
-    const cols = Math.ceil(window.innerWidth / CELL_SIZE);
-    const x = (index % cols) * CELL_SIZE;
-    const y = Math.floor(index / cols) * CELL_SIZE;
+  const getGridItemStyle = (index: number): CSSProperties => {
+    if (!gridDimensions) return {};
+    const x = (index % gridDimensions.cols) * CELL_SIZE;
+    const y = Math.floor(index / gridDimensions.cols) * CELL_SIZE;
 
     return {
       left: `${x}px`,
@@ -114,6 +126,11 @@ export function BackgroundGrid() {
       position: "absolute" as const,
     };
   };
+
+  // Render the grid only if mounted and dimensions are calculated
+  if (!mounted || !gridDimensions) {
+    return null; // Or a minimal placeholder if you prefer, to avoid layout shift
+  }
 
   return (
     <div className="fixed inset-0 w-full h-full min-h-screen" style={{ zIndex: 0 }}>
@@ -128,25 +145,24 @@ export function BackgroundGrid() {
         ></div>
       )}
       <div className="w-full h-[1000vh] relative" style={{ zIndex: 1 }}>
-        {mounted &&
-          gridItems.map(i => {
-            const itemState = isItemActive(i);
-            return (
-              <div
-                key={i}
-                className={`grid-item ${itemState.active ? "active" : ""}`}
-                data-active={itemState.active}
-                data-intensity={itemState.intensity.toFixed(2)}
-                style={
-                  {
-                    ...getGridItemStyle(i),
-                    /* Apply intensity as a CSS variable for animation */
-                    "--intensity": itemState.intensity,
-                  } as React.CSSProperties
-                }
-              />
-            );
-          })}
+        {Array.from({ length: gridDimensions.totalCells }).map((_, i) => {
+          const itemState = isItemActive(i);
+          return (
+            <div
+              key={i}
+              className={`grid-item ${itemState.active ? "active" : ""}`}
+              data-active={itemState.active}
+              data-intensity={itemState.intensity.toFixed(2)}
+              style={
+                {
+                  ...getGridItemStyle(i),
+                  /* Apply intensity as a CSS variable for animation */
+                  "--intensity": itemState.intensity,
+                } as CSSProperties
+              }
+            />
+          );
+        })}
       </div>
     </div>
   );
