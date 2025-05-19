@@ -42,21 +42,9 @@ jest.mock("@/components/NavItem", () => {
 jest.mock("next/image", () => ({
   __esModule: true,
   default: (props: any) => {
-    // Destructure all known next/image props to avoid passing them to <img>
     const { src, alt, width, height, priority, fill, quality, placeholder, style, className, ...rest } = props;
-    // Return a basic img tag, ensuring essential accessibility (alt) and dimension props are passed
     // eslint-disable-next-line @next/next/no-img-element
-    return (
-      <img
-        src={src as string}
-        alt={alt as string}
-        width={width}
-        height={height}
-        style={style}
-        className={className}
-        {...rest}
-      />
-    );
+    return <img src={src as string} alt={alt as string} width={width} height={height} style={style} className={className} {...rest} />;
   },
 }));
 
