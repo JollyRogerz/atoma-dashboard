@@ -5,7 +5,9 @@ import { getAllStacks, getAllTasks } from "@/lib/api";
 import { useToast } from "@/app/toast-provider";
 import LoadingCircle from "../LoadingCircle";
 import { useSettings } from "@/contexts/settings-context";
-import { modelNameEllipsisClass } from "@/app/page";
+import { Badge } from "@/components/ui/badge";
+import { modelNameEllipsisClass } from "@/lib/utils";
+import { readableModelName } from "@/utils/utils";
 
 const usageData = [
   {

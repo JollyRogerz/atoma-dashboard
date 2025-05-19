@@ -31,9 +31,8 @@ import {
 import { getFullnodeUrl } from "@mysten/sui/client";
 import { ArrowRight } from "lucide-react";
 import "@mysten/dapp-kit/dist/index.css";
-import { payUSDC } from "@/lib/utils";
+import { payUSDC } from "@/lib/sui-utils";
 import { useSettings } from "@/contexts/settings-context";
-import ZkLogin from "@/lib/zklogin";
 import { getSuiAddress, proofRequest, usdcPayment } from "@/lib/api";
 import { Label } from "@/components/ui/label";
 import LoadingCircle from "@/components/LoadingCircle";
@@ -89,6 +88,7 @@ export default function DashboardPage() {
     setHandlingPayment(true);
     if (settings.zkLogin.isEnabled) {
       setFundsStep("sending");
+      const { default: ZkLogin } = await import("@/lib/zklogin");
       const zkLogin = new ZkLogin();
       await zkLogin.initialize(settings, updateSettings, updateZkLoginSettings);
       zkLogin

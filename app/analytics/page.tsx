@@ -5,7 +5,7 @@ import { UsageHistory } from "@/components/analytics/usage-history";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { listApiKeys } from "@/lib/api";
-import type { Token } from "@/lib/atoma";
+import type { Token } from "@/lib/atoma-types";
 import { useToast } from "../toast-provider";
 
 const timeFrames = [

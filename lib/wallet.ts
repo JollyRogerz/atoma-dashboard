@@ -1,8 +1,7 @@
 import { WalletContextState } from "@mysten/dapp-kit";
 import { UserSettings } from "@/contexts/settings-context";
-import ZkLogin from "./zklogin";
 
-export const disconnectWallet = (
+export const disconnectWallet = async (
   wallet: WalletContextState,
   settings: UserSettings,
   updateZkLoginSettings: (newSettings: Partial<UserSettings["zkLogin"]>) => void
@@ -14,6 +13,7 @@ export const disconnectWallet = (
 
   // Handle ZkLogin disconnection if enabled
   if (settings.zkLogin.isEnabled) {
+    const { default: ZkLogin } = await import("./zklogin");
     const zkLogin = new ZkLogin();
     zkLogin.disconnect(updateZkLoginSettings);
   }
