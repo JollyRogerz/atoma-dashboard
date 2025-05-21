@@ -28,6 +28,7 @@ const colors = {
     yellow: "#713f12",
     red: "#7f1d1d",
     purple: "#581c87",
+    purpleReadable: "#C4B5FD", // New readable purple for dark mode Llama tooltips
   },
   dark: {
     blue: "#1e3a8a",
@@ -115,7 +116,12 @@ export default function BarGaugePanel({
       const displayName = modelEntry?.displayName || readableModelName(modelName);
 
       const colorKey = getColorKeyForModel(modelName, labelsArray.indexOf(label));
-      const textColor = currentTheme === "dark" ? colors.darkText[colorKey] : colors.lightText[colorKey];
+      let textColor = currentTheme === "dark" ? colors.darkText[colorKey] : colors.lightText[colorKey];
+
+      // Override for Llama in dark mode for better readability
+      if (currentTheme === "dark" && colorKey === "purple") {
+        textColor = colors.darkText.purpleReadable; // Use the new readable purple
+      }
 
       return (
         <div
