@@ -19,17 +19,16 @@ export function readableModelName(modelName: string): string {
   if (!modelName) return "";
 
   let namePart = modelName.split("/").pop() || modelName;
-  const sizeMatch = namePart.match(/(\d+[BM])/);
+  const sizeMatch = namePart.match(/(\d+[BM])/i); // case-insensitive size match
   const size = sizeMatch ? sizeMatch[0] : "";
 
-  // More robust suffix stripping order matters here from more specific to less specific
   const suffixesToRemove = [
-    /-Instruct-FP\d-dynamic$/i,
-    /-Instruct-FP\d$/i,
+    /-Instruct-FP\d+-dynamic$/i,
+    /-Instruct-FP\d+$/i,
     /-Instruct-dynamic$/i,
-    /-FP\d-dynamic$/i,
+    /-FP\d+-dynamic$/i,
     /-Instruct$/i,
-    /-FP\d$/i, // This will catch -FP8, -FP16 etc.
+    /-FP\d+$/i,
     /-dynamic$/i,
   ];
 
@@ -37,31 +36,26 @@ export function readableModelName(modelName: string): string {
     namePart = namePart.replace(suffixRegex, "");
   }
 
-  // Replace hyphens and multiple spaces
+  // Additional cleanup for cases where tokens appear in the middle of the string
+  namePart = namePart
+    .replace(/-Instruct/gi, "")
+    .replace(/-FP\d+/gi, "")
+    .replace(/-dynamic/gi, "");
+
   namePart = namePart.replace(/-/g, " ").replace(/\s+/g, " ").trim();
 
-  let finalName = namePart;
+  let baseName = namePart;
   if (size) {
-    // Remove the extracted size string from the name part to avoid duplication, then trim
-    let nameWithoutSize = namePart.replace(size, "").replace(/\s+/g, " ").trim();
-    finalName = nameWithoutSize ? `${nameWithoutSize} ${size}` : size;
+    // Remove the first occurrence of the size token (e.g. 70B, 40M) from anywhere in the string to avoid duplication
+    const sizeRemovalRegex = new RegExp(size, "i");
+    baseName = namePart.replace(sizeRemovalRegex, "").replace(/\s+/g, " ").trim();
   }
 
-  // Limit length for chart display - apply to the fully constructed name
-  if (finalName.length > 15) {
-    // If it has a size suffix, try to preserve it after truncation if possible
-    if (size && finalName.endsWith(size)) {
-      const baseNameToTruncate = finalName.substring(0, finalName.length - size.length).trim();
-      const availableLengthForBase = 15 - (size.length + 1 + 3); // +1 for space, +3 for "..."
-      if (availableLengthForBase > 0) {
-        finalName = `${baseNameToTruncate.substring(0, availableLengthForBase)}... ${size}`;
-      } else {
-        // Not enough space even for ellipsis and size, just truncate the whole thing
-        finalName = finalName.substring(0, 12) + "..."; // 12 + "..." = 15
-      }
-    } else {
-      finalName = finalName.substring(0, 12) + "..."; // 12 + "..." = 15
-    }
+  let finalName = baseName;
+  if (size && baseName) {
+    finalName = `${baseName} ${size}`;
+  } else if (size && !baseName) {
+    finalName = size;
   }
 
   return finalName;
