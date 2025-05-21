@@ -42,6 +42,7 @@ const colors = {
 function getColorKeyForModel(modelName: string, fallbackIndex: number): keyof typeof colors.lightText {
   if (modelName.includes("Qwen2")) return "blue";
   if (modelName.includes("DeepSeek")) return "green";
+  if (modelName.includes("Mistral-Nemo")) return "yellow";
   if (modelName.includes("QWQ")) return "yellow";
   if (modelName.includes("Llama")) return "purple";
   if (modelName.includes("Claude")) return "red";
