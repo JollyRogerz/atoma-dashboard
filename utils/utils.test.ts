@@ -15,19 +15,19 @@ describe("readableModelName", () => {
 
   it("should return specific readable names for known models", () => {
     expect(readableModelName("Qwen/QwQ-32B")).toBe("QwQ 32B");
-    expect(readableModelName("neuralmagic/DeepSeek-R1-Distill-Llama-70B-FP8-dynamic")).toBe("DeepSeek R1 Distil...");
+    expect(readableModelName("neuralmagic/DeepSeek-R1-Distill-Llama-70B-FP8-dynamic")).toBe("DeepSeek... 70B");
     expect(readableModelName("neuralmagic/Qwen2-72B-Instruct-FP8")).toBe("Qwen2 72B");
     expect(readableModelName("meta-llama/Llama-3.1-8B-Instruct")).toBe("Llama 3.1 8B");
     expect(readableModelName("Infermatic/Llama-3.3-70B-Instruct-FP8-Dynamic")).toBe("Llama 3.3 70B");
-    expect(readableModelName("mistralai/Mistral-Nemo-Instruct-2407")).toBe("Mistral Nemo Instr...");
-    expect(readableModelName("DeepSeek-V3-0324")).toBe("DeepSeek V3 0324");
+    expect(readableModelName("mistralai/Mistral-Nemo-Instruct-2407")).toBe("Mistral Nemo...");
+    expect(readableModelName("DeepSeek-V3-0324")).toBe("DeepSeek V3 ...");
   });
 
   it("should extract name and size for unknown formats, placing size at the end", () => {
-    expect(readableModelName("vendor/ModelName-7B-Extra")).toBe("ModelName Extra 7B");
-    expect(readableModelName("AnotherModel-13B")).toBe("AnotherModel 13B");
-    expect(readableModelName("Yet-Another-Model-40M-Instruct-FP16")).toBe("Yet Another Model ...");
-    expect(readableModelName("My-70B-Model-Name")).toBe("My Model Name 70B");
+    expect(readableModelName("vendor/ModelName-7B-Extra")).toBe("ModelName... 7B");
+    expect(readableModelName("AnotherModel-13B")).toBe("AnotherM... 13B");
+    expect(readableModelName("Yet-Another-Model-40M-Instruct-FP16")).toBe("Yet Anot... 40M");
+    expect(readableModelName("My-70B-Model-Name")).toBe("My Model... 70B");
   });
 
   it("should handle names without vendor prefix correctly", () => {
@@ -45,10 +45,10 @@ describe("readableModelName", () => {
     expect(readableModelName("some-model-name")).toBe("some model name");
   });
 
-  it("should truncate long names (after cleaning) to 18 chars + ...", () => {
-    expect(readableModelName("ThisIsAVeryLongModelNameThatExceedsTheLimit")).toBe("ThisIsAVeryLongMod...");
+  it("should truncate long names (after cleaning) to 12 chars + ... (or preserve size)", () => {
+    expect(readableModelName("ThisIsAVeryLongModelNameThatExceedsTheLimit")).toBe("ThisIsAVeryL...");
     expect(readableModelName("ThisIsAnEvenLongerModelNameToTestTheTruncation-Instruct-FP8")).toBe(
-      "ThisIsAnEvenLonger..."
+      "ThisIsAnEven..."
     );
   });
 });
@@ -104,7 +104,7 @@ describe("processModelsForCategory", () => {
         task_small_id: 5,
         task_id: "task5",
         role: 0,
-        model_name: "modelD/MultiModal",
+        model_name: "modelD/MultiModal-LongNameForTestingTruncation",
         is_deprecated: false,
         security_level: 0,
       },
@@ -115,7 +115,7 @@ describe("processModelsForCategory", () => {
         task_small_id: 6,
         task_id: "task6",
         role: 0,
-        model_name: "modelE/NoCaps",
+        model_name: "modelE/NoCaps-Deprecated",
         is_deprecated: true,
         security_level: 0,
       },
@@ -126,7 +126,7 @@ describe("processModelsForCategory", () => {
         task_small_id: 7,
         task_id: "task7",
         role: 0,
-        model_name: "modelF/ChatOnly",
+        model_name: "modelF/ChatOnly-AlsoAVeryLongNameToTestTruncationIndeed",
         is_deprecated: false,
         security_level: 0,
       },
@@ -139,8 +139,8 @@ describe("processModelsForCategory", () => {
     expect(chatModels).toEqual(
       expect.arrayContaining([
         { modelName: "ChatModel 7B", model: "modelA/ChatModel-7B" },
-        { modelName: "MultiModal", model: "modelD/MultiModal" },
-        { modelName: "ChatOnly", model: "modelF/ChatOnly" },
+        { modelName: "MultiModal L...", model: "modelD/MultiModal-LongNameForTestingTruncation" },
+        { modelName: "ChatOnly Als...", model: "modelF/ChatOnly-AlsoAVeryLongNameToTestTruncationIndeed" },
       ])
     );
     expect(chatModels.length).toBe(3);
@@ -151,7 +151,7 @@ describe("processModelsForCategory", () => {
     expect(imageModels).toEqual(
       expect.arrayContaining([
         { modelName: "ImageModel Std", model: "modelB/ImageModel-Std" },
-        { modelName: "MultiModal", model: "modelD/MultiModal" },
+        { modelName: "MultiModal L...", model: "modelD/MultiModal-LongNameForTestingTruncation" },
       ])
     );
     expect(imageModels.length).toBe(2);
@@ -162,7 +162,7 @@ describe("processModelsForCategory", () => {
     expect(embeddingModels).toEqual(
       expect.arrayContaining([
         { modelName: "ChatModel 7B", model: "modelA/ChatModel-7B" },
-        { modelName: "EmbeddingModel Large", model: "modelC/EmbeddingModel-Large" },
+        { modelName: "EmbeddingMod...", model: "modelC/EmbeddingModel-Large" },
       ])
     );
     expect(embeddingModels.length).toBe(2);
