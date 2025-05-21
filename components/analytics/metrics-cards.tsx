@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Network, Activity, Box, Cpu, Clock, ArrowUpRight } from "lucide-react";
 import React from "react";
 import { formatNumber } from "@/lib/utils";
-import { getLatency, getNodesDistribution, getStats, getSubscriptions, getTasks, type Stats } from "@/lib/api";
+import { getNodesDistribution, getStats, getSubscriptions, getTasks, type Stats } from "@/lib/api";
 
 export function MetricsCards() {
   const [metricsData, setMetricsData] = React.useState({
