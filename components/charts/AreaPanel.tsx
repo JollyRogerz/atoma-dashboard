@@ -28,7 +28,8 @@ const colors = {
     yellow: "#713f12",
     red: "#7f1d1d",
     purple: "#581c87",
-    purpleReadable: "#C4B5FD", // New readable purple for dark mode Llama tooltips
+    purpleReadable: "#A78BFA", // Adjusted readable purple
+    greenReadable: "#6EE7B7", // Adjusted readable green
   },
   dark: {
     blue: "#1e3a8a",
@@ -119,7 +120,11 @@ export default function AreaPanel({
 
               // Override for Llama in dark mode for better readability
               if (currentTheme === "dark" && colorKey === "purple") {
-                entryColor = colors.darkText.purpleReadable; // Use the new readable purple
+                entryColor = colors.darkText.purpleReadable;
+              }
+              // Override for DeepSeek in dark mode for better readability
+              if (currentTheme === "dark" && colorKey === "green") {
+                entryColor = colors.darkText.greenReadable;
               }
 
               return {
