@@ -55,7 +55,8 @@ export function readableModelName(modelName: string): string {
       const availableLengthForBase = 15 - (size.length + 1 + 3); // +1 for space, +3 for "..."
       if (availableLengthForBase > 0) {
         finalName = `${baseNameToTruncate.substring(0, availableLengthForBase)}... ${size}`;
-      } else { // Not enough space even for ellipsis and size, just truncate the whole thing
+      } else {
+        // Not enough space even for ellipsis and size, just truncate the whole thing
         finalName = finalName.substring(0, 12) + "..."; // 12 + "..." = 15
       }
     } else {
