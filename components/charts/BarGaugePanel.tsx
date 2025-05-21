@@ -31,6 +31,7 @@ const colors = {
     purpleReadable: "#A78BFA",
     greenReadable: "#4A937A",
     yellowReadable: "#92400E",
+    blueReadable: "#60A5FA",
   },
   dark: {
     blue: "#1e3a8a",
@@ -127,6 +128,8 @@ export default function BarGaugePanel({
           textColor = colors.darkText.greenReadable;
         } else if (colorKey === "yellow") {
           textColor = colors.darkText.yellowReadable;
+        } else if (colorKey === "blue") {
+          textColor = colors.darkText.blueReadable;
         }
       }
 
