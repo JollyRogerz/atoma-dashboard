@@ -28,6 +28,7 @@ const colors = {
     yellow: "#713f12",
     red: "#7f1d1d",
     purple: "#581c87",
+    purpleReadable: "#C4B5FD", // New readable purple for dark mode Llama tooltips
   },
   dark: {
     blue: "#1e3a8a",
@@ -114,9 +115,16 @@ export default function AreaPanel({
             const combinedPayload = payload?.map((entry, index) => {
               const modelName = entry.name?.toString() || "";
               const colorKey = getColorKeyForModel(modelName, index);
+              let entryColor = currentTheme === "dark" ? colors.darkText[colorKey] : colors.lightText[colorKey];
+
+              // Override for Llama in dark mode for better readability
+              if (currentTheme === "dark" && colorKey === "purple") {
+                entryColor = colors.darkText.purpleReadable; // Use the new readable purple
+              }
+
               return {
                 ...entry,
-                color: currentTheme === "dark" ? colors.darkText[colorKey] : colors.lightText[colorKey],
+                color: entryColor,
               };
             });
 
