@@ -28,8 +28,9 @@ const colors = {
     yellow: "#713f12",
     red: "#7f1d1d",
     purple: "#581c87",
-    purpleReadable: "#A78BFA", // Adjusted readable purple
-    greenReadable: "#52C69D", // Further adjusted readable green (less bright)
+    purpleReadable: "#A78BFA",
+    greenReadable: "#4A937A",
+    yellowReadable: "#92400E", // Readable yellow/brown for dark mode tooltips
   },
   dark: {
     blue: "#1e3a8a",
@@ -118,13 +119,14 @@ export default function AreaPanel({
               const colorKey = getColorKeyForModel(modelName, index);
               let entryColor = currentTheme === "dark" ? colors.darkText[colorKey] : colors.lightText[colorKey];
 
-              // Override for Llama in dark mode for better readability
-              if (currentTheme === "dark" && colorKey === "purple") {
-                entryColor = colors.darkText.purpleReadable;
-              }
-              // Override for DeepSeek in dark mode for better readability
-              if (currentTheme === "dark" && colorKey === "green") {
-                entryColor = colors.darkText.greenReadable;
+              if (currentTheme === "dark") {
+                if (colorKey === "purple") {
+                  entryColor = colors.darkText.purpleReadable;
+                } else if (colorKey === "green") {
+                  entryColor = colors.darkText.greenReadable;
+                } else if (colorKey === "yellow") {
+                  entryColor = colors.darkText.yellowReadable;
+                }
               }
 
               return {
