@@ -30,7 +30,8 @@ const colors = {
     purple: "#581c87",
     purpleReadable: "#A78BFA",
     greenReadable: "#4A937A",
-    yellowReadable: "#92400E", // Readable yellow/brown for dark mode tooltips
+    yellowReadable: "#92400E",
+    blueReadable: "#60A5FA", // Readable blue for dark mode tooltips
   },
   dark: {
     blue: "#1e3a8a",
@@ -126,6 +127,8 @@ export default function AreaPanel({
                   entryColor = colors.darkText.greenReadable;
                 } else if (colorKey === "yellow") {
                   entryColor = colors.darkText.yellowReadable;
+                } else if (colorKey === "blue") {
+                  entryColor = colors.darkText.blueReadable;
                 }
               }
 
