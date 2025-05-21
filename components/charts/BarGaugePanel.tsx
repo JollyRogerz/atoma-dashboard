@@ -133,15 +133,15 @@ export default function BarGaugePanel({
           <div className="text-xs text-muted-foreground mt-1">{modelName}</div>
           <div
             style={{
-              color: textColor,
               fontWeight: "bold",
               display: "block",
               padding: "2px 0",
               marginTop: "4px",
             }}
-          >
-            {payload[0]?.name}: {valueFormatter(Number(payload[0]?.value))}
-          </div>
+            dangerouslySetInnerHTML={{
+              __html: `<span style="color:${textColor} !important;">${payload[0]?.name}: ${valueFormatter(Number(payload[0]?.value))}</span>`,
+            }}
+          />
         </div>
       );
     },
