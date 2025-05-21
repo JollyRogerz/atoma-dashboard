@@ -47,8 +47,8 @@ export function readableModelName(modelName: string): string {
   }
 
   // Limit length for chart display
-  if (namePart.length > 20) {
-    namePart = namePart.substring(0, 18) + "...";
+  if (namePart.length > 15) {
+    namePart = namePart.substring(0, 13) + "...";
   }
 
   return namePart;
