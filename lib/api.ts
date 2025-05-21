@@ -121,16 +121,8 @@ export const listApiKeys = async () => {
   return await credentialsApi.get<Token[]>("/api_tokens");
 };
 
-export const getLatency = async () => {
-  return await credentialsApi.get<LatencyResponse[]>("/latency?hours=168");
-};
-
 export const getNodesDistribution = async () => {
   return await credentialsApi.get<{ country: string; count: number }[]>("/get_nodes_distribution");
-};
-
-export const getStatsStacks = async () => {
-  return await credentialsApi.get<StatsStack[]>("/get_stats_stacks?hours=168");
 };
 
 export const proofRequest = async (signature: string, walletAddress: string) => {
