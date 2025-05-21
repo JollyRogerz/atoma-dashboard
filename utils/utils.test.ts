@@ -8,33 +8,35 @@ import { AxiosResponse } from "axios";
 
 describe("readableModelName", () => {
   it("should return empty string for undefined or null input", () => {
-    expect(readableModelName(undefined as any)).toBe(""); // Cast as any for testing undefined
-    expect(readableModelName(null as any)).toBe(""); // Cast as any for testing null
+    expect(readableModelName(undefined as any)).toBe("");
+    expect(readableModelName(null as any)).toBe("");
     expect(readableModelName("")).toBe("");
   });
 
   it("should return specific readable names for known models", () => {
     expect(readableModelName("Qwen/QwQ-32B")).toBe("QwQ 32B");
-    expect(readableModelName("neuralmagic/DeepSeek-R1-Distill-Llama-70B-FP8-dynamic")).toBe("DeepSeek... 70B");
+    expect(readableModelName("neuralmagic/DeepSeek-R1-Distill-Llama-70B-FP8-dynamic")).toBe(
+      "DeepSeek R1 Distill Llama 70B"
+    );
     expect(readableModelName("neuralmagic/Qwen2-72B-Instruct-FP8")).toBe("Qwen2 72B");
     expect(readableModelName("meta-llama/Llama-3.1-8B-Instruct")).toBe("Llama 3.1 8B");
     expect(readableModelName("Infermatic/Llama-3.3-70B-Instruct-FP8-Dynamic")).toBe("Llama 3.3 70B");
-    expect(readableModelName("mistralai/Mistral-Nemo-Instruct-2407")).toBe("Mistral Nemo...");
-    expect(readableModelName("DeepSeek-V3-0324")).toBe("DeepSeek V3 ...");
+    expect(readableModelName("mistralai/Mistral-Nemo-Instruct-2407")).toBe("Mistral Nemo 2407");
+    expect(readableModelName("DeepSeek-V3-0324")).toBe("DeepSeek V3 0324");
   });
 
   it("should extract name and size for unknown formats, placing size at the end", () => {
-    expect(readableModelName("vendor/ModelName-7B-Extra")).toBe("ModelName... 7B");
-    expect(readableModelName("AnotherModel-13B")).toBe("AnotherM... 13B");
-    expect(readableModelName("Yet-Another-Model-40M-Instruct-FP16")).toBe("Yet Anot... 40M");
-    expect(readableModelName("My-70B-Model-Name")).toBe("My Model... 70B");
+    expect(readableModelName("vendor/ModelName-7B-Extra")).toBe("ModelName Extra 7B");
+    expect(readableModelName("AnotherModel-13B")).toBe("AnotherModel 13B");
+    expect(readableModelName("Yet-Another-Model-40M-Instruct-FP16")).toBe("Yet Another Model 40M");
+    expect(readableModelName("My-70B-Model-Name")).toBe("My Model Name 70B");
   });
 
   it("should handle names without vendor prefix correctly", () => {
     expect(readableModelName("MyModel-70B-Instruct")).toBe("MyModel 70B");
   });
 
-  it("should strip -Instruct, -FP\d, -dynamic suffixes before truncation", () => {
+  it("should strip -Instruct, -FP\d, -dynamic suffixes", () => {
     expect(readableModelName("Model-A-Instruct")).toBe("Model A");
     expect(readableModelName("Model-B-FP8")).toBe("Model B");
     expect(readableModelName("Model-C-dynamic")).toBe("Model C");
@@ -45,9 +47,16 @@ describe("readableModelName", () => {
     expect(readableModelName("some-model-name")).toBe("some model name");
   });
 
-  it("should truncate long names (after cleaning) to 12 chars + ... (or preserve size)", () => {
-    expect(readableModelName("ThisIsAVeryLongModelNameThatExceedsTheLimit")).toBe("ThisIsAVeryL...");
-    expect(readableModelName("ThisIsAnEvenLongerModelNameToTestTheTruncation-Instruct-FP8")).toBe("ThisIsAnEven...");
+  it("should handle long names without truncation", () => {
+    expect(readableModelName("ThisIsAVeryLongModelNameThatExceedsTheLimit")).toBe(
+      "ThisIsAVeryLongModelNameThatExceedsTheLimit"
+    );
+    expect(readableModelName("ThisIsAnEvenLongerModelNameToTestTheTruncation-Instruct-FP8")).toBe(
+      "ThisIsAnEvenLongerModelNameToTestTheTruncation"
+    );
+    expect(readableModelName("ShortBase-SuperExtremelyLongSizeSuffix123456789012345B")).toBe(
+      "ShortBase SuperExtremelyLongSizeSuffix 123456789012345B"
+    );
   });
 });
 
@@ -80,7 +89,7 @@ describe("processModelsForCategory", () => {
         task_small_id: 3,
         task_id: "task3",
         role: 0,
-        model_name: "modelC/EmbeddingModel-Large",
+        model_name: "modelC/EmbeddingModel-LargeWhichIsAlsoQuiteLong",
         is_deprecated: false,
         security_level: 0,
       },
@@ -102,7 +111,7 @@ describe("processModelsForCategory", () => {
         task_small_id: 5,
         task_id: "task5",
         role: 0,
-        model_name: "modelD/MultiModal-LongNameForTestingTruncation",
+        model_name: "modelD/MultiModal-LongNameForTestingTruncationAndThisIsEvenLonger",
         is_deprecated: false,
         security_level: 0,
       },
@@ -124,7 +133,7 @@ describe("processModelsForCategory", () => {
         task_small_id: 7,
         task_id: "task7",
         role: 0,
-        model_name: "modelF/ChatOnly-AlsoAVeryLongNameToTestTruncationIndeed",
+        model_name: "modelF/ChatOnly-AlsoAVeryLongNameToTestTruncationIndeedAndFurtherMore",
         is_deprecated: false,
         security_level: 0,
       },
@@ -137,8 +146,14 @@ describe("processModelsForCategory", () => {
     expect(chatModels).toEqual(
       expect.arrayContaining([
         { modelName: "ChatModel 7B", model: "modelA/ChatModel-7B" },
-        { modelName: "MultiModal L...", model: "modelD/MultiModal-LongNameForTestingTruncation" },
-        { modelName: "ChatOnly Als...", model: "modelF/ChatOnly-AlsoAVeryLongNameToTestTruncationIndeed" },
+        {
+          modelName: "MultiModal LongNameForTestingTruncationAndThisIsEvenLonger",
+          model: "modelD/MultiModal-LongNameForTestingTruncationAndThisIsEvenLonger",
+        },
+        {
+          modelName: "ChatOnly AlsoAVeryLongNameToTestTruncationIndeedAndFurtherMore",
+          model: "modelF/ChatOnly-AlsoAVeryLongNameToTestTruncationIndeedAndFurtherMore",
+        },
       ])
     );
     expect(chatModels.length).toBe(3);
@@ -149,7 +164,10 @@ describe("processModelsForCategory", () => {
     expect(imageModels).toEqual(
       expect.arrayContaining([
         { modelName: "ImageModel Std", model: "modelB/ImageModel-Std" },
-        { modelName: "MultiModal L...", model: "modelD/MultiModal-LongNameForTestingTruncation" },
+        {
+          modelName: "MultiModal LongNameForTestingTruncationAndThisIsEvenLonger",
+          model: "modelD/MultiModal-LongNameForTestingTruncationAndThisIsEvenLonger",
+        },
       ])
     );
     expect(imageModels.length).toBe(2);
@@ -160,7 +178,10 @@ describe("processModelsForCategory", () => {
     expect(embeddingModels).toEqual(
       expect.arrayContaining([
         { modelName: "ChatModel 7B", model: "modelA/ChatModel-7B" },
-        { modelName: "EmbeddingMod...", model: "modelC/EmbeddingModel-Large" },
+        {
+          modelName: "EmbeddingModel LargeWhichIsAlsoQuiteLong",
+          model: "modelC/EmbeddingModel-LargeWhichIsAlsoQuiteLong",
+        },
       ])
     );
     expect(embeddingModels.length).toBe(2);
@@ -262,12 +283,12 @@ describe("parseOutputBasedOnEndpoint", () => {
   });
 
   it("should handle missing data gracefully for chat by throwing error", () => {
-    const mockResponse = { data: {} } as AxiosResponse; // Missing choices
+    const mockResponse = { data: {} } as AxiosResponse;
     expect(() => parseOutputBasedOnEndpoint("chat", mockResponse)).toThrow();
   });
 
   it("should handle missing data gracefully for embeddings by throwing error", () => {
-    const mockResponse = { data: {} } as AxiosResponse; // Missing data.data or embedding
+    const mockResponse = { data: {} } as AxiosResponse;
     expect(() => parseOutputBasedOnEndpoint("embeddings", mockResponse)).toThrow();
   });
 });
