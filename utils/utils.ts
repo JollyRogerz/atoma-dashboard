@@ -40,18 +40,30 @@ export function readableModelName(modelName: string): string {
   // Replace hyphens and multiple spaces
   namePart = namePart.replace(/-/g, " ").replace(/\s+/g, " ").trim();
 
+  let finalName = namePart;
   if (size) {
     // Remove the extracted size string from the name part to avoid duplication, then trim
     let nameWithoutSize = namePart.replace(size, "").replace(/\s+/g, " ").trim();
-    namePart = nameWithoutSize ? `${nameWithoutSize} ${size}` : size;
+    finalName = nameWithoutSize ? `${nameWithoutSize} ${size}` : size;
   }
 
-  // Limit length for chart display
-  if (namePart.length > 15) {
-    namePart = namePart.substring(0, 13) + "...";
+  // Limit length for chart display - apply to the fully constructed name
+  if (finalName.length > 15) {
+    // If it has a size suffix, try to preserve it after truncation if possible
+    if (size && finalName.endsWith(size)) {
+      const baseNameToTruncate = finalName.substring(0, finalName.length - size.length).trim();
+      const availableLengthForBase = 15 - (size.length + 1 + 3); // +1 for space, +3 for "..."
+      if (availableLengthForBase > 0) {
+        finalName = `${baseNameToTruncate.substring(0, availableLengthForBase)}... ${size}`;
+      } else { // Not enough space even for ellipsis and size, just truncate the whole thing
+        finalName = finalName.substring(0, 12) + "..."; // 12 + "..." = 15
+      }
+    } else {
+      finalName = finalName.substring(0, 12) + "..."; // 12 + "..." = 15
+    }
   }
 
-  return namePart;
+  return finalName;
 }
 
 export function processModelsForCategory(
