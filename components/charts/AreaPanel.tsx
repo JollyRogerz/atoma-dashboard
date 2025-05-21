@@ -29,7 +29,7 @@ const colors = {
     red: "#7f1d1d",
     purple: "#581c87",
     purpleReadable: "#A78BFA", // Adjusted readable purple
-    greenReadable: "#6EE7B7", // Adjusted readable green
+    greenReadable: "#52C69D", // Further adjusted readable green (less bright)
   },
   dark: {
     blue: "#1e3a8a",
