@@ -47,9 +47,7 @@ describe("readableModelName", () => {
 
   it("should truncate long names (after cleaning) to 12 chars + ... (or preserve size)", () => {
     expect(readableModelName("ThisIsAVeryLongModelNameThatExceedsTheLimit")).toBe("ThisIsAVeryL...");
-    expect(readableModelName("ThisIsAnEvenLongerModelNameToTestTheTruncation-Instruct-FP8")).toBe(
-      "ThisIsAnEven..."
-    );
+    expect(readableModelName("ThisIsAnEvenLongerModelNameToTestTheTruncation-Instruct-FP8")).toBe("ThisIsAnEven...");
   });
 });
 
