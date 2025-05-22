@@ -8,7 +8,6 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import {
   Dialog,
   DialogClose,
-  DialogClose,
   DialogContent,
   DialogDescription,
   DialogFooter,
@@ -16,7 +15,6 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
-import { Copy, Pencil, Plus, Trash2, X } from "lucide-react";
 import { Copy, Pencil, Plus, Trash2, X } from "lucide-react";
 import Link from "next/link";
 import { useSettings } from "@/contexts/settings-context";
@@ -212,11 +210,6 @@ export function ApiKeyCard() {
               Please save your secret key in a safe place since{" "}
               <span className="font-semibold">you won&apos;t be able to view it again</span>. Keep it secure, as anyone
               with your API key can make requests on your behalf. If you do lose it, you&apos;ll need to generate a new
-              one.
-            <DialogDescription>
-              Please save your secret key in a safe place since{" "}
-              <span className="font-semibold">you won't be able to view it again</span>. Keep it secure, as anyone
-              with your API key can make requests on your behalf. If you do lose it, you'll need to generate a new
               one.
             </DialogDescription>
           </DialogHeader>
