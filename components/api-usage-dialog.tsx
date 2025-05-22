@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Copy, Check } from "lucide-react";
 import { useState, useEffect } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ModelModality, Task } from "@/lib/atoma-types";
+import { ModelModality, Task } from "@/lib/atoma";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { getTasks } from "@/lib/api";
 import { simplifyModelName } from "@/lib/utils";
@@ -39,7 +39,9 @@ function processModelsForModality(
   const uniqueModels = new Map<string, { modelName: string; model: string }>();
 
   models
-    .filter(([task, capabilities]) => Array.isArray(capabilities) && capabilities.includes(modality))
+    .filter(([task, capabilities]) => 
+        Array.isArray(capabilities) && capabilities.includes(modality)
+    )
     .forEach(([task]) => {
       const modelId = task.model_name || "";
       if (modelId && !uniqueModels.has(modelId)) {
@@ -230,13 +232,13 @@ export function ApiUsageDialog({
   useEffect(() => {
     if (isOpen && showModelSelector) {
       setIsLoadingModels(true);
-      setSelectedModel("");
+      setSelectedModel('');
       setAvailableModels([]);
       getTasks()
         .then(response => {
           const models = processModelsForModality(response.data, modality);
           setAvailableModels(models);
-
+          
           if (models.length > 0) {
             const initialModelIsValid = models.some(m => m.model === initialModelName);
             if (initialModelIsValid) {
@@ -245,20 +247,20 @@ export function ApiUsageDialog({
               setSelectedModel(models[0].model);
             }
           } else {
-            setSelectedModel("");
+             setSelectedModel(''); 
           }
         })
         .catch(error => {
           console.error("Error fetching models for dialog:", error);
-          setSelectedModel("");
-          setAvailableModels([]);
+           setSelectedModel('');
+           setAvailableModels([]);
         })
         .finally(() => {
           setIsLoadingModels(false);
         });
     } else if (!showModelSelector) {
-      setSelectedModel(initialModelName);
-      setIsLoadingModels(false);
+        setSelectedModel(initialModelName);
+        setIsLoadingModels(false);
     }
   }, [isOpen, showModelSelector, modality, initialModelName]);
 
@@ -334,9 +336,9 @@ export function ApiUsageDialog({
     }
   };
 
-  const curlCode = `curl ${isConfidential ? "--request POST \\" : ""} \\
+  const curlCode = `curl ${isConfidential ? '--request POST \\' : ''} \\
   --url https://api.atoma.network${getEndpoint()} \\
-  --header 'Authorization: Bearer ${isConfidential ? "<token>" : "$YOUR_API_KEY"}' \\
+  --header 'Authorization: Bearer ${isConfidential ? '<token>' : '$YOUR_API_KEY'}' \\
   --header 'Content-Type: application/json' \\
   --data '${getRequestBody()}'`;
 
@@ -356,9 +358,9 @@ export function ApiUsageDialog({
     setTimeout(() => setCopied(false), 2000);
   };
 
-  const displayModelName = showModelSelector
-    ? availableModels.find(m => m.model === selectedModel)?.modelName || selectedModel
-    : simplifyModelName(initialModelName);
+  const displayModelName = showModelSelector 
+      ? (availableModels.find(m => m.model === selectedModel)?.modelName || selectedModel)
+      : simplifyModelName(initialModelName);
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -375,7 +377,7 @@ export function ApiUsageDialog({
                     <SelectValue placeholder="Select model" />
                   </SelectTrigger>
                   <SelectContent>
-                    {availableModels.map(model => (
+                    {availableModels.map((model) => (
                       <SelectItem key={model.model} value={model.model}>
                         {model.modelName}
                       </SelectItem>
@@ -383,27 +385,25 @@ export function ApiUsageDialog({
                   </SelectContent>
                 </Select>
               ) : (
-                <div className="text-sm text-muted-foreground pl-2">No models available for this modality.</div>
+                  <div className="text-sm text-muted-foreground pl-2">No models available for this modality.</div>
               )}
             </div>
           ) : (
-            <DialogTitle className="whitespace-nowrap flex-grow">API Usage for {displayModelName}</DialogTitle>
+             <DialogTitle className="whitespace-nowrap flex-grow">
+                API Usage for {displayModelName}
+            </DialogTitle>
           )}
           {!isLoadingModels && selectedModel && (
-            <Button
-              size="icon"
-              variant="ghost"
-              className="h-8 w-8 hover:bg-muted-foreground/20 flex-shrink-0"
-              onClick={copyToClipboard}
-              title="Copy code snippet"
-            >
-              {copied ? (
-                <Check className="h-4 w-4 text-green-500" />
-              ) : (
-                <Copy className="h-4 w-4 text-muted-foreground" />
-              )}
-              <span className="sr-only">Copy code</span>
-            </Button>
+              <Button
+                size="icon"
+                variant="ghost"
+                className="h-8 w-8 hover:bg-muted-foreground/20 flex-shrink-0"
+                onClick={copyToClipboard}
+                title="Copy code snippet"
+              >
+                {copied ? <Check className="h-4 w-4 text-green-500" /> : <Copy className="h-4 w-4 text-muted-foreground" />}
+                <span className="sr-only">Copy code</span>
+              </Button>
           )}
         </DialogHeader>
 
