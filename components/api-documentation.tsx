@@ -3,12 +3,16 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { ApiUsageDialog } from "@/components/api-usage-dialog";
-import { ModelModality } from "@/lib/atoma-types";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Label } from "@/components/ui/label";
-import { TaskResponse, fetchAvailableModels, readableModelName } from "@/utils/utils";
+import { ModelModality } from "@/lib/atoma";
+import { Lock, Unlock } from "lucide-react";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 const endpoints = [
   {
@@ -139,16 +143,25 @@ export function ApiDocumentation() {
       <CardHeader className="pb-2">
         <div className="flex items-center justify-between">
           <CardTitle className="text-primary">Quick Reference</CardTitle>
-          <div className="flex items-center space-x-2">
-            <Checkbox
-              id="confidential-quickref"
-              checked={isConfidentialMode}
-              onCheckedChange={() => setIsConfidentialMode(!isConfidentialMode)}
-            />
-            <Label htmlFor="confidential-quickref" className="text-sm font-medium leading-none cursor-pointer">
-              Confidential
-            </Label>
-          </div>
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button
+                  onClick={() => setIsConfidentialMode(!isConfidentialMode)}
+                  className="p-1 rounded-full hover:bg-muted transition-colors"
+                >
+                  {isConfidentialMode ? (
+                    <Lock className="h-4 w-4 text-orange-500" />
+                  ) : (
+                    <Unlock className="h-4 w-4 text-muted-foreground" />
+                  )}
+                </button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Toggle confidential compute endpoints</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
         </div>
       </CardHeader>
       <CardContent className="p-0">
@@ -210,7 +223,7 @@ export function ApiDocumentation() {
       <ApiUsageDialog
         isOpen={isApiDialogOpen}
         onClose={() => setIsApiDialogOpen(false)}
-        modelName={""}
+        modelName={''}
         modality={
           endpoints.find(endpoint => endpoint.name === selectedEndpoint)?.modality || ModelModality.ChatCompletions
         }
