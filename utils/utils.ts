@@ -15,27 +15,50 @@ export async function fetchAvailableModels(): Promise<TaskResponse> {
   }
 }
 
-export function readableModelName(modelName: string) {
-  switch (modelName) {
-    case "Qwen/QwQ-32B":
-      return "QWQ 32B";
-    case "neuralmagic/DeepSeek-R1-Distill-Llama-70B-FP8-dynamic":
-      return "DeepSeek: R1 Distill Llama 70B";
-    case "neuralmagic/Qwen2-72B-Instruct-FP8":
-      return "Qwen2 72B";
-    case "meta-llama/Llama-3.1-8B-Instruct":
-      return "Llama3.1 8B";
-    case "Infermatic/Llama-3.3-70B-Instruct-FP8-Dynamic":
-      return "Llama3.3 70B";
-    case "mistralai/Mistral-Nemo-Instruct-2407":
-      return "Mistral Nemo";
-    default:
-      const match = modelName?.match(/\/([^\/]*\d+B)/);
-      if (match) {
-        return match[1].replace(/-/g, " ");
-      }
-      return modelName;
+export function readableModelName(modelName: string): string {
+  if (!modelName) return "";
+
+  let namePart = modelName.split("/").pop() || modelName;
+  const sizeMatch = namePart.match(/(\d+[BM])/i); // case-insensitive size match
+  const size = sizeMatch ? sizeMatch[0] : "";
+
+  const suffixesToRemove = [
+    /-Instruct-FP\d+-dynamic$/i,
+    /-Instruct-FP\d+$/i,
+    /-Instruct-dynamic$/i,
+    /-FP\d+-dynamic$/i,
+    /-Instruct$/i,
+    /-FP\d+$/i,
+    /-dynamic$/i,
+  ];
+
+  for (const suffixRegex of suffixesToRemove) {
+    namePart = namePart.replace(suffixRegex, "");
   }
+
+  // Additional cleanup for cases where tokens appear in the middle of the string
+  namePart = namePart
+    .replace(/-Instruct/gi, "")
+    .replace(/-FP\d+/gi, "")
+    .replace(/-dynamic/gi, "");
+
+  namePart = namePart.replace(/-/g, " ").replace(/\s+/g, " ").trim();
+
+  let baseName = namePart;
+  if (size) {
+    // Remove the first occurrence of the size token (e.g. 70B, 40M) from anywhere in the string to avoid duplication
+    const sizeRemovalRegex = new RegExp(size, "i");
+    baseName = namePart.replace(sizeRemovalRegex, "").replace(/\s+/g, " ").trim();
+  }
+
+  let finalName = baseName;
+  if (size && baseName) {
+    finalName = `${baseName} ${size}`;
+  } else if (size && !baseName) {
+    finalName = size;
+  }
+
+  return finalName;
 }
 
 export function processModelsForCategory(
