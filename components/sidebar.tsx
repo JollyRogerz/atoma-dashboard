@@ -63,10 +63,6 @@ export function Sidebar() {
         className={cn(
           "fixed inset-y-0 z-20 flex flex-col bg-background dark:bg-darkMode border-r border-border transition-all duration-300 ease-in-out lg:static",
           "-left-full lg:left-0"
-          "fixed inset-y-0 z-20 flex flex-col bg-background dark:bg-darkMode border-r border-border transition-all duration-300 ease-in-out lg:static",
-          "-left-full lg:left-0"
-          "fixed inset-y-0 z-20 flex flex-col bg-background dark:bg-darkMode border-r border-border transition-all duration-300 ease-in-out lg:static",
-          "-left-full lg:left-0"
         )}
       >
         {/* Minimal content for server rendering */}
@@ -93,8 +89,6 @@ export function Sidebar() {
       <>
         <button
           className="lg:hidden fixed top-4 left-4 z-50 p-2 bg-background dark:bg-darkMode rounded-md"
-          className="lg:hidden fixed top-4 left-4 z-50 p-2 bg-background dark:bg-darkMode rounded-md"
-          className="lg:hidden fixed top-4 left-4 z-50 p-2 bg-background dark:bg-darkMode rounded-md"
           onClick={() => setIsMobileOpen(!isMobileOpen)}
           aria-label="Toggle sidebar"
         >
@@ -104,8 +98,6 @@ export function Sidebar() {
           className={cn(
             "fixed inset-y-0 z-10 flex flex-col bg-background dark:bg-darkMode border-r border-border transition-[width] duration-300 ease-in-out lg:relative",
             isCollapsed ? "w-[56px]" : "w-60",
-            isMobileOpen ? "left-0" : "-left-full lg:left-0"
-            isMobileOpen ? "left-0" : "-left-full lg:left-0"
             isMobileOpen ? "left-0" : "-left-full lg:left-0"
           )}
           style={{ height: "100vh", minHeight: "100vh" }}
@@ -207,8 +199,6 @@ export function Sidebar() {
               )}
             </nav>
           </div>
-          <div className="p-2 dark:bg-darkMode">
-          <div className="p-2 dark:bg-darkMode">
           <div className="p-2 dark:bg-darkMode">
             <nav className="space-y-1">
               {bottomNavigation.map((item: any) => (
