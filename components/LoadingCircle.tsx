@@ -14,6 +14,7 @@ const LoadingCircle = ({
 
   return (
     <div
+      role="status"
       className={`${sizeClasses[size]} rounded-full border-4 border-primary ${
         isSpinning ? "animate-spin border-t-transparent" : ""
       }`}
