@@ -15,11 +15,9 @@ import { disconnectWallet } from "@/lib/wallet";
 export default function SettingsPage() {
   const [userProfile, setUserProfile] = useState({ email: "" });
   const { settings, updateSettings, updateZkLoginSettings } = useSettings();
-  const { settings, updateSettings, updateZkLoginSettings } = useSettings();
   const [loggedIn, setLoggedIn] = useState(false);
   const [address, setAddress] = useState<string>();
   const account = useCurrentAccount();
-  const wallet = useCurrentWallet();
   const wallet = useCurrentWallet();
 
   useEffect(() => {
@@ -71,11 +69,6 @@ export default function SettingsPage() {
               <div className="space-y-2">
                 <Label htmlFor="wallet">Wallet Address</Label>
                 <Input id="wallet" value={address || ""} readOnly className="bg-muted" disabled={!loggedIn} />
-                {address && (
-                  <Button variant="destructive" className="mt-4" onClick={handleDisconnectWallet}>
-                    Disconnect Wallet
-                  </Button>
-                )}
                 {address && (
                   <Button variant="destructive" className="mt-4" onClick={handleDisconnectWallet}>
                     Disconnect Wallet
