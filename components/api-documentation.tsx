@@ -5,14 +5,10 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useState, useEffect } from "react";
 import { ApiUsageDialog } from "@/components/api-usage-dialog";
-import { ModelModality } from "@/lib/atoma";
-import { Lock, Unlock } from "lucide-react";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
+import { ModelModality } from "@/lib/atoma-types";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Label } from "@/components/ui/label";
+import { TaskResponse, fetchAvailableModels, readableModelName } from "@/utils/utils";
 
 const endpoints = [
   {
@@ -214,7 +210,7 @@ export function ApiDocumentation() {
       <ApiUsageDialog
         isOpen={isApiDialogOpen}
         onClose={() => setIsApiDialogOpen(false)}
-        modelName={''}
+        modelName={""}
         modality={
           endpoints.find(endpoint => endpoint.name === selectedEndpoint)?.modality || ModelModality.ChatCompletions
         }

@@ -24,8 +24,10 @@ const Callback = () => {
         );
         router.push("/");
       }
-    });
-  }, [router]);
+    };
+
+    processAuth();
+  }, [router, settings, updateSettings, updateZkLoginSettings]);
 
   return null;
 };

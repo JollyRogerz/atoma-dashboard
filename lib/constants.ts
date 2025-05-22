@@ -46,4 +46,4 @@ export const chartDefaults = {
     fontWeight: "bold",
     color: "var(--card-foreground)",
   },
-} as const; 
+} as const;

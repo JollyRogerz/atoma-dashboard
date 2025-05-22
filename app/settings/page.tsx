@@ -24,7 +24,7 @@ export default function SettingsPage() {
     (async () => {
       setLoggedIn(settings.loggedIn);
       if (settings.loggedIn) {
-        let profile = await getUserProfile();
+        const profile = await getUserProfile();
         setUserProfile(profile.data);
         if (settings.zkLogin.isEnabled) {
           setAddress(settings.zkLogin.address);
@@ -37,7 +37,7 @@ export default function SettingsPage() {
         setUserProfile({ email: "" });
       }
     })();
-  }, [settings.loggedIn, account]);
+  }, [settings.loggedIn, account, settings.zkLogin.address, settings.zkLogin.isEnabled]);
 
   const handleDisconnectWallet = async () => {
     await disconnectWallet(wallet, settings, updateZkLoginSettings);
@@ -70,11 +70,7 @@ export default function SettingsPage() {
                 <Label htmlFor="wallet">Wallet Address</Label>
                 <Input id="wallet" value={address || ""} readOnly className="bg-muted" disabled={!loggedIn} />
                 {address && (
-                  <Button 
-                    variant="destructive" 
-                    className="mt-4"
-                    onClick={handleDisconnectWallet}
-                  >
+                  <Button variant="destructive" className="mt-4" onClick={handleDisconnectWallet}>
                     Disconnect Wallet
                   </Button>
                 )}

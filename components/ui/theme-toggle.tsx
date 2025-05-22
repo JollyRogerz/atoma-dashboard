@@ -20,7 +20,7 @@ export function ThemeToggle() {
   React.useEffect(() => {
     setMounted(true);
     setIsToggled(theme === "dark");
-  }, []);
+  }, [theme]);
 
   if (!mounted) {
     return <div className="h-8 w-14 rounded-full bg-muted animate-pulse" />;

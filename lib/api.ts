@@ -64,7 +64,7 @@ atomaApi.interceptors.response.use(response => response, handleError);
 const addAuthInterceptor = (apiClient: any) => {
   apiClient.interceptors.request.use(
     (config: any) => {
-      let userSettings = sessionStorage.getItem("userSettings");
+      const userSettings = sessionStorage.getItem("userSettings");
       if (!userSettings) {
         console.warn("User settings not found in local storage");
       } else {
