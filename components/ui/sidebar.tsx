@@ -150,7 +150,6 @@ const SidebarProvider = React.forwardRef<
   );
 });
 
-
 SidebarProvider.displayName = "SidebarProvider";
 
 /**
