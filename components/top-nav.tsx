@@ -70,8 +70,6 @@ export function TopNav() {
   return (
     <header className="sticky top-0 z-30 border-b bg-background dark:bg-darkMode">
       <div className="flex h-16 items-center justify-end pl-1 pr-4 w-full">
-    <header className="sticky top-0 z-30 border-b bg-background dark:bg-darkMode">
-      <div className="flex h-16 items-center justify-end pl-1 pr-4 w-full">
         <div className="flex items-center gap-4">
           {!loggedIn ? (
             <div className="flex items-center gap-2">
