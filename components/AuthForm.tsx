@@ -14,7 +14,6 @@ import { toast } from "sonner"; // Assuming sonner is used elsewhere, or replace
 import { useSettings } from "@/contexts/settings-context";
 import { loginUser, registerUser } from "@/lib/api";
 
-
 interface AuthFormProps {
   type: "login" | "register";
   onClose: () => void;
@@ -34,7 +33,6 @@ const AuthForm: React.FC<AuthFormProps> = ({ type, onClose }) => {
     setLoginType(type);
   }, [type]);
 
-
   // Add useEffect to sync loginType if type prop changes
   useEffect(() => {
     setLoginType(type);
@@ -52,19 +50,9 @@ const AuthForm: React.FC<AuthFormProps> = ({ type, onClose }) => {
       }
       updateSettings({ accessToken: response.data.access_token, loggedIn: true });
       toast("Success", { description: "Login successful!" }); // Use sonner toast
-      toast("Success", { description: "Login successful!" }); // Use sonner toast
       onClose();
     } catch (error: any) {
       console.error("Error during authentication:", error);
-      let detail = "An unexpected error occurred.";
-      if (error.response) {
-        if (error.response.status === 401) {
-          detail = "Bad request. Please check your credentials.";
-        } else if (error.response.status === 409) {
-          detail = "Account already exists";
-        }
-      }
-      toast("Error", { description: detail }); // Use sonner toast
       let detail = "An unexpected error occurred.";
       if (error.response) {
         if (error.response.status === 401) {
@@ -145,7 +133,6 @@ const AuthForm: React.FC<AuthFormProps> = ({ type, onClose }) => {
           </Button>
         </form>
 
-
         {process.env.NEXT_PUBLIC_ENABLE_ZK_LOGIN_GOOGLE === "true" && (
           <Button
             variant="outline"
@@ -174,14 +161,12 @@ const AuthForm: React.FC<AuthFormProps> = ({ type, onClose }) => {
               <path fill="none" d="M0 0h48v48H0z" />
             </svg>
             Continue with Google
-            Continue with Google
           </Button>
         )}
       </div>
 
       <div className="text-center text-sm text-muted-foreground mt-6">
         {loginType === "login" ? (
-          <>
           <>
             Don&apos;t have an account?{" "}
             <Button
@@ -192,10 +177,7 @@ const AuthForm: React.FC<AuthFormProps> = ({ type, onClose }) => {
               Sign up
             </Button>
           </>
-            </Button>
-          </>
         ) : (
-          <>
           <>
             Already have an account?{" "}
             <Button
@@ -206,11 +188,8 @@ const AuthForm: React.FC<AuthFormProps> = ({ type, onClose }) => {
               Sign in
             </Button>
           </>
-            </Button>
-          </>
         )}
       </div>
-    </>
     </>
   );
 };
