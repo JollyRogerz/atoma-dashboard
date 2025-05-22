@@ -253,6 +253,7 @@ export default function NetworkStatusPage() {
       }[]
     | null
   >(null);
+  const [models, setModels] = useState<string[]>([]);
   const { theme } = useTheme();
 
   useEffect(() => {
@@ -302,7 +303,6 @@ export default function NetworkStatusPage() {
       }
     })();
   }, []);
-
 
   return (
     <div className="relative min-h-screen w-full">
