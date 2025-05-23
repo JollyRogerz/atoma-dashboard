@@ -1,8 +1,8 @@
-import { WalletContextState } from "@mysten/dapp-kit";
+// Using 'any' for wallet context because the exact type is not exported by the current @mysten/dapp-kit version
 import { UserSettings } from "@/contexts/settings-context";
 
 export const disconnectWallet = async (
-  wallet: WalletContextState,
+  wallet: any,
   settings: UserSettings,
   updateZkLoginSettings: (newSettings: Partial<UserSettings["zkLogin"]>) => void
 ) => {
