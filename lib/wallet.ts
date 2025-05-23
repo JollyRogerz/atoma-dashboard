@@ -1,11 +1,9 @@
-// @mysten/dapp-kit no longer exports WalletContextState; use type inference or any.
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-type WalletContextState = any;
+// Using 'any' for wallet context because the exact type is not exported by the current @mysten/dapp-kit version
 import { UserSettings } from "@/contexts/settings-context";
 import ZkLogin from "./zklogin";
 
-export const disconnectWallet = (
-  wallet: WalletContextState,
+export const disconnectWallet = async (
+  wallet: any,
   settings: UserSettings,
   updateZkLoginSettings: (newSettings: Partial<UserSettings["zkLogin"]>) => void
 ) => {
