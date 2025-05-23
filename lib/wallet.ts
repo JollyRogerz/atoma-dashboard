@@ -1,4 +1,4 @@
-// @mysten/dapp-kit no longer exports WalletContextState; use 'any' as placeholder
+// @mysten/dapp-kit no longer exports WalletContextState; use 'any' placeholder
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type WalletContextState = any;
 import { UserSettings } from "@/contexts/settings-context";
@@ -21,9 +21,13 @@ export const disconnectWallet = (
   }
 
   // Clear wallet connection from localStorage to prevent auto-reconnect
-  localStorage.removeItem('suiWallet');
-  localStorage.removeItem('sui:preferredWallet');
+  if (typeof localStorage !== "undefined") {
+    localStorage.removeItem("suiWallet");
+    localStorage.removeItem("sui:preferredWallet");
+  }
 
   // Force reload to ensure wallet state is completely reset
-  window.location.reload();
+  if (typeof window !== "undefined") {
+    window.location.reload();
+  }
 }; 
