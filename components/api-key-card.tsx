@@ -75,7 +75,7 @@ export function ApiKeyCard() {
 
   useEffect(() => {
     updateApiTokens();
-  }, [newGeneratedKey]);
+  }, [newGeneratedKey, updateApiTokens]);
 
   const handleRevokeKey = async (key: number) => {
     try {
@@ -175,10 +175,11 @@ export function ApiKeyCard() {
           <DialogHeader>
             <DialogTitle>Create new secret key</DialogTitle>
             <DialogDescription>
-              Give your key a name to remember it by. This is only for your reference—it won't affect how the key works.
+              Give your key a name to remember it by. This is only for your reference—it won&apos;t affect how the key
+              works.
             </DialogDescription>
           </DialogHeader>
-          
+
           <div className="pt-4">
             <Label htmlFor="name">Name</Label>
             <Input
@@ -190,16 +191,10 @@ export function ApiKeyCard() {
           </div>
 
           <DialogFooter className="pt-6">
-            <Button 
-              variant="outline" 
-              onClick={() => setIsCreateDialogOpen(false)}
-            >
+            <Button variant="outline" onClick={() => setIsCreateDialogOpen(false)}>
               Cancel
             </Button>
-            <Button 
-              onClick={handleCreateKey} 
-              disabled={!newKeyName}
-            >
+            <Button onClick={handleCreateKey} disabled={!newKeyName}>
               Create secret key
             </Button>
           </DialogFooter>
@@ -213,19 +208,15 @@ export function ApiKeyCard() {
             <DialogTitle>Save your key</DialogTitle>
             <DialogDescription>
               Please save your secret key in a safe place since{" "}
-              <span className="font-semibold">you won't be able to view it again</span>. Keep it secure, as anyone
-              with your API key can make requests on your behalf. If you do lose it, you'll need to generate a new
+              <span className="font-semibold">you won&apos;t be able to view it again</span>. Keep it secure, as anyone
+              with your API key can make requests on your behalf. If you do lose it, you&apos;ll need to generate a new
               one.
             </DialogDescription>
           </DialogHeader>
           <div className="relative pt-4">
             <div className="rounded-md border bg-muted p-4 font-mono text-sm flex items-center justify-between">
               <span>{newGeneratedKey}</span>
-              <Button 
-                size="sm" 
-                onClick={copyToClipboard} 
-                className="ml-2"
-              >
+              <Button size="sm" onClick={copyToClipboard} className="ml-2">
                 {copied ? (
                   "Copied"
                 ) : (
@@ -237,29 +228,30 @@ export function ApiKeyCard() {
               </Button>
             </div>
           </div>
-           <DialogFooter className="pt-6">
-              <Button onClick={() => setIsSaveKeyDialogOpen(false)}>Done</Button> 
-           </DialogFooter>
+          <DialogFooter className="pt-6">
+            <Button onClick={() => setIsSaveKeyDialogOpen(false)}>Done</Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
-      <Dialog open={!!selectedToRevokeToken} onOpenChange={isOpen => {
-        if (!isOpen) setSelectedToRevokeToken(null);
-      }}>
+      <Dialog
+        open={!!selectedToRevokeToken}
+        onOpenChange={isOpen => {
+          if (!isOpen) setSelectedToRevokeToken(null);
+        }}
+      >
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Revoke API Key</DialogTitle>
             <DialogDescription>
-              Are you sure you want to revoke this <span className="font-semibold">{selectedToRevokeToken?.name}</span> API key?
+              Are you sure you want to revoke this <span className="font-semibold">{selectedToRevokeToken?.name}</span>{" "}
+              API key?
             </DialogDescription>
           </DialogHeader>
           <DialogFooter className="pt-6">
-            <Button 
-              variant="outline" 
-              onClick={() => setSelectedToRevokeToken(null)}
-            >
+            <Button variant="outline" onClick={() => setSelectedToRevokeToken(null)}>
               Cancel
             </Button>
-            <Button 
+            <Button
               onClick={() => {
                 handleRevokeKey(selectedToRevokeToken!.id);
                 setSelectedToRevokeToken(null);
