@@ -44,26 +44,6 @@ jobs:
           NEXT_PUBLIC_ENABLE_ZK_LOGIN_GOOGLE: "true"
         run: yarn build # Changed from npm run build
 
-      - name: List files for debugging
-        run: |
-          echo "Current directory: $(pwd)"
-          echo "Listing all files and directories:"
-          ls -R
-          echo "Checking for out directory specifically:"
-          if [ -d "out" ]; then
-            echo "out directory exists. Contents:"
-            ls -R out
-          else
-            echo "out directory DOES NOT EXIST."
-          fi
-          echo "Checking for .next directory specifically:"
-          if [ -d ".next" ]; then
-            echo ".next directory exists. Contents:"
-            ls -R .next
-          else
-            echo ".next directory DOES NOT EXIST."
-          fi
-
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
