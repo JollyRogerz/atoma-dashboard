@@ -5,12 +5,12 @@ import { Slot } from "@radix-ui/react-slot";
 import { VariantProps, cva } from "class-variance-authority";
 import { PanelLeft } from "lucide-react";
 
-import { useIsMobile } from "@/hooks/use-mobile";
+import { useMobile } from "@/hooks/use-mobile";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
-import { Sheet, SheetContent } from "@/components/ui/sheet";
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
@@ -29,7 +29,7 @@ type SidebarContext = {
   setOpen: (open: boolean) => void; // Function to set open state
   openMobile: boolean; // Whether the sidebar is open on mobile
   setOpenMobile: (open: boolean) => void; // Function to set mobile open state
-  isMobile: boolean; // Whether the current device is mobile
+  isMobile: boolean | null; // Updated type to boolean | null
   toggleSidebar: () => void; // Toggle sidebar open/closed based on device
 };
 
@@ -50,7 +50,7 @@ function useSidebar() {
 
 /**
  * SidebarProvider - Provides sidebar state and functionality to child components
- * 
+ *
  * Props:
  * - defaultOpen: Whether sidebar is open by default
  * - open: Controlled open state
@@ -66,7 +66,7 @@ const SidebarProvider = React.forwardRef<
   }
 >(({ defaultOpen = true, open: openProp, onOpenChange: setOpenProp, className, style, children, ...props }, ref) => {
   // Check if current device is mobile
-  const isMobile = useIsMobile();
+  const isMobile = useMobile();
   // State for mobile sidebar visibility
   const [openMobile, setOpenMobile] = React.useState(false);
 
@@ -74,7 +74,7 @@ const SidebarProvider = React.forwardRef<
   const [_open, _setOpen] = React.useState(defaultOpen);
   // Use controlled prop if provided, otherwise use internal state
   const open = openProp ?? _open;
-  
+
   // Function to update sidebar open state and persist to cookie
   const setOpen = React.useCallback(
     (value: boolean | ((value: boolean) => boolean)) => {
@@ -154,7 +154,7 @@ SidebarProvider.displayName = "SidebarProvider";
 
 /**
  * Sidebar - Main sidebar component that adapts to device and configuration
- * 
+ *
  * Props:
  * - side: Which side of the screen to display on
  * - variant: Visual style variant
@@ -256,13 +256,9 @@ Sidebar.displayName = "Sidebar";
  * - SidebarContent: Main scrollable content area
  * - SidebarGroup components: For grouping related items
  * - SidebarMenu components: For navigation menus and items
- * 
+ *
  * The current implementation is simplified but fully functional for basic sidebar needs.
  * The above components can be restored if needed for more advanced UI requirements.
  */
 
-export {
-  Sidebar,
-  SidebarProvider,
-  useSidebar,
-};
+export { Sidebar, SidebarProvider, useSidebar };

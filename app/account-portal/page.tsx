@@ -31,9 +31,8 @@ import {
 import { getFullnodeUrl } from "@mysten/sui/client";
 import { ArrowRight } from "lucide-react";
 import "@mysten/dapp-kit/dist/index.css";
-import { payUSDC } from "@/lib/utils";
+import { payUSDC } from "@/lib/sui-utils";
 import { useSettings } from "@/contexts/settings-context";
-import ZkLogin from "@/lib/zklogin";
 import { getSuiAddress, proofRequest, usdcPayment } from "@/lib/api";
 import { Label } from "@/components/ui/label";
 import LoadingCircle from "@/components/LoadingCircle";
@@ -68,7 +67,7 @@ export default function DashboardPage() {
       const suiAddress = await getSuiAddress();
       setWalletConfirmed(suiAddress.data != null && suiAddress.data == account?.address);
     })();
-  }, [account]);
+  }, [account, settings.loggedIn]);
 
   const handleAddFunds = () => {
     setShowAddFunds(true);
@@ -89,6 +88,7 @@ export default function DashboardPage() {
     setHandlingPayment(true);
     if (settings.zkLogin.isEnabled) {
       setFundsStep("sending");
+      const { default: ZkLogin } = await import("@/lib/zklogin");
       const zkLogin = new ZkLogin();
       await zkLogin.initialize(settings, updateSettings, updateZkLoginSettings);
       zkLogin
@@ -132,7 +132,6 @@ export default function DashboardPage() {
       let res = await payUSDC(amount * 1000000, suiClient as any, signAndExecuteTransaction, account);
       const txDigest = (res as { digest: string }).digest;
       res = await usdcPayment(txDigest);
-      setShowAddFunds(true);
       updateState({ refreshBalance: true });
       setFundsStep("result");
     } catch (error) {
@@ -284,8 +283,12 @@ export default function DashboardPage() {
       <Dialog
         open={showAddFunds}
         onOpenChange={show => {
-          setShowAddFunds(show);
-          setFundsStep("choose");
+          if (!show) {
+            setShowAddFunds(false);
+          } else {
+            setShowAddFunds(true);
+            setFundsStep("choose");
+          }
         }}
       >
         <DialogContent>

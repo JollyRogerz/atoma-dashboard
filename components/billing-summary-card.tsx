@@ -22,33 +22,33 @@ export function BillingSummaryCard() {
     const now = new Date();
     const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
     const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59, 999);
-    
+
     setBillingPeriod({
       start: startOfMonth.toLocaleDateString(),
       end: endOfMonth.toLocaleDateString(),
     });
-    
+
     if (!settings.loggedIn) {
       setTotalTokens(0);
       setTotalApiCalls(0);
       return;
     }
-    
+
     (async () => {
       const stacks = await getAllStacks();
       setTotalTokens(
         stacks.data.reduce((sum, [stack, timestamp]) => {
-          new Date(timestamp) >= startOfMonth && new Date(timestamp) <= endOfMonth
-            ? (sum += stack.already_computed_units)
-            : sum;
+          if (new Date(timestamp) >= startOfMonth && new Date(timestamp) <= endOfMonth) {
+            sum += stack.already_computed_units;
+          }
           return sum;
         }, 0)
       );
       setTotalApiCalls(
         stacks.data.reduce((sum, [stack, timestamp]) => {
-          new Date(timestamp) >= startOfMonth && new Date(timestamp) <= endOfMonth
-            ? (sum += stack.num_total_messages)
-            : sum;
+          if (new Date(timestamp) >= startOfMonth && new Date(timestamp) <= endOfMonth) {
+            sum += stack.num_total_messages;
+          }
           return sum;
         }, 0)
       );
