@@ -1,4 +1,4 @@
-// @mysten/dapp-kit no longer exports WalletContextState; use 'any' placeholder
+// @mysten/dapp-kit no longer exports WalletContextState; use type inference or any.
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type WalletContextState = any;
 import { UserSettings } from "@/contexts/settings-context";
@@ -10,7 +10,7 @@ export const disconnectWallet = (
   updateZkLoginSettings: (newSettings: Partial<UserSettings["zkLogin"]>) => void
 ) => {
   // Disconnect the wallet if connected
-  if (wallet?.currentWallet?.disconnect) {
+  if (wallet.currentWallet?.disconnect) {
     wallet.currentWallet.disconnect();
   }
 
@@ -21,13 +21,9 @@ export const disconnectWallet = (
   }
 
   // Clear wallet connection from localStorage to prevent auto-reconnect
-  if (typeof localStorage !== "undefined") {
-    localStorage.removeItem("suiWallet");
-    localStorage.removeItem("sui:preferredWallet");
-  }
+  localStorage.removeItem('suiWallet');
+  localStorage.removeItem('sui:preferredWallet');
 
   // Force reload to ensure wallet state is completely reset
-  if (typeof window !== "undefined") {
-    window.location.reload();
-  }
+  window.location.reload();
 }; 
