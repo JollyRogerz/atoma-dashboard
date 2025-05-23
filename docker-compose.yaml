@@ -30,8 +30,6 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    ports:
-      - 3000:3000
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.atoma-dashboard.rule=Host(`atomacloud.com`)"
@@ -40,7 +38,7 @@ services:
       - "com.centurylinklabs.watchtower.enable=true"
     deploy:
       mode: replicated
-      replicas: ${DASHBOARD_REPLICAS:-1}
+      replicas: ${DASHBOARD_REPLICAS:-3}
     restart: always
 
 volumes:
