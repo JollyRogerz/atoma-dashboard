@@ -15,7 +15,7 @@ export function CreditBalanceCard({ handleAddFunds }: { handleAddFunds: () => vo
   const { settings } = useSettings();
   const { state, updateState } = useAppState();
 
-  const updateBalance = useCallback(async () => {
+  const updateBalance = async () => {
     if (state.refreshBalance) {
       updateState({ refreshBalance: false });
     }
