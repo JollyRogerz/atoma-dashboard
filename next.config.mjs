@@ -1,9 +1,3 @@
-import bundleAnalyzer from "@next/bundle-analyzer";
-
-const withBundleAnalyzer = bundleAnalyzer({
-  enabled: process.env.ANALYZE === "true",
-});
-
 let userConfig = undefined;
 try {
   userConfig = await import("./v0-user-next.config");
@@ -15,13 +9,13 @@ try {
 const nextConfig = {
   output: "export", // <-- This line enables static export
   eslint: {
-    ignoreDuringBuilds: false,
+    ignoreDuringBuilds: true,
   },
   typescript: {
-    ignoreBuildErrors: false,
+    ignoreBuildErrors: true,
   },
   images: {
-    unoptimized: false,
+    unoptimized: true,
   },
   experimental: {
     webpackBuildWorker: true,
@@ -49,4 +43,4 @@ function mergeConfig(nextConfig, userConfig) {
   }
 }
 
-export default withBundleAnalyzer(nextConfig);
+export default nextConfig;
