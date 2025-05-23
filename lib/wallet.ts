@@ -1,19 +1,21 @@
-// Using 'any' for wallet context because the exact type is not exported by the current @mysten/dapp-kit version
+// @mysten/dapp-kit no longer exports WalletContextState; use 'any' as placeholder
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type WalletContextState = any;
 import { UserSettings } from "@/contexts/settings-context";
+import ZkLogin from "./zklogin";
 
-export const disconnectWallet = async (
-  wallet: any,
+export const disconnectWallet = (
+  wallet: WalletContextState,
   settings: UserSettings,
   updateZkLoginSettings: (newSettings: Partial<UserSettings["zkLogin"]>) => void
 ) => {
   // Disconnect the wallet if connected
-  if (wallet.currentWallet?.disconnect) {
+  if (wallet?.currentWallet?.disconnect) {
     wallet.currentWallet.disconnect();
   }
 
   // Handle ZkLogin disconnection if enabled
   if (settings.zkLogin.isEnabled) {
-    const { default: ZkLogin } = await import("./zklogin");
     const zkLogin = new ZkLogin();
     zkLogin.disconnect(updateZkLoginSettings);
   }
