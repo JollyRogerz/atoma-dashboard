@@ -21,101 +21,25 @@ import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import * as TooltipPrimitive from "@radix-ui/react-tooltip";
 import { useSettings } from "@/contexts/settings-context";
+import React from "react";
+import NavItem from "@/components/NavItem";
 
 const navigation = [
   { name: "Network Status", href: "/", icon: Network },
   { name: "Account Portal", href: "/account-portal", icon: LayoutDashboard },
   { name: "Models", href: "/models", icon: Box },
   { name: "Playground", href: "/playground", icon: PlayCircle },
-  // { name: "Analytics", href: "/analytics", icon: TrendingUp },
-  { name: "Docs", href: "https://docs.atoma.network/cloud-api-reference/get-started", icon: FileText },
   { name: "Settings", href: "/settings", icon: Settings },
+  { name: "Guide", href: "/guide", icon: GraduationCap },
+  { name: "Docs", href: "https://docs.atoma.network/cloud-api-reference/get-started", icon: FileText },
   {
     name: "Help",
     href: "https://docs.google.com/forms/d/e/1FAIpQLSeE-AV0oEfo6YGtzo0Ts_vvnm8Crtf1kVhdBtANulH11c0OTA/viewform",
     icon: HelpCircle,
   },
-  { name: "Guide", href: "/guide", icon: GraduationCap },
 ];
 
-// Remove or empty the bottomNavigation array since we moved its items
 const bottomNavigation: any = [];
-
-interface NavItemProps {
-  item: {
-    name: string;
-    href: string;
-    icon: React.ComponentType<{ className?: string }>;
-  };
-  isBottom?: boolean;
-  isCollapsed: boolean;
-  mounted: boolean;
-}
-
-const NavItem = ({ item, isBottom = false, isCollapsed, mounted }: NavItemProps) => {
-  const pathname = usePathname();
-  
-  const content = (
-    <>
-      <item.icon className={cn("h-5 w-5", !isCollapsed && "mr-3")} />
-      {!isCollapsed && <span>{item.name}</span>}
-    </>
-  );
-
-  const linkContent = item.href.startsWith("http") ? (
-    <a
-      href={item.href}
-      target="_blank"
-      rel="noopener noreferrer"
-      className={cn(
-        "flex items-center rounded-md px-[34px] py-3 text-base font-medium sidebar-item",
-        pathname === item.href
-          ? "bg-secondary dark:bg-[#27272a] text-secondary-foreground"
-          : "text-muted-foreground hover:bg-secondary/80 hover:dark:bg-[#27272a] hover:text-secondary-foreground",
-        isCollapsed && "justify-center px-3"
-      )}
-    >
-      {content}
-    </a>
-  ) : (
-    <Link
-      href={item.href}
-      className={cn(
-        "flex items-center rounded-md px-[34px] py-3 text-base font-medium sidebar-item",
-        pathname === item.href
-          ? "bg-secondary dark:bg-[#27272a] text-secondary-foreground"
-          : "text-muted-foreground hover:bg-secondary/80 hover:dark:bg-[#27272a] hover:text-secondary-foreground",
-        isCollapsed && "justify-center px-3"
-      )}
-    >
-      {content}
-    </Link>
-  );
-  
-  if (!isCollapsed) {
-    return linkContent;
-  }
-
-  return (
-    <TooltipPrimitive.Provider delayDuration={0}>
-      <TooltipPrimitive.Root>
-        <TooltipPrimitive.Trigger asChild>
-          {linkContent}
-        </TooltipPrimitive.Trigger>
-        <TooltipPrimitive.Portal>
-          <TooltipPrimitive.Content
-            side="right"
-            sideOffset={10}
-            className="z-[99999] rounded-md bg-popover px-3 py-1.5 text-sm text-popover-foreground animate-in fade-in-0 zoom-in-95 shadow-md"
-          >
-            {item.name}
-            <TooltipPrimitive.Arrow className="fill-popover" />
-          </TooltipPrimitive.Content>
-        </TooltipPrimitive.Portal>
-      </TooltipPrimitive.Root>
-    </TooltipPrimitive.Provider>
-  );
-};
 
 export function Sidebar() {
   const pathname = usePathname();
@@ -128,7 +52,6 @@ export function Sidebar() {
     setMounted(true);
   }, []);
 
-  // Only render the full component after client-side hydration
   if (!mounted) {
     return (
       <div
@@ -137,7 +60,6 @@ export function Sidebar() {
           "-left-full lg:left-0"
         )}
       >
-        {/* Minimal content for server rendering */}
         <div className="border-b border-border dark:bg-darkMode">
           <div className="flex h-16 items-center gap-2 px-4 dark:bg-darkMode">
             <div className="flex items-center font-semibold">
@@ -167,14 +89,11 @@ export function Sidebar() {
             isCollapsed ? "w-[56px]" : "w-60",
             isMobileOpen ? "left-0" : "-left-full lg:left-0"
           )}
-          style={{ height: '100vh', minHeight: '100vh' }}
+          style={{ height: "100vh", minHeight: "100vh" }}
         >
           <div className="border-b border-border dark:bg-darkMode">
             <div
-              className={cn(
-                "flex h-16 items-center justify-between dark:bg-darkMode",
-                isCollapsed && "justify-center"
-              )}
+              className={cn("flex h-16 items-center justify-between dark:bg-darkMode", isCollapsed && "justify-center")}
             >
               {!isCollapsed && (
                 <div className="flex items-center w-full">
@@ -213,12 +132,7 @@ export function Sidebar() {
                 </div>
               )}
               {isCollapsed && (
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="px-0 h-8 w-8"
-                  onClick={() => setIsCollapsed(!isCollapsed)}
-                >
+                <Button variant="ghost" size="sm" className="px-0 h-8 w-8" onClick={() => setIsCollapsed(!isCollapsed)}>
                   <ChevronLeft
                     className={cn(
                       "h-6 w-6 transition-transform duration-200 ease-out text-[#635c70] dark:text-[#8f8f98] hover:text-secondary-foreground dark:hover:text-secondary-foreground",
@@ -232,11 +146,12 @@ export function Sidebar() {
           </div>
           <div className="flex-1 overflow-auto dark:bg-darkMode">
             <nav className="flex-1 space-y-2 px-2 py-4 dark:text-[#8f8f98]">
-              {navigation.map(item => (
-                (item.name !== "Settings" || settings.loggedIn) && (
-                  <NavItem key={item.name} item={item} isCollapsed={isCollapsed} mounted={mounted} />
-                )
-              ))}
+              {navigation.map(
+                item =>
+                  (item.name !== "Settings" || settings.loggedIn) && (
+                    <NavItem key={item.name} item={item} isCollapsed={isCollapsed} mounted={mounted} />
+                  )
+              )}
             </nav>
           </div>
           <div className="p-2 dark:bg-darkMode">

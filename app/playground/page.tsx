@@ -1,7 +1,6 @@
 "use client";
 
 import type React from "react";
-
 import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -25,7 +24,7 @@ import LoadingCircle from "../../components/LoadingCircle";
 import { useSettings } from "../../contexts/settings-context";
 import ReactMarkdown from "react-markdown";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { ModelModality } from "@/lib/atoma";
+import { ModelModality } from "@/lib/atoma-types";
 
 export type ModelCategories = "chat" | "embeddings" | "images";
 
@@ -91,8 +90,6 @@ export default function PlaygroundPage() {
         setModelError(null);
         const models = await fetchAvailableModels();
         setAvailableModels(models);
-
-        // Set initial selected model
         const processedModels = processModelsForCategory(models, "chat");
         if (processedModels.length > 0) {
           setSelectedModel(processedModels[0].model);
@@ -104,18 +101,22 @@ export default function PlaygroundPage() {
         setIsLoadingModels(false);
       }
     };
-
     loadModels();
   }, []);
 
-  // Auto-scroll messages container only, with containment
   useEffect(() => {
-    // Instead of using scrollIntoView (which can scroll the whole page),
-    // scroll only the direct parent container
-    const messagesContainer = chatEndRef.current?.parentElement;
-    if (messagesContainer && chatEndRef.current) {
-      messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    const savedMessages = localStorage.getItem("playgroundMessages");
+    if (savedMessages) {
+      setMessages(JSON.parse(savedMessages));
     }
+  }, []);
+
+  useEffect(() => {
+    localStorage.setItem("playgroundMessages", JSON.stringify(messages));
+  }, [messages]);
+
+  useEffect(() => {
+    chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, streamingResponse]);
 
   const endpoints = {
@@ -127,102 +128,62 @@ export default function PlaygroundPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!message.trim()) return;
-
     const userMessage = message.trim();
     setMessage("");
     setStreamingResponse("");
     setIsStreaming(false);
     abortControllerRef.current = new AbortController();
-
     setMessages(prev => [...prev, { role: "user", content: userMessage }]);
 
     try {
       setIsLoading(true);
       setIsStreaming(true);
-
-      const response = await fetch(`${config.ATOMA_API_URL}${endpoints.chat}`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${parameters.apiKey}`,
-        },
-        body: JSON.stringify({
-          ...RenderRequestBodyBasedOnEndPoint("chat", selectedModel, userMessage, parameters, messages),
-          stream: true,
-        }),
-        signal: abortControllerRef.current.signal,
-      });
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      const reader = response.body?.getReader();
-      if (!reader) throw new Error("No reader available");
-
-      const decoder = new TextDecoder();
-      let fullResponse = "";
-
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
-
-        const chunk = decoder.decode(value);
-        const lines = chunk.split("\n").filter((line: string) => line.trim() !== "");
-
-        for (const line of lines) {
-          if (abortControllerRef.current?.signal.aborted) {
-            break;
-          }
-
-          if (line.startsWith("data: ")) {
-            const data = line.slice(6);
-            if (data === "[DONE]") {
-              break;
-            }
-            try {
-              const parsed = JSON.parse(data);
-              if (parsed.choices[0].delta.content) {
-                const content = parsed.choices[0].delta.content;
-                fullResponse += content;
-                setStreamingResponse(fullResponse);
-              }
-            } catch (e) {
-              console.error("Error parsing chunk:", e);
-            }
-          }
+      const response = await axios.post(
+        `${config.ATOMA_API_URL}${endpoints.chat}`,
+        RenderRequestBodyBasedOnEndPoint("chat", selectedModel, userMessage, parameters, messages),
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${parameters.apiKey}`,
+          },
+          signal: abortControllerRef.current.signal,
         }
-      }
-
-      setMessages(prev => [...prev, { role: "assistant", content: fullResponse }]);
+      );
+      const assistantResponse = parseOutputBasedOnEndpoint("chat", response);
+      setMessages(prev => [...prev, { role: "assistant", content: assistantResponse }]);
       setStreamingResponse("");
       setIsStreaming(false);
-    } catch (error) {
-      if (error instanceof Error && error.name === "AbortError") {
-        // Handle cancellation - preserve the partial response
-        const currentResponse = streamingResponse;
-        if (currentResponse) {
-          setMessages(prev => [...prev, { role: "assistant", content: currentResponse }]);
-        }
-        setIsStreaming(false);
-        setStreamingResponse("");
-      } else {
-        console.log(error);
-        const currentResponse = streamingResponse;
-        if (currentResponse) {
-          setMessages(prev => [...prev, { role: "assistant", content: currentResponse }]);
-        }
-
-        const errorMessage =
-          error instanceof Error
-            ? error.message.includes("401")
+    } catch (error: unknown) {
+      let finalErrorMessage = "An unexpected error occurred.";
+      if (axios.isAxiosError(error)) {
+        if (error.name === "CanceledError") {
+          const partialResponse = streamingResponse;
+          if (partialResponse) {
+            setMessages(prev => [...prev, { role: "assistant", content: partialResponse }]);
+          }
+          finalErrorMessage = "Stream cancelled";
+        } else if (error.response) {
+          finalErrorMessage =
+            error.response.status === 401
               ? "There was a problem with your api key"
-              : error.message
-            : "An unexpected error occurred.";
-
-        setMessages(prev => [...prev, { role: "assistant", content: errorMessage }]);
-        setStreamingResponse("");
+              : error.response?.data?.error?.message || "Failed to query.";
+        } else {
+          finalErrorMessage = error.message || "Failed to query.";
+        }
+      } else if (error instanceof Error) {
+        finalErrorMessage = error.message;
       }
+      const errorName = error instanceof Error ? error.name : undefined;
+      if (streamingResponse && errorName !== "CanceledError") {
+        setMessages(prev => [
+          ...prev,
+          { role: "assistant", content: streamingResponse + `\n\nError: ${finalErrorMessage}` },
+        ]);
+      } else if (errorName !== "CanceledError") {
+        setMessages(prev => [...prev, { role: "assistant", content: finalErrorMessage }]);
+      }
+      setStreamingResponse("");
+      setIsStreaming(false);
     } finally {
       setIsLoading(false);
       abortControllerRef.current = null;
@@ -235,26 +196,23 @@ export default function PlaygroundPage() {
 
   const handleStopStreaming = () => {
     if (abortControllerRef.current) {
-      const currentResponse = streamingResponse;
       abortControllerRef.current.abort();
-      if (currentResponse) {
-        setMessages(prev => [...prev, { role: "assistant", content: currentResponse }]);
-      }
       setIsStreaming(false);
-      setStreamingResponse("");
     }
   };
 
   const currentModels = processModelsForCategory(availableModels, "chat");
-  if (isLoadingModels)
+  if (isLoadingModels) {
     return (
       <div className="w-full h-[80dvh] flex justify-center items-center">
         <LoadingCircle size="md" isSpinning={true} />{" "}
       </div>
     );
+  }
 
   const clearChat = () => {
     setMessages([]);
+    localStorage.removeItem("playgroundMessages");
   };
 
   return (
@@ -262,31 +220,22 @@ export default function PlaygroundPage() {
       <div className="h-[calc(100vh-64px)] overflow-hidden">
         <div className="h-full p-4 grid grid-cols-[1fr,400px] gap-4">
           <Card className="flex flex-col overflow-hidden bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-            {/* Header Section */}
             <div className="p-4">
               <div className="flex w-full items-center justify-between p-2">
-                {/* Model Selection */}
-                <div className="flex items-center gap-2 flex-1">
-                  {modelError ? (
-                    <div className="text-red-500">{modelError}</div>
-                  ) : (
-                    <div className="flex items-center">
-                      <Select value={selectedModel} onValueChange={setSelectedModel}>
-                        <SelectTrigger className="w-[180px]">
-                          <SelectValue placeholder="Select a model" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {currentModels.map(model => (
-                            <SelectItem key={model.model} value={model.model}>
-                              {readableModelName(model.model)}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                  )}
+                <div className="flex items-center">
+                  <Select value={selectedModel} onValueChange={setSelectedModel}>
+                    <SelectTrigger className="w-[180px]">
+                      <SelectValue placeholder="Select a model" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {currentModels.map(model => (
+                        <SelectItem key={model.model} value={model.model}>
+                          {readableModelName(model.model)}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
-
                 <div>
                   <Button variant="outline" onClick={() => setIsApiDialogOpen(true)}>
                     API
@@ -296,7 +245,6 @@ export default function PlaygroundPage() {
               <Separator className="mt-4" />
             </div>
 
-            {/* Chat Section */}
             <div className="flex-1 flex flex-col overflow-hidden">
               <div className="flex-1 overflow-y-auto p-4 space-y-4">
                 {messages.length === 0 && !isLoading && (

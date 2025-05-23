@@ -12,10 +12,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import {
-  Dialog,
-  DialogContent,
-} from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Avatar } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
@@ -24,8 +21,7 @@ import { getUserProfile } from "@/lib/api";
 import { useAppState } from "@/contexts/app-state";
 import { useCurrentWallet, useDisconnectWallet } from "@mysten/dapp-kit";
 import { ConnectModal } from "@mysten/dapp-kit";
-import ZkLogin from "@/lib/zklogin";
-import { LoginRegisterButton } from "./login-register-button";
+import { disconnectWallet } from "@/lib/wallet";
 
 export function TopNav() {
   const pathname = usePathname();
@@ -36,7 +32,8 @@ export function TopNav() {
   const [authType, setAuthType] = useState("login");
   const [username, setUsername] = useState("user");
   const { connectionStatus } = useCurrentWallet();
-  const { mutate: disconnect } = useDisconnectWallet();
+  const { mutate: disconnectDappKit } = useDisconnectWallet();
+  const wallet = useCurrentWallet();
 
   const handleAuth = (type: string) => {
     setAuthType(type);
@@ -47,12 +44,9 @@ export function TopNav() {
     updateState({ showLogin: false });
   };
 
-  const handleDisconnect = () => {
-    disconnect();
-    if (settings.zkLogin.isEnabled) {
-      const zkLogin = new ZkLogin();
-      zkLogin.disconnect(updateZkLoginSettings);
-    }
+  const handleDisconnect = async () => {
+    disconnectDappKit();
+    await disconnectWallet(wallet, settings, updateZkLoginSettings);
   };
 
   useEffect(() => {
@@ -86,8 +80,8 @@ export function TopNav() {
               >
                 Sign in
               </Button>
-              <Button 
-                onClick={() => handleAuth("register")} 
+              <Button
+                onClick={() => handleAuth("register")}
                 className="w-24 rounded-lg bg-[#1C1C1C] hover:bg-[#E97451] text-white dark:bg-white dark:text-[#1C1C1C] dark:hover:bg-[#E97451] dark:hover:text-white transition-all duration-200"
               >
                 Register
@@ -104,7 +98,7 @@ export function TopNav() {
                   </Avatar>
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent className="w-56" align="end" forceMount>
+              <DropdownMenuContent className="w-56" align="end" sideOffset={5} alignOffset={0}>
                 <DropdownMenuLabel className="font-normal">
                   <div className="flex flex-col space-y-1">
                     <p className="text-sm font-medium leading-none">{username}</p>
@@ -121,9 +115,7 @@ export function TopNav() {
                   </div>
                 </DropdownMenuItem>
                 {(connectionStatus === "connected" || settings.zkLogin.isEnabled) && (
-                  <DropdownMenuItem onClick={handleDisconnect}>
-                    Disconnect Wallet
-                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={handleDisconnect}>Disconnect Wallet</DropdownMenuItem>
                 )}
                 <DropdownMenuItem
                   onClick={() => {
@@ -145,8 +137,11 @@ export function TopNav() {
           )}
         </div>
       </div>
-      <Dialog open={showAuthForm} onOpenChange={(open) => !open && closeAuthForm()}>
+      <Dialog open={showAuthForm} onOpenChange={open => !open && closeAuthForm()}>
         <DialogContent className="sm:max-w-[450px]">
+          <DialogHeader>
+            <DialogTitle>{authType === "login" ? "Sign In" : "Create Account"}</DialogTitle>
+          </DialogHeader>
           <AuthForm type={authType as "login" | "register"} onClose={closeAuthForm} />
         </DialogContent>
       </Dialog>

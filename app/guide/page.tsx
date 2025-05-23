@@ -72,7 +72,7 @@ export default function DevnetGuide() {
         <div>
           <h3 className="font-medium mb-1">Step 5:</h3>
           <p className="text-muted-foreground">
-            Begin using Atoma! Simply plug into our API or SDK's (Visit Docs for more information) and you are ready to
+            Begin using Atoma! Simply plug into our API or SDKs (Visit Docs for more information) and you are ready to
             go!
           </p>
         </div>

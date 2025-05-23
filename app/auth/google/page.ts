@@ -4,25 +4,30 @@ import { useEffect } from "react";
 // import { useRouter } from "next/router";
 import { useParams, usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useSettings } from "@/contexts/settings-context";
-import ZkLogin from "@/lib/zklogin";
 
 const Callback = () => {
   const router = useRouter();
   const { settings, updateSettings, updateZkLoginSettings } = useSettings();
   useEffect(() => {
-    new URLSearchParams(window.location.hash.slice(1)).forEach((value, key) => {
-      if (key === "id_token") {
-        updateZkLoginSettings({ idToken: value });
+    const processAuth = async () => {
+      const params = new URLSearchParams(window.location.hash.slice(1));
+      const idToken = params.get("id_token");
+
+      if (idToken) {
+        updateZkLoginSettings({ idToken: idToken });
+        const { default: ZkLogin } = await import("@/lib/zklogin");
         const zkLogin = new ZkLogin();
-        zkLogin.initialize(
-          { ...settings, zkLogin: { ...settings.zkLogin, idToken: value } },
+        await zkLogin.initialize(
+          { ...settings, zkLogin: { ...settings.zkLogin, idToken: idToken } },
           updateSettings,
           updateZkLoginSettings
         );
         router.push("/");
       }
-    });
-  }, [router]);
+    };
+
+    processAuth();
+  }, [router, settings, updateSettings, updateZkLoginSettings]);
 
   return null;
 };
